@@ -6,5 +6,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/accounts/', include('accounts.urls')),
     path('api/stocks/', include('stocks.urls')),
+    path('api/leagues/', include('leagues.urls')),
     path('', TemplateView.as_view(template_name="index.html")),
 ]

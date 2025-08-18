@@ -36,77 +36,206 @@ class PortfolioView(ListAPIView):
     pagination_class = PortfolioPagination
 
     def get_queryset(self):
-        return Portfolio.objects.filter(user=self.request.user).order_by('-id')
+        league_id = self.request.query_params.get('league_id')
+        qs = Portfolio.objects.filter(user=self.request.user)
+        if league_id:
+            qs = qs.filter(league_id=league_id)  # ✅ 리그 스코프
+        return qs.order_by('-id')
 
+
+from django.shortcuts import get_object_or_404
+from leagues.models import League
+from .models import Stock, Portfolio, Transaction, LeagueBalance
+
+from decimal import Decimal
+from django.shortcuts import get_object_or_404
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST
+from leagues.models import League, LeagueMembership
+from .models import Stock, Portfolio, Transaction
+
+from decimal import Decimal
+from django.db import transaction
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST
+
+from leagues.models import League, LeagueMembership
+# from .models import Stock, Portfolio, Transaction  # 너의 기존 import 유지
+
+from decimal import Decimal
+from django.db import transaction
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST
+# 필요 모델 임포트
+# from .models import Stock, Portfolio, Transaction, LeagueMembership, League
+
+from decimal import Decimal
+from django.db import transaction
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST
+
+from decimal import Decimal
+from django.db import transaction as db_tx
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST
 
 class BuySellStockView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @db_tx.atomic
     def post(self, request):
-        symbol = request.data.get('symbol')
-        shares = int(request.data.get('shares'))
-        is_buy = request.data.get('is_buy', True)
+        # URL 이름으로 buy/sell 자동 판별
+        url_name = getattr(getattr(request, "resolver_match", None), "url_name", None)
+        if url_name == 'buy':
+            is_buy = True
+        elif url_name == 'sell':
+            is_buy = False
+        else:
+            is_buy = bool(request.data.get('is_buy', True))
 
+        # 입력 파라미터
+        symbol = request.data.get('symbol')
+        try:
+            shares_int = int(request.data.get('shares'))
+        except (TypeError, ValueError):
+            shares_int = 0
+
+        if not symbol or shares_int <= 0:
+            return Response({'error': 'symbol/shares가 유효하지 않습니다.'}, status=HTTP_400_BAD_REQUEST)
+
+        # 현재 참여 중인 리그
+        membership = (
+            LeagueMembership.objects
+            .select_related('league')
+            .filter(user=request.user, is_active=True)
+            .order_by('-joined_at')
+            .first()
+        )
+        if not membership:
+            return Response({'error': '먼저 리그에 참여하세요.'}, status=HTTP_400_BAD_REQUEST)
+
+        league = membership.league
+
+        # 리그 상태 검사
+        if hasattr(League, 'Status'):
+            if league.status != League.Status.ACTIVE:
+                return Response({'error': '리그가 아직 시작되지 않아 거래할 수 없습니다.'}, status=HTTP_400_BAD_REQUEST)
+        else:
+            if getattr(league, 'status', None) != "ACTIVE":
+                return Response({'error': '리그가 아직 시작되지 않아 거래할 수 없습니다.'}, status=HTTP_400_BAD_REQUEST)
+
+        # 최신 시세 스냅샷
         try:
             stock = Stock.objects.filter(symbol=symbol).latest('date')
         except Stock.DoesNotExist:
             return Response({'error': 'Stock not found'}, status=HTTP_400_BAD_REQUEST)
 
-        price = stock.close
-        user = request.user
+        price = Decimal(str(stock.close))
+        qty = Decimal(str(shares_int))
 
+        # ===== Portfolio는 symbol(CharField) 기준 =====
         if is_buy:
-            total_cost = price * shares
-            if user.balance < total_cost:
-                return Response({'error': 'Insufficient balance'}, status=HTTP_400_BAD_REQUEST)
+            total_cost = price * qty
+            if Decimal(str(membership.cash_balance)) < total_cost:
+                return Response({'error': 'Insufficient league cash'}, status=HTTP_400_BAD_REQUEST)
 
-            # ⚠️ 종목 중복 방지: symbol 기준으로 기존 포트폴리오 조회
-            portfolio_qs = Portfolio.objects.filter(user=user, stock__symbol=symbol)
-            if portfolio_qs.exists():
-                portfolio = portfolio_qs.first()
-                total_shares = portfolio.shares + shares
-                portfolio.average_price = (
-                    (portfolio.average_price * portfolio.shares + price * shares) / total_shares
+            # 보유 조회
+            try:
+                pf = Portfolio.objects.select_for_update().get(
+                    user=request.user, league=league, symbol=symbol
                 )
-                portfolio.shares = total_shares
-                portfolio.save()
-            else:
-                # 새로 생성 시 최신 날짜의 stock 객체 사용
-                portfolio = Portfolio.objects.create(
-                    user=user,
+                # 과거 레코드에 stock FK가 비어 있는 경우 보정
+                if getattr(pf, "stock_id", None) is None:
+                    pf.stock = stock
+                    pf.save(update_fields=["stock"])
+            except Portfolio.DoesNotExist:
+                # 새로 만들 때 FK 지정
+                pf = Portfolio(
+                    user=request.user,
+                    league=league,
+                    symbol=symbol,
                     stock=stock,
-                    shares=shares,
-                    average_price=price
+                    shares=Decimal('0'),
+                    average_price=Decimal('0'),
                 )
 
-            user.balance -= total_cost
-            user.save()
+            old_shares = Decimal(str(pf.shares))
+            new_total_shares = old_shares + qty
+
+            if new_total_shares <= 0:
+                pf.shares = Decimal('0')
+                pf.average_price = Decimal('0')
+            else:
+                old_cost = old_shares * Decimal(str(pf.average_price))
+                pf.average_price = (old_cost + (qty * price)) / new_total_shares
+                pf.shares = new_total_shares
+
+            pf.save()
+
+            # 리그 현금 차감
+            membership.cash_balance = Decimal(str(membership.cash_balance)) - total_cost
+            membership.save(update_fields=['cash_balance'])
 
         else:
+            # SELL: 보유 확인
             try:
-                portfolio = Portfolio.objects.get(user=user, stock__symbol=symbol)
+                pf = Portfolio.objects.select_for_update().get(
+                    user=request.user, league=league, symbol=symbol
+                )
+                # 비어있는 FK 보정
+                if getattr(pf, "stock_id", None) is None:
+                    pf.stock = stock
+                    pf.save(update_fields=["stock"])
             except Portfolio.DoesNotExist:
-                return Response({'error': 'You do not own this stock'}, status=HTTP_400_BAD_REQUEST)
+                return Response({'error': 'You do not own this stock in this league'}, status=HTTP_400_BAD_REQUEST)
 
-            if portfolio.shares < shares:
+            if Decimal(str(pf.shares)) < qty:
                 return Response({'error': 'Not enough shares'}, status=HTTP_400_BAD_REQUEST)
 
-            total_revenue = price * shares
-            portfolio.shares -= shares
-            if portfolio.shares == 0:
-                portfolio.delete()
+            total_revenue = price * qty
+            remaining = Decimal(str(pf.shares)) - qty
+
+            if remaining <= 0:
+                pf.delete()
             else:
-                portfolio.save()
+                pf.shares = remaining
+                pf.save(update_fields=['shares'])
 
-            user.balance += total_revenue
-            user.save()
+            # 리그 현금 증가
+            membership.cash_balance = Decimal(str(membership.cash_balance)) + total_revenue
+            membership.save(update_fields=['cash_balance'])
 
-        # 거래 내역은 정확한 날짜의 stock 객체로 저장
+        # ===== 거래 내역 저장 (Transaction 스키마에 맞춤) =====
         Transaction.objects.create(
-            user=user, stock=stock, shares=shares, price=price, is_buy=is_buy
+            user=request.user,
+            league=league,
+            symbol=symbol,                         # ✅ CharField
+            side='BUY' if is_buy else 'SELL',      # ✅ choices: BUY/SELL
+            shares=qty,                            # ✅ Decimal
+            price=price                            # ✅ Decimal
         )
 
-        return Response({'status': 'Transaction completed'})
+        return Response({
+            'status': 'Transaction completed',
+            'league_id': league.id,
+            'action': 'buy' if is_buy else 'sell',
+            'symbol': symbol,
+            'shares': str(qty),
+            'price': str(price),
+            'cash_balance': str(membership.cash_balance),
+        })
+
+
 
 
 class TransactionHistoryView(generics.ListAPIView):
@@ -239,14 +368,33 @@ def get_stock_detail(request, symbol):
 
 class TradeHistoryPagination(PageNumberPagination):
     page_size = 10  # 페이지당 항목 수, 프론트 Infinite Scroll에서 유동적으로 조정 가능
-
+    page_size_query_param = 'page_size'
 class TradeHistoryView(ListAPIView):
     serializer_class = TransactionSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = TradeHistoryPagination
 
+    # ... class TradeHistoryListView(generics.ListAPIView):
     def get_queryset(self):
-        return Transaction.objects.filter(user=self.request.user).order_by('-timestamp')
+        user = self.request.user
+        qs = Transaction.objects.filter(user=user)
+
+        # 선택: 리그별 상세 보기일 때 league_id로 제한
+        league_id = self.request.query_params.get('league_id')
+        if league_id:
+            qs = qs.filter(league_id=league_id)
+
+        # 선택: 날짜 필터가 있다면 created_at 기준으로
+        date_from = self.request.query_params.get('date_from')
+        if date_from:
+            qs = qs.filter(created_at__date__gte=date_from)
+
+        date_to = self.request.query_params.get('date_to')
+        if date_to:
+            qs = qs.filter(created_at__date__lte=date_to)
+
+        return qs.order_by('-created_at', '-id')  # ← '-timestamp' → '-created_at'
+
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -260,56 +408,110 @@ User = get_user_model()
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def season_users(request):
-    print('ok')
-    season = get_current_season()
-    if not season:
-        print('nooo')
-        return Response({"error": "활성화된 시즌이 없습니다."}, status=404)
+    # 1) 내 활성 리그 (DRAFT/ACTIVE) 확정
+    my_mem = (
+        LeagueMembership.objects
+        .select_related('league')
+        .filter(
+            user=request.user,
+            is_active=True,
+            league__status__in=[League.Status.DRAFT, League.Status.ACTIVE],
+        )
+        .order_by('-joined_at')
+        .first()
+    )
+    if not my_mem:
+        return Response({"error": "먼저 리그에 참여하세요."}, status=400)
 
-    portfolios = SeasonPortfolio.objects.filter(season=season)
+    my_league_id = my_mem.league_id
+
+    # 2) 같은 리그의 활성 멤버 사용자 id 집합
+    member_user_ids = list(
+        LeagueMembership.objects.filter(
+            league_id=my_league_id,
+            is_active=True,
+        ).values_list('user_id', flat=True)
+    )
+
+    # 3) 각 멤버의 리그 기준 포트폴리오 수익률 계산
     result = []
-
-    for p in portfolios:
-        profit = p.cash + p.total_stock_value - p.starting_cash
-        return_pct = round((profit / p.starting_cash) * 100, 2)
+    for uid in member_user_ids:
+        data, err, code = get_user_portfolio_data(user_id=int(uid), league_id=int(my_league_id))
+        if err:
+            # 멤버십은 있는데 보유내역/현금이 없을 수도 있으니, 필요시 0%로 보정해도 됨
+            # 여기서는 에러 항목은 건너뜀
+            continue
         result.append({
-            "user_id": p.user.id,
-            "username": p.user.username,
-            "return_pct": return_pct,
+            "user_id": data["user_id"],
+            "username": data["username"],
+            "return_pct": data["return_pct"],
         })
 
+    # 4) 수익률 내림차순 정렬
+    result.sort(key=lambda x: x["return_pct"], reverse=True)
     return Response(result)
 
 
-def get_user_portfolio_data(user_id):
-    print("yes")
-    season = get_current_season()
-    if not season:
-        return None, {"error": "활성화된 시즌이 없습니다."}, 404
+
+
+# backend/stocks/views.py (현재 파일에 있는 동일 함수 이름을 대체)
+from decimal import Decimal
+from django.db.models import Max
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from leagues.models import League, LeagueMembership
+# from .models import Portfolio, Stock  # 프로젝트 기존 import 유지
+
+def get_user_portfolio_data(user_id: int, league_id: int):
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
 
     try:
-        sp = SeasonPortfolio.objects.get(user__id=user_id, season=season)
-    except SeasonPortfolio.DoesNotExist:
-        print("here")
-        return None, {"error": "시즌 포트폴리오 없음"}, 404
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return None, {"error": "User not found"}, 404
 
-    profit = sp.cash + sp.total_stock_value - sp.starting_cash
-    return_pct = round((profit / sp.starting_cash) * 100, 2)
+    league = League.objects.filter(id=league_id).first()
+    if not league:
+        return None, {"error": "Invalid league"}, 400
+
+    # ✅ 현재 리그 기준 활성 멤버십만 인정
+    membership = LeagueMembership.objects.filter(user=user, league=league, is_active=True).first()
+    if not membership:
+        return None, {"error": "Not a member of this league"}, 404
+
+    # 보유 목록(리그 스코프)
+    qs = Portfolio.objects.filter(user=user, league=league).select_related('stock')
+
+    # 각 심볼 최신 가격 스냅샷
+    latest = (
+        Stock.objects
+        .filter(symbol__in=qs.values_list('stock__symbol', flat=True))
+        .values('symbol').annotate(latest=Max('date'))
+    )
+    latest_map = {row['symbol']: row['latest'] for row in latest}
 
     holdings = []
-    portfolio_qs = Portfolio.objects.filter(user__id=user_id)
+    total_stock_value = Decimal('0')
+    for h in qs:
+        symbol = h.stock.symbol
+        latest_date = latest_map.get(symbol)
+        if latest_date:
+            s = Stock.objects.filter(symbol=symbol, date=latest_date).first() or h.stock
+        else:
+            s = h.stock
+        current_price = Decimal(str(s.close))
+        evaluation = current_price * Decimal(str(h.shares))
+        pnl = evaluation - (Decimal(str(h.average_price)) * Decimal(str(h.shares)))
+        pnl_base = (Decimal(str(h.average_price)) * Decimal(str(h.shares)))
+        pnl_pct = float((pnl / pnl_base * 100).quantize(Decimal('0.01'))) if pnl_base > 0 else 0.0
 
-    for h in portfolio_qs:
-        stock = h.stock
-        current_price = stock.close
-        evaluation = current_price * h.shares
-        pnl = evaluation - h.average_price * h.shares
-        pnl_pct = round((pnl / (h.average_price * h.shares)) * 100, 2) if h.average_price > 0 else 0
-
+        total_stock_value += evaluation
         holdings.append({
-            "symbol": stock.symbol,
-            "name": stock.name,
-            "quantity": h.shares,
+            "symbol": symbol,
+            "name": s.name,
+            "quantity": float(h.shares),
             "avg_price": float(h.average_price),
             "current_price": float(current_price),
             "evaluation": float(evaluation),
@@ -317,35 +519,69 @@ def get_user_portfolio_data(user_id):
             "pnl_pct": pnl_pct,
         })
 
+    starting_cash = Decimal(str(membership.starting_cash or 0))
+    cash = Decimal(str(membership.cash_balance or 0))
+    total_asset = cash + total_stock_value
+    return_pct = float(((total_asset - starting_cash) / starting_cash * 100).quantize(Decimal('0.01'))) if starting_cash > 0 else 0.0
+
     data = {
-        "user_id": sp.user.id,
-        "username": sp.user.username,
-        "total_asset": float(sp.cash + sp.total_stock_value),
-        "starting_cash": float(sp.starting_cash),
+        "user_id": user.id,
+        "username": user.username,
+        "league_id": league.id,
+        "starting_cash": float(starting_cash),
+        "cash": float(cash),
+        "total_stock_value": float(total_stock_value),
+        "total_asset": float(total_asset),
         "return_pct": return_pct,
         "holdings": holdings,
     }
-
     return data, None, 200
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def my_portfolio(request):
-    print('ok')
-    data, error, status_code = get_user_portfolio_data(request.user.id)
+    # ✅ 요청자의 현재 활성 리그 자동 판별
+    membership = (
+        LeagueMembership.objects
+        .select_related('league')
+        .filter(user=request.user, is_active=True)
+        .order_by('-joined_at')
+        .first()
+    )
+    if not membership:
+        return Response({"error": "먼저 리그에 참여하세요."}, status=400)
+
+    league_id = membership.league.id
+    data, error, status_code = get_user_portfolio_data(user_id=request.user.id, league_id=int(league_id))
     if error:
-        print("error")
         return Response(error, status=status_code)
-    return Response(data)
+    return Response(data, status=status_code)
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def user_portfolio(request, user_id):
+    # ✅ 요청자의 현재 활성 리그를 기준으로 타 유저 포트폴리오 조회
+    membership = (
+        LeagueMembership.objects
+        .select_related('league')
+        .filter(user=request.user, is_active=True)
+        .first()
+    )
+    if not membership:
+        return Response({"error": "먼저 리그에 참여하세요."}, status=400)
 
-    data, error, status_code = get_user_portfolio_data(user_id)
+    data, error, status_code = get_user_portfolio_data(
+        user_id=int(user_id),
+        league_id=int(membership.league_id)  # 내 리그를 강제
+    )
     if error:
         return Response(error, status=status_code)
-    return Response(data)
+    return Response(data, status=status_code)
+
+
+
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAdminUser

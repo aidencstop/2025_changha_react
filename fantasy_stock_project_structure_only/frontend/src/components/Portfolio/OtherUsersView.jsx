@@ -1,7 +1,7 @@
 // frontend/src/components/Portfolio/OtherUsersView.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../../api/axios'; // ✅ 정확한 경로
+import api from '../../api/axios';
 
 const OtherUsersView = () => {
   const [users, setUsers] = useState([]);
@@ -20,7 +20,6 @@ const OtherUsersView = () => {
         navigate('/login');
         return;
       }
-
       try {
         const response = await api.get('/stocks/season-users/', {
           headers: { Authorization: `Token ${token}` },
@@ -32,13 +31,16 @@ const OtherUsersView = () => {
           setError('로그인 정보가 만료되었습니다.');
           navigate('/login');
         } else {
-          setError('유저 정보를 불러오지 못했습니다.');
+          const msg =
+            err?.response?.data?.error ||
+            err?.response?.data?.detail ||
+            '유저 정보를 불러오지 못했습니다.';
+          setError(msg);
         }
       } finally {
         setLoading(false);
       }
     };
-
     fetchUsers();
   }, [navigate]);
 
@@ -54,14 +56,17 @@ const OtherUsersView = () => {
 
     try {
       const res = await api.get(`/stocks/user-portfolio/${userId}/`, {
-        headers: {
-          Authorization: `Token ${localStorage.getItem('token')}`,
-        },
+        headers: { Authorization: `Token ${localStorage.getItem('token')}` },
       });
       setPortfolioData(res.data);
     } catch (err) {
       console.error('포트폴리오 불러오기 실패:', err);
+      const msg =
+        err?.response?.data?.error ||
+        err?.response?.data?.detail ||
+        '포트폴리오를 불러오지 못했습니다.';
       setPortfolioData(null);
+      setError(msg);
     } finally {
       setPortfolioLoading(false);
     }
@@ -72,7 +77,7 @@ const OtherUsersView = () => {
 
   return (
     <div className="container mt-4">
-      <h3>다른 유저들의 시즌 포트폴리오</h3>
+      <h3>다른 유저들의 리그 포트폴리오</h3>
       <table className="table table-striped mt-3">
         <thead>
           <tr>
@@ -105,9 +110,32 @@ const OtherUsersView = () => {
                       <div>불러오는 중...</div>
                     ) : portfolioData ? (
                       <div className="mt-3">
-                        <p><strong>총 자산:</strong> {portfolioData.total_asset.toLocaleString()} 원</p>
-                        <p><strong>시작 금액:</strong> {portfolioData.starting_cash.toLocaleString()} 원</p>
-                        <p><strong>수익률:</strong> {portfolioData.return_pct}%</p>
+                        <p>
+                          <strong>총 자산:</strong>{' '}
+                          {Number(portfolioData.total_asset ?? 0).toLocaleString()} 원
+                        </p>
+                        {'starting_cash' in portfolioData ? (
+                          <>
+                            <p>
+                              <strong>시작 금액:</strong>{' '}
+                              {Number(portfolioData.starting_cash).toLocaleString()} 원
+                            </p>
+                            <p>
+                              <strong>수익률:</strong> {portfolioData.return_pct}%
+                            </p>
+                          </>
+                        ) : (
+                          <>
+                            <p>
+                              <strong>현금:</strong>{' '}
+                              {Number(portfolioData.cash ?? 0).toLocaleString()} 원
+                            </p>
+                            <p>
+                              <strong>주식 평가:</strong>{' '}
+                              {Number(portfolioData.total_stock_value ?? 0).toLocaleString()} 원
+                            </p>
+                          </>
+                        )}
 
                         <table className="table table-sm mt-3">
                           <thead>
@@ -122,15 +150,17 @@ const OtherUsersView = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {portfolioData.holdings.map((h, i) => (
+                            {portfolioData.holdings?.map((h, i) => (
                               <tr key={i}>
-                                <td>{h.symbol} ({h.name})</td>
-                                <td>{h.quantity}</td>
-                                <td>{h.avg_price.toFixed(2)}</td>
-                                <td>{h.current_price.toFixed(2)}</td>
-                                <td>{h.evaluation.toLocaleString()}</td>
-                                <td>{h.pnl.toLocaleString()}</td>
-                                <td>{h.pnl_pct}%</td>
+                                <td>
+                                  {h.symbol} ({h.name})
+                                </td>
+                                <td>{Number(h.quantity).toLocaleString()}</td>
+                                <td>{Number(h.avg_price).toLocaleString()}</td>
+                                <td>{Number(h.current_price).toLocaleString()}</td>
+                                <td>{Number(h.evaluation).toLocaleString()}</td>
+                                <td>{Number(h.pnl).toLocaleString()}</td>
+                                <td>{Number(h.pnl_pct)}%</td>
                               </tr>
                             ))}
                           </tbody>
