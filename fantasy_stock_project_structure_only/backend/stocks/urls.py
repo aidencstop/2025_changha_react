@@ -17,4 +17,5 @@ urlpatterns = [
     path('season-users/', views.season_users, name='season-users'),
     path('user-portfolio/<int:user_id>/', views.user_portfolio, name='user-portfolio'),
     path('admin/init-season/', views.initialize_season_and_portfolios, name='init-season'),
+    path("backfill-stock-names/", views.backfill_stock_names, name="backfill-stock-names"),  # POST, admin only
 ]
