@@ -1,4 +1,3 @@
-// frontend/src/components/Portfolio/OtherUsersView.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
@@ -17,24 +16,19 @@ const OtherUsersView = () => {
       const token = localStorage.getItem('token');
       if (!token) {
         setError('로그인이 필요합니다.');
-        navigate('/login');
-        return;
+        navigate('/login'); return;
       }
       try {
         const response = await api.get('/stocks/season-users/', {
           headers: { Authorization: `Token ${token}` },
         });
-        setUsers(response.data);
+        setUsers(response.data || []);
       } catch (err) {
         console.error('유저 불러오기 실패:', err);
         if (err.response?.status === 401) {
-          setError('로그인 정보가 만료되었습니다.');
-          navigate('/login');
+          setError('로그인 정보가 만료되었습니다.'); navigate('/login');
         } else {
-          const msg =
-            err?.response?.data?.error ||
-            err?.response?.data?.detail ||
-            '유저 정보를 불러오지 못했습니다.';
+          const msg = err?.response?.data?.error || err?.response?.data?.detail || '유저 정보를 불러오지 못했습니다.';
           setError(msg);
         }
       } finally {
@@ -46,14 +40,9 @@ const OtherUsersView = () => {
 
   const handleViewPortfolio = async (userId) => {
     if (selectedUserId === userId) {
-      setSelectedUserId(null);
-      setPortfolioData(null);
-      return;
+      setSelectedUserId(null); setPortfolioData(null); return;
     }
-
-    setPortfolioLoading(true);
-    setSelectedUserId(userId);
-
+    setPortfolioLoading(true); setSelectedUserId(userId);
     try {
       const res = await api.get(`/stocks/user-portfolio/${userId}/`, {
         headers: { Authorization: `Token ${localStorage.getItem('token')}` },
@@ -61,121 +50,106 @@ const OtherUsersView = () => {
       setPortfolioData(res.data);
     } catch (err) {
       console.error('포트폴리오 불러오기 실패:', err);
-      const msg =
-        err?.response?.data?.error ||
-        err?.response?.data?.detail ||
-        '포트폴리오를 불러오지 못했습니다.';
-      setPortfolioData(null);
-      setError(msg);
+      const msg = err?.response?.data?.error || err?.response?.data?.detail || '포트폴리오를 불러오지 못했습니다.';
+      setPortfolioData(null); setError(msg);
     } finally {
       setPortfolioLoading(false);
     }
   };
 
-  if (loading) return <div className="container mt-4">로딩 중...</div>;
-  if (error) return <div className="container mt-4 text-danger">{error}</div>;
+  if (loading) return <div className="text-muted">로딩 중...</div>;
+  if (error) return <div className="text-danger">{error}</div>;
+
+  const money = (n) => (n ?? 0).toLocaleString();
+  const pct = (n) => `${(n ?? 0) > 0 ? '+' : ''}${n ?? 0}%`;
 
   return (
-    <div className="container mt-4">
-      <h3>다른 유저들의 리그 포트폴리오</h3>
-      <table className="table table-striped mt-3">
-        <thead>
-          <tr>
-            <th>순위</th>
-            <th>유저명</th>
-            <th>수익률</th>
-            <th>보기</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user, idx) => (
-            <React.Fragment key={user.user_id}>
-              <tr>
-                <td>{idx + 1}</td>
-                <td>{user.username}</td>
-                <td>{user.return_pct}%</td>
-                <td>
+    <div className="fs-portfolio__others">
+      <ul className="fs-userlist">
+        {users.map((u, idx) => {
+          const isOpen = selectedUserId === u.user_id;
+          const gainPos = (u.return_pct ?? 0) >= 0;
+          return (
+            <li key={u.user_id} className={`fs-user ${isOpen ? 'is-open' : ''}`}>
+              {/* 상단 요약 행 */}
+              <div className="fs-user__row">
+                <div className="fs-user__left">
+                  <span className="fs-rank">#{idx + 1}</span>
+                  <span className="fs-avatar" aria-hidden />
+                  <span className="fs-user__name">{u.username}</span>
+                </div>
+                <div className="fs-user__right">
+                  <div className="fs-user__asset">${money(u.total_asset)}</div>
+                  <div className={`fs-user__pnl ${gainPos ? 'is-pos' : 'is-neg'}`}>
+                    {gainPos ? '+' : ''}{money(u.pnl ?? 0)} ({pct(u.return_pct)})
+                  </div>
                   <button
-                    className="btn btn-sm btn-outline-primary"
-                    onClick={() => handleViewPortfolio(user.user_id)}
+                    className="fs-chip-btn"
+                    onClick={() => handleViewPortfolio(u.user_id)}
+                    aria-expanded={isOpen}
                   >
-                    {selectedUserId === user.user_id ? '닫기' : '보기'}
+                    {isOpen ? 'Close' : 'View'}
                   </button>
-                </td>
-              </tr>
-              {selectedUserId === user.user_id && (
-                <tr>
-                  <td colSpan="4">
-                    {portfolioLoading ? (
-                      <div>불러오는 중...</div>
-                    ) : portfolioData ? (
-                      <div className="mt-3">
-                        <p>
-                          <strong>총 자산:</strong>{' '}
-                          {Number(portfolioData.total_asset ?? 0).toLocaleString()} 원
-                        </p>
-                        {'starting_cash' in portfolioData ? (
-                          <>
-                            <p>
-                              <strong>시작 금액:</strong>{' '}
-                              {Number(portfolioData.starting_cash).toLocaleString()} 원
-                            </p>
-                            <p>
-                              <strong>수익률:</strong> {portfolioData.return_pct}%
-                            </p>
-                          </>
-                        ) : (
-                          <>
-                            <p>
-                              <strong>현금:</strong>{' '}
-                              {Number(portfolioData.cash ?? 0).toLocaleString()} 원
-                            </p>
-                            <p>
-                              <strong>주식 평가:</strong>{' '}
-                              {Number(portfolioData.total_stock_value ?? 0).toLocaleString()} 원
-                            </p>
-                          </>
-                        )}
+                </div>
+              </div>
 
-                        <table className="table table-sm mt-3">
-                          <thead>
-                            <tr>
-                              <th>종목</th>
-                              <th>수량</th>
-                              <th>평단가</th>
-                              <th>현재가</th>
-                              <th>평가액</th>
-                              <th>PnL</th>
-                              <th>PnL%</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {portfolioData.holdings?.map((h, i) => (
-                              <tr key={i}>
-                                <td>
-                                  {h.symbol} ({h.name})
-                                </td>
-                                <td>{Number(h.quantity).toLocaleString()}</td>
-                                <td>{Number(h.avg_price).toLocaleString()}</td>
-                                <td>{Number(h.current_price).toLocaleString()}</td>
-                                <td>{Number(h.evaluation).toLocaleString()}</td>
-                                <td>{Number(h.pnl).toLocaleString()}</td>
-                                <td>{Number(h.pnl_pct)}%</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+              {/* 펼친 상세 카드 */}
+              {isOpen && (
+                <div className="fs-userpanel fs-card">
+                  <div className="fs-userpanel__head">
+                    <div className="fs-userpanel__title">
+                      <span className="fs-rank">#{idx + 1}</span>
+                      <strong>{u.username}'s Holdings</strong>
+                    </div>
+                    <div className="fs-userpanel__meta">
+                      <div className="fs-user__asset">${money(portfolioData?.total_asset)}</div>
+                      <div className={`fs-user__pnl ${((portfolioData?.return_pct ?? 0) >= 0) ? 'is-pos':'is-neg'}`}>
+                        {(portfolioData?.return_pct ?? 0) >= 0 ? '+' : ''}
+                        {money(portfolioData?.pnl ?? 0)} ({pct(portfolioData?.return_pct)})
                       </div>
-                    ) : (
-                      <div>포트폴리오 없음</div>
-                    )}
-                  </td>
-                </tr>
+                      <button className="fs-chip-btn" onClick={() => handleViewPortfolio(u.user_id)}>Close</button>
+                    </div>
+                  </div>
+
+                  {portfolioLoading && <div className="text-muted">불러오는 중...</div>}
+                  {!portfolioLoading && portfolioData ? (
+                    <div className="fs-userpanel__body">
+                      <table className="fs-table">
+                        <thead>
+                          <tr>
+                            <th>Stocks</th>
+                            <th>Quantity</th>
+                            <th>Avg. Cost($)</th>
+                            <th>Current Price($)</th>
+                            <th>Market Value($)</th>
+                            <th>Gain/Loss</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {portfolioData.holdings?.map((h, i) => (
+                            <tr className="fs-row" key={i}>
+                              <td>{h.symbol} {h.name ? `(${h.name})` : ''}</td>
+                              <td>{money(h.quantity)}</td>
+                              <td>${money(h.avg_price)}</td>
+                              <td>${money(h.current_price)}</td>
+                              <td>${money(h.evaluation)}</td>
+                              <td className={(h.pnl ?? 0) >= 0 ? 'text-success' : 'text-danger'}>
+                                {(h.pnl ?? 0) >= 0 ? '+' : ''}${money(h.pnl)} / {h.pnl_pct}%
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : !portfolioLoading && !portfolioData ? (
+                    <div className="fs-empty">포트폴리오 없음</div>
+                  ) : null}
+                </div>
               )}
-            </React.Fragment>
-          ))}
-        </tbody>
-      </table>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 };

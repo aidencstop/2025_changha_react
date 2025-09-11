@@ -1,0 +1,309 @@
+/* === FantasyStock Sidebar Theme (design-only) === */
+
+:root{
+  --fs-bg: #ffffff;
+  --fs-border: #EAEAEA;
+  --fs-text: #111827;        /* near-black */
+  --fs-muted: #6B7280;       /* gray-500 */
+  --fs-primary: #5667FF;     /* blue-ish like the mock */
+  --fs-primary-ghost: rgba(86,103,255,0.12);
+  --fs-shadow: 0 10px 30px rgba(17, 24, 39, 0.06);
+  --fs-radius: 16px;
+  --fs-sidebar-w: 240px;
+}
+
+.fs-sidebar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 100vh;
+  width: var(--fs-sidebar-w);
+  background: var(--fs-bg);
+  border-right: 1px solid var(--fs-border);
+  padding: 24px 16px;
+  box-shadow: var(--fs-shadow);
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+}
+
+.fs-sidebar-spacer {
+  width: var(--fs-sidebar-w);
+  flex: 0 0 auto;
+}
+
+.fs-sidebar__brand {
+  padding: 4px 8px 20px 8px;
+  margin-bottom: 8px;
+}
+
+.fs-brand-link {
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: 0.6px;
+  color: var(--fs-text);
+  text-decoration: none;
+}
+
+.fs-sidebar__nav {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding-top: 8px;
+}
+
+.fs-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.fs-menu__link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: var(--fs-text);
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.fs-menu__link:hover {
+  background: #F6F7FB;
+}
+
+.fs-menu__link--active {
+  background: var(--fs-primary);
+  color: #fff;
+  box-shadow: 0 6px 14px rgba(86,103,255,0.25);
+}
+
+.fs-menu__icon {
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: currentColor;
+  opacity: 0.75;
+}
+
+.fs-menu__link--active .fs-menu__icon {
+  opacity: 1;
+}
+
+.fs-menu__text {
+  font-size: 14px;
+}
+
+/* bottom area */
+.fs-sidebar__bottom {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--fs-border);
+  display: grid;
+  gap: 10px;
+}
+
+.fs-logout-btn {
+  width: 100%;
+  border: none;
+  background: var(--fs-primary-ghost);
+  color: var(--fs-primary);
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.fs-logout-btn:hover {
+  background: rgba(86,103,255,0.18);
+}
+
+/* Responsive: collapse sidebar on small screens */
+@media (max-width: 991px) {
+  :root { --fs-sidebar-w: 220px; }
+  .fs-sidebar { padding: 20px 14px; }
+}
+
+@media (max-width: 768px) {
+  .fs-sidebar {
+    transform: translateX(0);
+  }
+  .fs-sidebar-spacer {
+    width: var(--fs-sidebar-w);
+  }
+}
+
+/* ===== Market (design-only) ===== */
+
+:root{
+  --fs-page-bg: #F5F7FB;
+  --fs-card-bg: #fff;
+  --fs-card-radius: 18px;
+  --fs-card-shadow: 0 20px 40px rgba(17,24,39,.06);
+  --fs-title: #0F172A;
+  --fs-sub: #6B7280;
+  --fs-line: #ECEFF4;
+  --fs-primary: #5667FF;
+  --fs-primary-ghost: rgba(86,103,255,.12);
+  --fs-text: #111827;
+  --fs-muted: #6B7280;
+}
+
+/* ===== Layout with Sidebar ===== */
+
+.fs-layout {
+  display: flex;
+}
+
+/* Navbar.jsx가 .fs-sidebar + .fs-sidebar-spacer를 렌더링하기 때문에
+   여기서는 main(.fs-page)이 자연스럽게 spacer 옆에 붙음 */
+.fs-page {
+  padding: 28px;
+  background: var(--fs-page-bg);
+  min-height: 100vh;
+  margin-left: var(--fs-sidebar-w);
+}
+.fs-page--fluid {
+  display: block; /* 가운데 정렬 제거 */
+}
+
+.fs-page-header{
+  display:flex; align-items:flex-end; justify-content:space-between;
+  margin-bottom: 18px;
+}
+
+.fs-title{
+  margin:0;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--fs-title);
+}
+
+.fs-sub{
+  margin:6px 0 0 0;
+  color: var(--fs-sub);
+  font-size: 13px;
+}
+
+/* 카드가 가로 전체 사용 (최대폭 제한 제거) */
+.fs-card {
+  background: var(--fs-card-bg);
+  border-radius: var(--fs-card-radius);
+  box-shadow: var(--fs-card-shadow);
+  padding: 18px;
+  width: 100%;
+  max-width: none;        /* ✅ 제한 해제 */
+}
+
+/* 카드 헤더 좌우 끝까지 벌어짐 */
+.fs-card-head {
+  display:flex; align-items:center; justify-content:space-between;
+  gap: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--fs-line);
+}
+
+.fs-card-title{
+  font-weight: 700;
+  color: var(--fs-title);
+}
+
+/* 검색 영역 줄바꿈 대응 (폭이 좁아져도 흐트러지지 않게) */
+.fs-search {
+  display:flex; align-items:center; gap:10px;
+  background:#F6F7FB;
+  border-radius: 12px;
+  padding: 8px 10px 8px 12px;
+  flex-wrap: wrap;
+}
+.fs-search-icon{
+  opacity:.7; font-size:14px;
+}
+
+.fs-search-input{
+  border: none; outline: none; background: transparent;
+  min-width: 240px;
+  font-size: 14px;
+}
+
+.fs-btn{
+  border: none; outline: none; cursor: pointer;
+  border-radius: 10px; padding: 8px 12px; font-size: 13px;
+  font-weight: 600;
+}
+
+.fs-btn-primary{ background: var(--fs-primary); color:#fff; }
+.fs-btn-primary:hover{ filter: brightness(0.96); }
+
+.fs-btn-ghost{
+  background: var(--fs-primary-ghost);
+  color: var(--fs-primary);
+}
+.fs-btn-ghost:hover{ background: rgba(86,103,255,.18); }
+
+/* 표가 가로 전체를 “균일하게” 사용하도록 고정 레이아웃 */
+.fs-table {
+  width:100%;
+  border-collapse: separate;
+  border-spacing: 0 8px;
+  margin-top: 16px;
+  table-layout: fixed;    /* ✅ 칼럼 너비 균등/안정화 */
+}
+
+.fs-table thead th,
+.fs-table tbody td {
+  padding: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 칼럼 비율(원하면 조정 가능) */
+.fs-table thead th:nth-child(1),
+.fs-table tbody td:nth-child(1) { width: 56px; }      /* # */
+.fs-table thead th:nth-child(2),
+.fs-table tbody td:nth-child(2) { width: 24%; }       /* Name */
+.fs-table thead th:nth-child(3),
+.fs-table tbody td:nth-child(3) { width: 16%; }       /* Symbol */
+.fs-table thead th:nth-child(4),
+.fs-table tbody td:nth-child(4),
+.fs-table thead th:nth-child(5),
+.fs-table tbody td:nth-child(5),
+.fs-table thead th:nth-child(6),
+.fs-table tbody td:nth-child(6),
+.fs-table thead th:nth-child(7),
+.fs-table tbody td:nth-child(7) { width: calc((60% - 56px) / 4); text-align: right; }
+/* 남은 60% 영역을 가격/거래량 4칸이 균등 분할, 숫자는 우측 정렬 */
+
+/* 행/호버 효과 유지 */
+.fs-row {
+  background:#FAFBFF;
+  transition: transform .08s ease, box-shadow .12s ease, background .12s ease;
+  cursor: pointer;
+}
+.fs-row:hover {
+  background:#F1F4FF;
+  box-shadow: 0 4px 12px rgba(86,103,255,.12);
+  transform: translateY(-1px);
+}
+
+.fs-empty{
+  text-align:center; color: var(--fs-muted); padding: 24px 8px;
+}
+
+.fs-mono{ font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+/* 반응형: 작은 화면에서는 검색/표가 줄바꿈되며 가로 100% */
+@media (max-width: 992px){
+  .fs-search { width: 100%; }
+  .fs-search-input { min-width: 0; flex: 1; }
+}
+

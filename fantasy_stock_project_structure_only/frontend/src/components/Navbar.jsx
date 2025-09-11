@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 
 function Navbar() {
   const navigate = useNavigate();
@@ -10,57 +10,85 @@ function Navbar() {
     navigate('/login');
   };
 
+  // NavLink용 클래스 빌더: 활성 시 fs-menu__link--active 추가
+  const linkClass = ({ isActive }) =>
+    `fs-menu__link${isActive ? ' fs-menu__link--active' : ''}`;
+
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-4">
-      <Link className="navbar-brand" to="/">FantasyStock</Link>
-      <div className="collapse navbar-collapse">
-        <ul className="navbar-nav mr-auto">
+    <>
+      {/* Sidebar */}
+      <aside className="fs-sidebar">
+        <div className="fs-sidebar__brand">
+          <Link to="/" className="fs-brand-link">FantasyStock</Link>
+        </div>
+
+        <nav className="fs-sidebar__nav" aria-label="Primary">
           {token && (
-            <>
-              <li className="nav-item">
-                <Link className="nav-link" to="/dashboard">Dashboard</Link>
+            <ul className="fs-menu">
+              <li>
+                <NavLink className={linkClass} to="/dashboard" end>
+                  <span className="fs-menu__icon" aria-hidden>○</span>
+                  <span className="fs-menu__text">Dashboard</span>
+                </NavLink>
               </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/portfolio">Portfolio</Link>
+
+              <li>
+                {/* 하위 경로(/market/XYZ)도 활성 처리: end 생략 */}
+                <NavLink className={linkClass} to="/market">
+                  <span className="fs-menu__icon" aria-hidden>○</span>
+                  <span className="fs-menu__text">Market</span>
+                </NavLink>
               </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/history">History</Link>
+
+              <li>
+                <NavLink className={linkClass} to="/portfolio">
+                  <span className="fs-menu__icon" aria-hidden>○</span>
+                  <span className="fs-menu__text">Portfolio</span>
+                </NavLink>
               </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/market">Market</Link>
+
+              <li>
+                <NavLink className={linkClass} to="/history">
+                  <span className="fs-menu__icon" aria-hidden>○</span>
+                  <span className="fs-menu__text">History</span>
+                </NavLink>
               </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/leagues">Leagues</Link>
+
+              <li>
+                <NavLink className={linkClass} to="/leagues">
+                  <span className="fs-menu__icon" aria-hidden>○</span>
+                  <span className="fs-menu__text">Leagues</span>
+                </NavLink>
               </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/my-league">My League</Link>
+
+              <li>
+                <NavLink className={linkClass} to="/my-league">
+                  <span className="fs-menu__icon" aria-hidden>○</span>
+                  <span className="fs-menu__text">My League</span>
+                </NavLink>
               </li>
-            </>
+            </ul>
           )}
-        </ul>
-        <ul className="navbar-nav ml-auto">
+        </nav>
+
+        <div className="fs-sidebar__bottom">
           {!token ? (
-            <>
-              <li className="nav-item">
-                <Link className="nav-link" to="/login">Login</Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/register">Register</Link>
-              </li>
-            </>
+            <div className="d-flex gap-2">
+              <Link className="btn btn-outline-secondary btn-sm w-100" to="/login">Login</Link>
+              <Link className="btn btn-primary btn-sm w-100" to="/register">Register</Link>
+            </div>
           ) : (
-            <li className="nav-item">
-              <button
-                className="btn btn-danger btn-sm"
-                onClick={handleLogout}
-              >
-                Logout
-              </button>
-            </li>
+            <button className="fs-logout-btn" onClick={handleLogout}>
+              <span className="fs-menu__icon" aria-hidden>⎋</span>
+              Logout
+            </button>
           )}
-        </ul>
-      </div>
-    </nav>
+        </div>
+      </aside>
+
+      {/* Spacer to prevent content overlap */}
+      <div className="fs-sidebar-spacer" />
+    </>
   );
 }
 

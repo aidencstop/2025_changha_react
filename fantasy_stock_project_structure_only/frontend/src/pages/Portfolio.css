@@ -1,0 +1,164 @@
+/* 이 파일은 포트폴리오 화면 전용. 공용 클래스에 의존하지만,
+   모든 커스텀 셀렉터는 .fs-portfolio 하위로 한정하여 다른 화면에 영향 X */
+
+.fs-portfolio .fs-card {
+  padding: 20px;
+}
+
+.fs-portfolio .fs-card-body {
+  padding-top: 12px;
+}
+
+/* 세그먼트(탭) 버튼 */
+.fs-portfolio .fs-seg {
+  display: inline-grid;
+  grid-auto-flow: column;
+  gap: 8px;
+  background: #F3F5FF;                 /* 은은한 배경 */
+  padding: 6px;
+  border-radius: 12px;
+}
+
+.fs-portfolio .fs-seg__btn {
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--fs-primary);
+  font-weight: 700;
+  font-size: 13px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease, box-shadow .15s ease;
+}
+
+.fs-portfolio .fs-seg__btn:hover {
+  background: rgba(86,103,255,.12);     /* var(--fs-primary-ghost) 톤 */
+}
+
+.fs-portfolio .fs-seg__btn.is-active {
+  background: var(--fs-primary);
+  color: #fff;
+  box-shadow: 0 6px 14px rgba(86,103,255,.25);
+}
+
+/* 반응형: 헤더가 좁아질 때 정렬 자연스럽게 */
+@media (max-width: 768px) {
+  .fs-portfolio .fs-card-head {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .fs-portfolio .fs-seg {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* --- 기존 내용 유지 --- */
+
+.fs-portfolio .fs-card { padding: 20px; }
+.fs-portfolio .fs-card-body { padding-top: 12px; }
+
+/* 가운데 정렬 래퍼 */
+.fs-portfolio .fs-seg-row{
+  display: flex;
+  justify-content: center;
+  margin: 8px 0 14px;
+}
+
+/* 세그먼트(탭) 버튼 */
+.fs-portfolio .fs-seg{
+  display: inline-grid;
+  grid-auto-flow: column;
+  gap: 8px;
+  background: #F3F5FF;
+  padding: 6px;
+  border-radius: 12px;
+}
+.fs-portfolio .fs-seg__btn{
+  border:0; outline:0; background:transparent;
+  color: var(--fs-primary);
+  font-weight:700; font-size:13px;
+  padding:10px 14px; border-radius:10px; cursor:pointer;
+  transition: background .15s ease, color .15s ease, box-shadow .15s ease;
+}
+.fs-portfolio .fs-seg__btn:hover{ background: rgba(86,103,255,.12); }
+.fs-portfolio .fs-seg__btn.is-active{
+  background: var(--fs-primary); color:#fff;
+  box-shadow: 0 6px 14px rgba(86,103,255,.25);
+}
+
+@media (max-width: 768px){
+  .fs-portfolio .fs-seg-row{ margin-bottom: 12px; }
+}
+
+/* ===== MyPortfolio summary tiles ===== */
+.fs-portfolio .fs-stats{
+  display:grid; grid-template-columns: repeat(4, minmax(0,1fr));
+  gap:12px; margin: 6px 0 14px;
+}
+.fs-portfolio .fs-stat{
+  background:#fff; border-radius:12px; box-shadow: var(--fs-card-shadow);
+  padding:14px 16px;
+}
+.fs-portfolio .fs-stat__label{ color:var(--fs-muted); font-size:12px; }
+.fs-portfolio .fs-stat__value{ font-weight:800; color:var(--fs-title); margin-top:6px; }
+.fs-portfolio .fs-portfolio__table .fs-table thead th{ color:var(--fs-muted); font-size:12px; }
+
+/* ===== OtherUsers list ===== */
+.fs-portfolio .fs-userlist{
+  list-style:none; margin:0; padding:0; display:grid; gap:12px;
+}
+.fs-portfolio .fs-user{
+  background:#fff; border-radius:14px; box-shadow: var(--fs-card-shadow);
+  padding:12px 14px; border:1px solid var(--fs-border);
+}
+.fs-portfolio .fs-user.is-open{ box-shadow: 0 12px 30px rgba(86,103,255,.18); }
+
+.fs-portfolio .fs-user__row{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+}
+.fs-portfolio .fs-user__left{ display:flex; align-items:center; gap:10px; }
+.fs-portfolio .fs-rank{
+  display:inline-block; min-width:34px; text-align:center;
+  font-weight:800; font-size:12px; color:#fff; background: var(--fs-primary);
+  padding:6px 8px; border-radius:10px;
+}
+.fs-portfolio .fs-avatar{
+  width:24px; height:24px; border-radius:50%; background:#dfe3f7; display:inline-block;
+}
+.fs-portfolio .fs-user__name{ font-weight:700; color:var(--fs-title); }
+
+.fs-portfolio .fs-user__right{ display:flex; align-items:flex-end; gap:14px; }
+.fs-portfolio .fs-user__asset{ font-weight:800; color:var(--fs-title); }
+.fs-portfolio .fs-user__pnl{ font-size:12px; }
+.fs-portfolio .fs-user__pnl.is-pos{ color:#2eac5f; }
+.fs-portfolio .fs-user__pnl.is-neg{ color:#e23b3b; }
+
+/* pill 버튼 */
+.fs-portfolio .fs-chip-btn{
+  border:1px solid var(--fs-border);
+  background:#fff; padding:6px 12px; border-radius:999px;
+  font-size:12px; font-weight:700; color:var(--fs-text); cursor:pointer;
+}
+.fs-portfolio .fs-chip-btn:hover{ background:#F6F7FB; }
+
+/* 확장 패널 */
+.fs-portfolio .fs-userpanel{ margin-top:12px; padding:16px; border:1px solid #CAD6FF; }
+.fs-portfolio .fs-userpanel__head{
+  display:flex; align-items:center; justify-content:space-between;
+  border-bottom:1px solid var(--fs-line); padding-bottom:10px; margin-bottom:12px;
+}
+.fs-portfolio .fs-userpanel__title{ display:flex; align-items:center; gap:10px; }
+.fs-portfolio .fs-userpanel__meta{ display:flex; align-items:center; gap:14px; }
+.fs-portfolio .fs-userpanel__body .fs-table thead th{ color:var(--fs-muted); font-size:12px; }
+
+/* small buttons for Buy/Sell */
+.fs-portfolio .fs-btn--xs{ padding:6px 10px; font-size:12px; border-radius:8px; }
+
+@media (max-width: 992px){
+  .fs-portfolio .fs-stats{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+@media (max-width: 576px){
+  .fs-portfolio .fs-user__right{ flex-wrap:wrap; justify-content:flex-end; gap:8px; }
+}

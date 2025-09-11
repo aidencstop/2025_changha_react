@@ -1,12 +1,11 @@
-// frontend/src/pages/MarketOverview.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 function MarketOverview() {
   const [stocks, setStocks] = useState([]);
-  const [visible, setVisible] = useState([]); // ✅ 화면에 보여줄 리스트
-  const [q, setQ] = useState('');             // ✅ 검색 입력값
+  const [visible, setVisible] = useState([]);
+  const [q, setQ] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -23,7 +22,7 @@ function MarketOverview() {
         }
       });
       setStocks(res.data);
-      setVisible(res.data); // ✅ 최초엔 전체 노출
+      setVisible(res.data);
       setLoading(false);
     } catch (err) {
       console.error('Failed to load market data', err);
@@ -36,13 +35,9 @@ function MarketOverview() {
     navigate(`/stock/${symbol}`);
   };
 
-  // ✅ 검색 실행 (돋보기 버튼/Enter)
   const handleSearch = () => {
     const term = q.trim().toLowerCase();
-    if (!term) {
-      // 입력이 비어있으면 그대로 두고, '전체' 버튼으로 초기화하도록 유지
-      return;
-    }
+    if (!term) return;
     const filtered = stocks.filter((s) => {
       const name = String(s.name || '').toLowerCase();
       const sym  = String(s.symbol || '').toLowerCase();
@@ -51,83 +46,95 @@ function MarketOverview() {
     setVisible(filtered);
   };
 
-  // ✅ 전체 버튼: 다시 전체 리스트
   const handleShowAll = () => {
     setVisible(stocks);
     setQ('');
   };
 
-  // Enter 키로도 검색
   const onKeyDown = (e) => {
     if (e.key === 'Enter') handleSearch();
   };
 
   return (
-    <div className="container mt-5">
-      <h2>📊 Market Overview</h2>
+    <div className="fs-layout">
+      {/* 여기서 fs-sidebar-spacer는 Navbar.jsx가 렌더링할 때 이미 화면에 들어옴 */}
+      <main className="fs-page fs-page--fluid">
+        <div className="fs-page-header">
+          <div>
+            <h2 className="fs-title">Market Overview</h2>
+            <p className="fs-sub">See overall market status here</p>
+          </div>
+        </div>
 
-      {/* ✅ 검색창 + 돋보기 + 전체 */}
-      <div className="d-flex gap-2 align-items-center mt-3">
-        <input
-          className="form-control"
-          style={{ maxWidth: 320 }}
-          placeholder="Name 또는 Symbol로 검색"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          onKeyDown={onKeyDown}
-        />
-        <button className="btn btn-primary" onClick={handleSearch}>
-          🔍
-        </button>
-        <button className="btn btn-outline-secondary" onClick={handleShowAll}>
-          전체
-        </button>
-      </div>
+        <div className="fs-card">
+          <div className="fs-card-head">
+            <div className="fs-card-title">Stock Lists</div>
 
-      {loading && <p className="mt-3">⏳ 로딩 중...</p>}
-      {error && <p className="text-danger mt-3">{error}</p>}
+            <div className="fs-search">
+              <span className="fs-search-icon" aria-hidden>🔍</span>
+              <input
+                className="fs-search-input"
+                placeholder="Search by Name or Symbol"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                onKeyDown={onKeyDown}
+              />
+              <button className="fs-btn fs-btn-primary" onClick={handleSearch}>
+                Search
+              </button>
+              <button className="fs-btn fs-btn-ghost" onClick={handleShowAll}>
+                전체
+              </button>
+            </div>
+          </div>
 
-      {!loading && !error && (
-        <table className="table table-hover mt-3">
-          <thead className="table-light">
-            <tr>
-              <th>#</th> {/* Row 번호 열 */}
-              <th>Name</th>
-              <th>Symbol</th>
-              <th>Close</th>
-              <th>High</th>
-              <th>Low</th>
-              <th>Volume</th>
-            </tr>
-          </thead>
-          <tbody>
-            {visible.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="text-center text-muted">
-                  검색 결과가 없습니다.
-                </td>
-              </tr>
-            ) : (
-              visible.map((stock, idx) => (
-                <tr
-                  key={`${stock.symbol}-${idx}`}
-                  onClick={() => handleClick(stock.symbol)}
-                  style={{ cursor: 'pointer' }}
-                  className="table-row"
-                >
-                  <td>{idx + 1}</td>
-                  <td>{stock.name}</td>
-                  <td>{stock.symbol}</td>
-                  <td>{Number(stock.close).toFixed(2)}</td>
-                  <td>{Number(stock.high).toFixed(2)}</td>
-                  <td>{Number(stock.low).toFixed(2)}</td>
-                  <td>{Number(stock.volume).toLocaleString()}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      )}
+          {loading && <p className="mt-2">⏳ 로딩 중...</p>}
+          {error && <p className="text-danger mt-2">{error}</p>}
+
+          {!loading && !error && (
+            <div className="table-responsive">
+              <table className="fs-table">
+                <thead>
+                  <tr>
+                    <th style={{width: 56}}>#</th>
+                    <th>Name</th>
+                    <th>Symbol</th>
+                    <th>Close</th>
+                    <th>High</th>
+                    <th>Low</th>
+                    <th>Volume</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {visible.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="fs-empty">
+                        검색 결과가 없습니다.
+                      </td>
+                    </tr>
+                  ) : (
+                    visible.map((stock, idx) => (
+                      <tr
+                        key={`${stock.symbol}-${idx}`}
+                        onClick={() => handleClick(stock.symbol)}
+                        className="fs-row"
+                      >
+                        <td>{idx + 1}</td>
+                        <td>{stock.name}</td>
+                        <td className="fs-mono">{stock.symbol}</td>
+                        <td>{Number(stock.close).toFixed(2)}</td>
+                        <td>{Number(stock.high).toFixed(2)}</td>
+                        <td>{Number(stock.low).toFixed(2)}</td>
+                        <td>{Number(stock.volume).toLocaleString()}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </main>
     </div>
   );
 }
