@@ -9,12 +9,11 @@ function History() {
 
   // leagueId -> { items: [], page, hasMore, loading, open, idSet:Set<number> }
   const [txByLeague, setTxByLeague] = useState({});
-  const loaders = useRef({});    // leagueId별 loader 요소 refs
-  const observers = useRef({});  // leagueId별 IntersectionObserver
+  const loaders = useRef({});
+  const observers = useRef({});
 
   useEffect(() => {
     fetchMyLeagues();
-    // 언마운트 시 모든 옵저버 정리
     return () => {
       Object.values(observers.current).forEach(obs => obs.disconnect());
       observers.current = {};
@@ -25,7 +24,6 @@ function History() {
     try {
       setLoadingLeagues(true);
       setError('');
-      // 백엔드: /api/leagues/?mine=1  (axios baseURL=/api 이므로 /leagues/)
       const res = await api.get('/leagues/?mine=1');
       setLeagues(res.data || []);
     } catch (e) {
@@ -39,35 +37,29 @@ function History() {
   const toggleDetails = (leagueId) => {
     setTxByLeague(prev => {
       const cur = prev[leagueId];
-      // 닫기
       if (cur?.open) {
-        // 옵저버 해제
         if (observers.current[leagueId]) {
           observers.current[leagueId].disconnect();
           delete observers.current[leagueId];
         }
         return { ...prev, [leagueId]: { ...cur, open: false } };
       }
-      // 열기 (초기 상태 준비)
       const base = cur ?? { items: [], page: 1, hasMore: true, loading: false, open: false, idSet: new Set() };
       return { ...prev, [leagueId]: { ...base, open: true } };
     });
 
-    // 처음 열면서 비어있으면 첫 페이지 로드
     const state = txByLeague[leagueId];
     if (!state || (state.items?.length ?? 0) === 0) {
       fetchMoreTx(leagueId);
     }
   };
 
-  // league 트랜잭션 페치 (중복/재진입 방지)
   const fetchMoreTx = async (leagueId) => {
     let nextPage = 1;
     let canFetch = true;
 
     setTxByLeague(prev => {
       const cur = prev[leagueId] ?? { items: [], page: 1, hasMore: true, loading: false, open: true, idSet: new Set() };
-      // 가드: 로딩 중이거나 더 없음
       if (cur.loading || !cur.hasMore) {
         canFetch = false;
         return prev;
@@ -85,7 +77,6 @@ function History() {
 
       setTxByLeague(prev => {
         const cur = prev[leagueId] ?? { items: [], page: 1, hasMore: true, loading: true, open: true, idSet: new Set() };
-        // idSet 복사하여 중복 방지
         const idSet = new Set(cur.idSet);
         const newOnes = [];
         for (const tx of results) {
@@ -116,14 +107,12 @@ function History() {
     }
   };
 
-  // 옵저버 등록/재등록 (열림 + 로딩X + hasMore일 때만)
   useEffect(() => {
     leagues.forEach(lg => {
       const leagueId = lg.id;
       const state = txByLeague[leagueId];
       const loaderEl = loaders.current[leagueId];
 
-      // 기존 옵저버 정리
       if (observers.current[leagueId]) {
         observers.current[leagueId].disconnect();
         delete observers.current[leagueId];
@@ -134,7 +123,6 @@ function History() {
       const observer = new IntersectionObserver(entries => {
         const [entry] = entries;
         if (!entry.isIntersecting) return;
-        // 현재 상태 재확인(스팸 방지)
         const s = txByLeague[leagueId];
         if (!s || s.loading || !s.hasMore) return;
         fetchMoreTx(leagueId);
@@ -143,9 +131,7 @@ function History() {
       observer.observe(loaderEl);
       observers.current[leagueId] = observer;
     });
-
-    // cleanup은 다음 사이클에서 위에서 disconnect 처리
-  }, [leagues, txByLeague]); // 상태 변화 시 재평가 (가드가 있으므로 안전)
+  }, [leagues, txByLeague]);
 
   const formatMoney = v => {
     const num = Number(v);
@@ -159,104 +145,199 @@ function History() {
     return `${num.toFixed(2)}%`;
   };
 
+  // ✨ yyyy.mm.dd. 포맷터
+  const formatDate = (value) => {
+    if (!value) return '—';
+    const d = new Date(value);
+    if (isNaN(d)) return value; // 변환 실패 시 원문 출력
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}.${mm}.${dd}.`;
+  };
+
   return (
-    <div className="container mt-5">
-      <h2>My League History</h2>
+    <div className="fs-layout">
+      {/* 가로로 화면을 꽉 채우되, 내부 콘텐츠만 얇게 패딩 */}
+      <main
+        className="fs-page fs-page--fluid"
+        style={{
+          width: '100%',
+          maxWidth: '100%',
+          paddingLeft: 'min(16px, 2vw)',
+          paddingRight: 'min(16px, 2vw)',
+        }}
+      >
+        <div className="fs-page-header">
+          <div>
+            <h2 className="fs-title">My League History</h2>
+            <p className="fs-sub">Your historical trades by league</p>
+          </div>
+        </div>
 
-      {error && <div className="alert alert-danger mt-3">{error}</div>}
-      {loadingLeagues && <p className="mt-3">Loading leagues…</p>}
-      {!loadingLeagues && leagues.length === 0 && <div className="alert alert-secondary mt-3">참여한 리그가 없습니다.</div>}
+        {/* 만약 일부 페이지에서 양옆 공백이 보이면 아래 섹션이 배경을 전폭으로 칠해줌 */}
+        <section
+          className="fs-band"
+          style={{
+            width: '100%',
+            margin: 0,
+            padding: 0,
+          }}
+        >
+          {/* 상태 카드들 */}
+          {error && (
+            <div className="fs-card" style={{ borderColor: 'transparent' }}>
+              <div className="fs-card-head">
+                <div className="fs-card-title">Error</div>
+              </div>
+              <div className="fs-empty" style={{ color: 'var(--danger, #dc3545)' }}>{error}</div>
+            </div>
+          )}
+          {loadingLeagues && (
+            <div className="fs-card" style={{ borderColor: 'transparent' }}>
+              <div className="fs-empty">⏳ 리그 목록을 불러오는 중…</div>
+            </div>
+          )}
+          {!loadingLeagues && leagues.length === 0 && (
+            <div className="fs-card" style={{ borderColor: 'transparent' }}>
+              <div className="fs-empty">참여한 리그가 없습니다.</div>
+            </div>
+          )}
 
-      <div className="mt-3 d-grid gap-3">
-        {leagues.map(lg => {
-          const mine = txByLeague[lg.id];
-          return (
-            <div key={lg.id} className="card shadow-sm">
-              <div className="card-body">
-                <div className="d-flex flex-wrap align-items-center gap-3">
-                  <h5 className="mb-0">{lg.name}</h5>
-                  <span className="badge text-bg-secondary">{lg.status}</span>
-                  <span className="ms-auto text-muted">({lg.start_date} → {lg.end_date ?? '—'})</span>
-                </div>
-
-                <div className="row mt-3 g-3">
-                  <div className="col-6 col-md-3">
-                    <div className="small text-muted">Initial</div>
-                    <div className="fw-bold">${formatMoney(lg.my_initial_asset)}</div>
-                  </div>
-                  <div className="col-6 col-md-3">
-                    <div className="small text-muted">Final</div>
-                    <div className="fw-bold">${formatMoney(lg.my_final_asset)}</div>
-                  </div>
-                  <div className="col-6 col-md-3">
-                    <div className="small text-muted">Return</div>
-                    <div className="fw-bold">{pct(lg.my_return_pct)}</div>
-                  </div>
-                  <div className="col-6 col-md-3">
-                    <div className="small text-muted">Participants</div>
-                    <div className="fw-bold">{lg.participant_count}</div>
-                  </div>
-                </div>
-
-                <div className="row mt-2 g-3">
-                  <div className="col-6 col-md-3">
-                    <div className="small text-muted">My Rank</div>
-                    <div className="fw-bold">{lg.my_final_rank ?? '—'}</div>
-                  </div>
-                </div>
-
-                <div className="mt-3 d-flex gap-2">
-                  <button
-                    className="btn btn-outline-primary"
-                    onClick={() => toggleDetails(lg.id)}
-                  >
-                    {mine?.open ? 'Hide Details' : 'Show Details'}
-                  </button>
-                </div>
-
-                {mine?.open && (
-                  <div className="mt-3">
-                    <ul className="list-group">
-                      {mine.items.map((it, idx) => {
-                        const sym = it.stock ?? it.symbol ?? it.stock_symbol ?? '-';
-                        const qty = it.quantity ?? it.shares ?? it.qty ?? '-';
-                        const action = (it.action ?? it.side ?? '').toString().toUpperCase();
-                        const when = it.timestamp ?? it.created_at ?? it.date ?? '';
-                        const key = it.id ?? `${lg.id}-${sym}-${when}-${qty}-${it.price}-${action}-${idx}`;
-                        return (
-                          <li key={key} className="list-group-item d-flex flex-wrap align-items-center gap-2">
-                            <span className="badge text-bg-secondary">{idx + 1}</span>
-                            <strong className="ms-2">{sym}</strong>
-                            <span className={`badge ${action === 'BUY' ? 'text-bg-success' : 'text-bg-danger'} ms-2`}>{action || '—'}</span>
-                            <span className="ms-2">{qty} shares @ ${formatMoney(it.price)}</span>
-                            <span className="ms-auto">{when}</span>
-                          </li>
-                        );
-                      })}
-                    </ul>
-
-                    <div
-                      ref={el => (loaders.current[lg.id] = el)}
-                      className="text-center py-2"
-                    >
-                      {mine.loading && <p className="mb-0">Loading…</p>}
-                      {!mine.loading && mine.items.length === 0 && !mine.hasMore && (
-                        <p className="text-muted mb-0">거래 내역이 없습니다.</p>
-                      )}
-                      {!mine.loading && mine.hasMore && (
-                        <p className="text-muted mb-0">아래로 스크롤하면 더 불러옵니다…</p>
-                      )}
-                      {!mine.hasMore && mine.items.length > 0 && (
-                        <p className="text-muted mb-0">모든 내역을 불러왔습니다.</p>
-                      )}
+          {/* 카드 리스트 그리드: 카드 사이 간격 확보 */}
+          <div
+            className="fs-stack"
+            style={{
+              display: 'grid',
+              gap: '16px',           // 카드 간 여백
+              alignContent: 'start',
+            }}
+          >
+            {leagues.map(lg => {
+              const mine = txByLeague[lg.id];
+              return (
+                <div key={lg.id} className="fs-card" style={{ width: '100%' }}>
+                  <div className="fs-card-head">
+                    <div className="fs-card-title">{lg.name}</div>
+                    <div style={{ marginLeft: 'auto', display: 'flex', gap: '12px', alignItems: 'center' }}>
+                      <span
+                          className="fs-sub"
+                          style={{
+                            margin: 0,
+                            color: lg.status === 'Active' ? 'var(--success, #28a745)' : 'inherit',
+                            fontWeight: lg.status === 'Active' ? 600 : 'normal',
+                          }}
+                        >
+                          {lg.status}
+                        </span>
+                      <span className="fs-sub" style={{ margin: 0 }}>
+                        ({formatDate(lg.start_date)} → {lg.end_date ? formatDate(lg.end_date) : '—'})
+                      </span>
                     </div>
                   </div>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+
+                  <div className="fs-card-body">
+                    <div className="row mt-1 g-3">
+                      <div className="col-6 col-md-3">
+                        <div className="fs-sub">Initial</div>
+                        <div className="fw-bold">${formatMoney(lg.my_initial_asset)}</div>
+                      </div>
+                      <div className="col-6 col-md-3">
+                        <div className="fs-sub">Final</div>
+                        <div className="fw-bold">${formatMoney(lg.my_final_asset)}</div>
+                      </div>
+                      <div className="col-6 col-md-3">
+                        <div className="fs-sub">Return</div>
+                        <div className="fw-bold">{pct(lg.my_return_pct)}</div>
+                      </div>
+                      <div className="col-6 col-md-3">
+                        <div className="fs-sub">Participants</div>
+                        <div className="fw-bold">{lg.participant_count}</div>
+                      </div>
+                    </div>
+
+                    <div className="row mt-2 g-3">
+                      <div className="col-6 col-md-3">
+                        <div className="fs-sub">My Rank</div>
+                        <div className="fw-bold">{lg.my_final_rank ?? '—'}</div>
+                      </div>
+                    </div>
+
+                    <div className="mt-3" style={{ display: 'flex', gap: '8px' }}>
+                      <button
+                        className="fs-btn fs-btn-primary"
+                        onClick={() => toggleDetails(lg.id)}
+                      >
+                        {mine?.open ? 'Hide Details' : 'Show Details'}
+                      </button>
+                    </div>
+
+                    {mine?.open && (
+                      <div className="mt-3">
+                        <div className="table-responsive">
+                          <table className="fs-table">
+                            <thead>
+                              <tr>
+                                <th style={{ width: 56 }}>#</th>
+                                <th>Symbol</th>
+                                <th>Action</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Time</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {mine.items.length === 0 && !mine.loading && !mine.hasMore ? (
+                                <tr>
+                                  <td colSpan={6} className="fs-empty">거래 내역이 없습니다.</td>
+                                </tr>
+                              ) : (
+                                mine.items.map((it, idx) => {
+                                  const sym = it.stock ?? it.symbol ?? it.stock_symbol ?? '-';
+                                  const qty = it.quantity ?? it.shares ?? it.qty ?? '-';
+                                  const action = (it.action ?? it.side ?? '').toString().toUpperCase();
+                                  const when = it.timestamp ?? it.created_at ?? it.date ?? '';
+                                  const key = it.id ?? `${lg.id}-${sym}-${when}-${qty}-${it.price}-${action}-${idx}`;
+                                  const isBuy = action === 'BUY';
+                                  return (
+                                    <tr key={key} className="fs-row">
+                                      <td>{idx + 1}</td>
+                                      <td className="fs-mono">{sym}</td>
+                                      <td style={{ fontWeight: 600 }}>
+                                        {isBuy ? 'BUY' : (action || '—')}
+                                      </td>
+                                      <td>{qty}</td>
+                                      <td>${formatMoney(it.price)}</td>
+                                      <td>{formatDate(when)}</td>
+                                    </tr>
+                                  );
+                                })
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
+
+                        <div
+                          ref={el => (loaders.current[lg.id] = el)}
+                          className="text-center py-2"
+                        >
+                          {mine.loading && <p className="mb-0">Loading…</p>}
+                          {!mine.loading && mine.hasMore && (
+                            <p className="fs-sub mb-0">아래로 스크롤하면 더 불러옵니다…</p>
+                          )}
+                          {!mine.hasMore && mine.items.length > 0 && (
+                            <p className="fs-sub mb-0">모든 내역을 불러왔습니다.</p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      </main>
     </div>
   );
 }

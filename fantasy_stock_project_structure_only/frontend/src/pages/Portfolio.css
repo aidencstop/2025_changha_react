@@ -162,3 +162,8 @@
 @media (max-width: 576px){
   .fs-portfolio .fs-user__right{ flex-wrap:wrap; justify-content:flex-end; gap:8px; }
 }
+/* ===== table fixed & helpers ===== */
+.fs-portfolio .fs-table--fixed { table-layout: fixed; width: 100%; }
+.fs-portfolio .u-nowrap { white-space: nowrap; }
+.fs-portfolio .u-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fs-portfolio .u-num { text-align: right; white-space: nowrap; }

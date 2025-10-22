@@ -1,0 +1,229 @@
+/* frontend/src/components/MyLeague.css */
+
+/* ===== Base / Card ===== */
+.fs-myleague {
+  color: #111; /* 기본 텍스트 컬러: 검정 */
+}
+
+.fs-myleague .card {
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 16px;
+  background-color: #fff; /* 밝은 카드 배경 */
+}
+
+.fs-myleague .shadow-sm {
+  box-shadow:
+    0 2px 8px rgba(0,0,0,0.08),
+    0 12px 24px rgba(0,0,0,0.06) !important;
+}
+
+/* ===== Header ===== */
+.fs-myleague .fs-ml-head {
+  /* 파란 그라데이션 → 라이트 톤 서피스 */
+  background: linear-gradient(180deg, rgba(0,0,0,0.04), rgba(0,0,0,0.015));
+  border: 1px solid rgba(0,0,0,0.10);
+}
+
+.fs-myleague .fs-ml-head__dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  /* 파란 포인트는 유지 (시그니처 악센트) */
+  background: radial-gradient(circle at 40% 40%, #6ea8fe, #375a7f);
+  box-shadow: 0 0 0 4px rgba(110,168,254,0.2);
+}
+
+.fs-myleague .fs-ml-title {
+  font-size: 1.375rem;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  color: #111; /* 제목도 검정 */
+}
+
+/* ===== Skeletons ===== */
+.fs-myleague .fs-ml-skeleton {
+  display: grid;
+  gap: 16px;
+}
+
+.fs-myleague .fs-ml-skeleton .card {
+  height: 120px;
+  /* 흰색 기반 → 라이트 그레이 셔머 */
+  background: linear-gradient(90deg,
+    rgba(0,0,0,0.06) 25%,
+    rgba(0,0,0,0.10) 37%,
+    rgba(0,0,0,0.06) 63%);
+  background-size: 400% 100%;
+  animation: fs-ml-shimmer 1.4s ease-in-out infinite;
+  border-radius: 16px;
+  border: 1px dashed rgba(0,0,0,0.10);
+}
+@keyframes fs-ml-shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: 0 0; }
+}
+
+/* ===== KPIs ===== */
+.fs-myleague .fs-ml-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+@media (min-width: 480px) {
+  .fs-myleague .fs-ml-kpis { grid-template-columns: repeat(3, 1fr); }
+}
+
+.fs-myleague .fs-ml-kpi {
+  background: rgba(0,0,0,0.03);
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 14px;
+  padding: 14px 16px;
+}
+
+.fs-myleague .fs-ml-kpi__label {
+  font-size: 0.85rem;
+  color: #6c757d; /* muted 계열 */
+  margin-bottom: 4px;
+}
+
+.fs-myleague .fs-ml-kpi__value {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #111;
+}
+
+/* 간격: History.jsx와 비슷하게 헤더-본문 간격 축소 */
+.fs-myleague .fs-ml-tighthead {
+  margin-bottom: 8px; /* 기본보다 타이트 */
+}
+
+/* 메인 레이아웃을 CSS Grid로: 좌 55% / 우 45% */
+.fs-myleague .fs-ml-main {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr; /* ≈ 55% : 45% */
+  gap: 16px;                           /* 카드 간 여백 */
+  /* 화면을 기본적으로 꽉 채우도록 최소 높이 확보
+     헤더/상하 패딩을 고려해 보정치(예: 180px) 사용 */
+  min-height: calc(100vh - 180px);
+}
+
+/* 좌/우 카드가 세로로 꽉 차도록 */
+.fs-myleague .fs-ml-left,
+.fs-myleague .fs-ml-right > .fs-card {
+  height: 100%;
+}
+
+/* ===== Members ===== */
+.fs-myleague .fs-ml-search {
+  max-width: 260px;
+  color: #111;
+  background: #fff;
+}
+.fs-ml-table {
+  table-layout: fixed !important;
+}
+.fs-myleague .fs-ml-table-wrap {
+  margin-top: 8px;
+  max-height: 520px;
+  overflow: auto;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: #fff;
+}
+
+/* 헤더를 밝은 스티키로 변경 */
+.fs-myleague .fs-ml-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #fff;
+  border-bottom-color: rgba(0,0,0,0.10);
+  color: #333;
+  font-weight: 600;
+}
+
+/* 로우 호버는 은은한 블루 악센트 유지(브랜드 포인트) */
+.fs-myleague .fs-ml-table tbody tr:hover {
+  background: rgba(70, 88, 255, 0.06);
+}
+
+.fs-myleague .fs-ml-table tbody td {
+  border-top-color: rgba(0,0,0,0.06);
+  color: #111;
+}
+
+/* ===== Buttons ===== */
+/* 버튼 텍스트/스타일은 유지 (요청대로 버튼 내부 글자는 변경하지 않음) */
+.fs-myleague .btn {
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+/* 기존 outline-secondary(어두운 배경 대비) 스타일은 그대로 유지 */
+.fs-myleague .btn-outline-secondary {
+  border-color: rgba(255,255,255,0.25);
+  color: rgba(255,255,255,0.9);
+}
+.fs-myleague .btn-outline-secondary:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+/* ===== Utility ===== */
+/* white muted → 다크 muted */
+.fs-myleague .text-muted { color: #6c757d !important; }
+
+/* ===== Sidebar-aware page spacing for MyLeague ===== */
+:root {
+  /* 프로젝트에서 이미 정의되어 있으면 이 줄은 무시됨 */
+  --fs-sidebar-w: 260px;
+}
+
+/* 데스크탑: 왼쪽 고정 사이드바 공간만큼 비워서 가려지지 않게 */
+.fs-myleague.fs-page {
+  margin-left: var(--fs-sidebar-w);
+}
+
+/* 플루이드 레이아웃을 쓰는 경우(전체폭)도 대응 */
+.fs-myleague.fs-page.fs-page--fluid {
+  margin-left: var(--fs-sidebar-w);
+}
+
+/* 태블릿/모바일: 사이드바가 접히는 뷰포트에서는 여백 제거 */
+@media (max-width: 991.98px) {
+  .fs-myleague.fs-page,
+  .fs-myleague.fs-page.fs-page--fluid {
+    margin-left: 0;
+  }
+}
+
+/* 사이드바 위로 헤더 카드가 잘 보이도록(드물지만 z-index 충돌 방지) */
+.fs-myleague .fs-ml-head {
+  position: relative;
+  z-index: 1;
+}
+
+/* ===== Prevent horizontal overflow ===== */
+.fs-myleague.fs-page {
+  margin-left: var(--fs-sidebar-w);
+  width: calc(100% - var(--fs-sidebar-w));
+  max-width: calc(100% - var(--fs-sidebar-w));
+  overflow-x: hidden;
+}
+
+/* fluid 모드 */
+.fs-myleague.fs-page.fs-page--fluid {
+  margin-left: var(--fs-sidebar-w);
+  width: calc(100% - var(--fs-sidebar-w));
+  max-width: calc(100% - var(--fs-sidebar-w));
+  overflow-x: hidden;
+}
+
+/* 모바일/태블릿 뷰: 여백 제거 */
+@media (max-width: 991.98px) {
+  .fs-myleague.fs-page,
+  .fs-myleague.fs-page.fs-page--fluid {
+    margin-left: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+}

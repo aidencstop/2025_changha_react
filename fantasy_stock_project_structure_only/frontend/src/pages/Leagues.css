@@ -1,0 +1,161 @@
+/* Leagues 전용 스코프 */
+.fs-leagues.fs-page {
+  margin-left: var(--fs-sidebar-w); /* 사이드바 레이아웃 호환 */
+  padding: 24px 20px;
+}
+
+.fs-leagues .fs-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 992px) {
+  .fs-leagues.fs-page { margin-left: 0; }
+  .fs-leagues .fs-grid { grid-template-columns: 1fr; }
+}
+
+/* 카드 공통 */
+.fs-leagues .fs-card {
+  background: #fff;
+  border: 1px solid var(--fs-border);
+  border-radius: 16px;
+  box-shadow: var(--fs-card-shadow);
+}
+
+.fs-leagues .fs-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 18px 18px 0;
+}
+
+.fs-leagues .fs-card-title {
+  font-weight: 800;
+  color: var(--fs-title);
+  font-size: 18px;
+}
+
+.fs-leagues .fs-card-sub {
+  color: var(--fs-muted);
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.fs-leagues .fs-card-body {
+  padding: 16px 18px 18px;
+}
+
+/* 생성 폼 */
+.fs-leagues .fs-form .form-label {
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--fs-muted);
+}
+
+.fs-leagues .fs-form .form-control {
+  border-radius: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--fs-border);
+}
+
+.fs-leagues .fs-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+/* 오픈 리그 목록 */
+.fs-leagues .fs-list {
+  display: grid;
+  gap: 10px;
+}
+
+.fs-leagues .fs-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--fs-border);
+  border-radius: 14px;
+  background: #fff;
+  transition: box-shadow .15s ease, border-color .15s ease;
+}
+
+.fs-leagues .fs-list-item:hover {
+  box-shadow: 0 10px 28px rgba(86,103,255,.12);
+  border-color: #CAD6FF;
+}
+
+.fs-leagues .fs-li-left {
+  min-width: 0;
+}
+
+.fs-leagues .fs-li-title {
+  font-weight: 800;
+  color: var(--fs-title);
+}
+
+.fs-leagues .fs-li-meta {
+  color: var(--fs-muted);
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.fs-leagues .fs-chip {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--fs-border);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--fs-text);
+  background: #fff;
+}
+.fs-chip-btn {
+  min-width: 80px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.fs-leagues .fs-join {
+  white-space: nowrap;
+}
+
+.fs-leagues .fs-empty {
+  color: var(--fs-muted);
+  font-size: 14px;
+  padding: 10px 2px;
+}
+
+/* 상태 뱃지 */
+.fs-leagues .badge-ok   { color: #2eac5f; background: rgba(46,172,95,.12); border-radius: 8px; padding: 4px 8px; font-weight: 700; }
+.fs-leagues .badge-full { color: #e23b3b; background: rgba(226,59,59,.12); border-radius: 8px; padding: 4px 8px; font-weight: 700; }
+
+/* 버튼 크기 */
+.fs-leagues .fs-btn {
+  border-radius: 10px;
+  font-weight: 800;
+  padding: 10px 14px;
+}
+
+.fs-leagues .fs-btn-primary {
+  background: var(--fs-primary);
+  border: 1px solid var(--fs-primary);
+  color: #fff;
+}
+
+.fs-leagues .fs-btn-primary:disabled {
+  opacity: .65;
+}
+
+.fs-leagues .fs-btn-ghost {
+  background: #fff;
+  border: 1px solid var(--fs-border);
+}
+
+.fs-leagues .alert {
+  border-radius: 12px;
+}

@@ -93,15 +93,15 @@ const MyPortfolioView = () => {
           <table className="fs-table">
             <thead>
               <tr>
-                <th>#</th>
-                <th>Stocks</th>
-                <th>Quantity</th>
-                <th>Avg. Cost($)</th>
-                <th>Current Price($)</th>
-                <th>Market Value($)</th>
-                <th>Gain/Loss</th>
-                <th className="text-end">Action</th>
-              </tr>
+      <th style={{ width: '5%' }}>#</th>
+      <th style={{ width: '12%' }}>Stocks</th>
+      <th style={{ width: '10%' }}>Quantity</th>
+      <th style={{ width: '10%' }}>Avg. Cost($)</th>
+      <th style={{ width: '13%' }}>Current Price($)</th>
+      <th style={{ width: '13%' }}>Market Value($)</th>
+      <th style={{ width: '23%' }}>Gain/Loss</th>
+      <th style={{ width: '15%' }} className="text-end">Action</th>
+    </tr>
             </thead>
             <tbody>
               {rows.map((r, i) => (
