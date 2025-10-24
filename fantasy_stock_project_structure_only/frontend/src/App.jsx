@@ -18,6 +18,8 @@ import Leagues from './pages/Leagues';
 import MyLeague from './pages/MyLeague';
 import History from './pages/History';
 
+// ⬇️ ACTIVE 리그면 Leagues 접근 차단 가드
+import BlockIfActiveLeague from './components/BlockIfActiveLeague';
 
 function App() {
   useEffect(() => {
@@ -53,7 +55,17 @@ function App() {
         <Route path="/admin" element={<AdminPanel />} />
         <Route path="/trade-history" element={<TradeHistory />} />
         <Route path="/admin/init-season" element={<InitializeSeason />} />
-        <Route path="/leagues" element={<Leagues />} />
+
+        {/* ⬇️ 여기만 가드로 감쌌습니다 */}
+        <Route
+          path="/leagues"
+          element={
+            <BlockIfActiveLeague>
+              <Leagues />
+            </BlockIfActiveLeague>
+          }
+        />
+
         <Route path="/my-league" element={<MyLeague />} />
       </Routes>
     </Router>

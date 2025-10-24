@@ -18,4 +18,8 @@ urlpatterns = [
     path('user-portfolio/<int:user_id>/', views.user_portfolio, name='user-portfolio'),
     path('admin/init-season/', views.initialize_season_and_portfolios, name='init-season'),
     path("backfill-stock-names/", views.backfill_stock_names, name="backfill-stock-names"),  # POST, admin only
+    path('company-profile/<str:symbol>/', views.company_profile),
+    path('key-stats/<str:symbol>/', views.key_stats),
+    path('news/yahoo-top/', views.yahoo_top_news, name='yahoo_top_news'),
+    path('tickerbar/', views.tickerbar_random, name='tickerbar-random'),
 ]

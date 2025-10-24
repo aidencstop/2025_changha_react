@@ -26,7 +26,7 @@ function MarketOverview() {
       setLoading(false);
     } catch (err) {
       console.error('Failed to load market data', err);
-      setError('📉 시장 데이터를 불러올 수 없습니다.');
+      setError('📉 Unable to retrieve market data.');
       setLoading(false);
     }
   };
@@ -100,7 +100,7 @@ function MarketOverview() {
       return (
         <tr>
           <td colSpan={7} className="fs-empty">
-            검색 결과가 없습니다.
+            No search results.
           </td>
         </tr>
       );
@@ -161,7 +161,7 @@ function MarketOverview() {
                 onClick={handleShowAll}
                 disabled={loading}
               >
-                전체
+                All
               </button>
             </div>
           </div>
@@ -204,7 +204,7 @@ function MarketOverview() {
           </div>
 
           {/* 보조 상태 텍스트는 테이블 외부에 작게 표시 (레이아웃 영향 최소화) */}
-          {loading && <p className="mt-2">⏳ 로딩 중...</p>}
+          {loading && <p className="mt-2">⏳ Loading...</p>}
         </div>
       </main>
 

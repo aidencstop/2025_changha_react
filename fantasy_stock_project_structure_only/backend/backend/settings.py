@@ -99,3 +99,5 @@ AUTH_USER_MODEL = 'accounts.CustomUser'
 
 # Default auto field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+SEC_CONTACT_EMAIL = "aiden.cs.top@gmail.com"

@@ -1,33 +1,67 @@
 // frontend/src/pages/StockDetail.jsx
 import React, { useEffect, useMemo, useState } from 'react';
-import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import api from '../api/axios';
+import { useParams, useNavigate } from 'react-router-dom';
 
 function StockDetail() {
   const { symbol } = useParams();
+  const navigate = useNavigate();
   const [stock, setStock] = useState(null);
   const [quantity, setQuantity] = useState('');
   const [message, setMessage] = useState('');
-  const [side, setSide] = useState('buy'); // 'buy' | 'sell'  (UI 토글만 추가, 로직 변경 없음)
+  const [side, setSide] = useState('buy');
+
+  const [stats, setStats] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [profileSrc, setProfileSrc] = useState(null);
+  const [companyMeta, setCompanyMeta] = useState({
+    sector: null,
+    industry: null,
+    fullTimeEmployees: null,
+    fiscalYearEnd: null,
+  });
 
   useEffect(() => {
     const fetchStockDetail = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const res = await axios.get(`/api/stocks/detail/${symbol}/`, {
-          headers: { Authorization: `Token ${token}` }
-        });
+        const res = await api.get(`/stocks/detail/${symbol}/`);
         setStock(res.data);
-      } catch (err) {
+      } catch {
         setMessage('Failed to load stock data');
       }
     };
     fetchStockDetail();
   }, [symbol]);
 
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const { data } = await api.get(`/stocks/company-profile/${symbol}/`);
+        setProfile(data?.profile || null);
+        setProfileSrc(data?.source || null);
+        setCompanyMeta({
+          sector: data?.sector ?? null,
+          industry: data?.industry ?? null,
+          fullTimeEmployees: data?.fullTimeEmployees ?? null,
+          fiscalYearEnd: data?.fiscalYearEnd ?? null,
+        });
+      } catch {
+        setProfile(null);
+      }
+    };
+    const loadStats = async () => {
+      try {
+        const { data } = await api.get(`/stocks/key-stats/${symbol}/`);
+        setStats(data || null);
+      } catch {
+        setStats(null);
+      }
+    };
+    loadProfile();
+    loadStats();
+  }, [symbol]);
+
   const close = Number(stock?.close ?? 0);
-  const high = Number(stock?.high ?? 0);
-  const low = Number(stock?.low ?? 0);
   const volume = Number(stock?.volume ?? 0);
 
   const qtyNum = Number.isFinite(parseInt(quantity, 10)) ? parseInt(quantity, 10) : 0;
@@ -37,25 +71,16 @@ function StockDetail() {
     setMessage('');
     const qty = parseInt(quantity, 10);
     if (!qty || qty <= 0) {
-      setMessage('수량을 1 이상으로 입력하세요.');
+      setMessage('Please enter a quantity greater than 1.');
       return;
     }
-
     try {
-      const token = localStorage.getItem('token');
-      const endpoint = action === 'buy' ? '/api/stocks/buy/' : '/api/stocks/sell/';
-      const res = await axios.post(
-        endpoint,
-        { symbol, shares: qty },
-        { headers: { Authorization: `Token ${token}` } }
-      );
-      setMessage(res.data.status || res.data.message || (action === 'buy' ? '매수 완료' : '매도 완료'));
+      const endpoint = action === 'buy' ? '/stocks/buy/' : '/stocks/sell/';
+      const res = await api.post(endpoint, { symbol, shares: qty });
+      setMessage(res.data.status || res.data.message || (action === 'buy' ? 'Purchase completed' : 'Sale completed'));
       setQuantity('');
     } catch (err) {
-      const errMsg =
-        err?.response?.data?.error ||
-        err?.response?.data?.detail ||
-        'Trade failed.';
+      const errMsg = err?.response?.data?.error || err?.response?.data?.detail || 'Trade failed.';
       setMessage(errMsg);
     }
   };
@@ -64,18 +89,29 @@ function StockDetail() {
     return (
       <div className="fs-layout">
         <main className="fs-page fs-page--fluid">
-          <div className="fs-page-header">
-            <div>
-              <h2 className="fs-title">Loading…</h2>
-              <p className="fs-sub">Fetching {symbol} details</p>
-            </div>
+          <div className="fs-page-header d-flex align-items-center">
+            <button
+              className="fs-btn fs-btn-ghost"
+              onClick={() => navigate(-1)}
+              style={{ borderRadius: 999 }}
+            >
+              ← Back to Market
+            </button>
           </div>
+          <hr
+            style={{
+              border: 'none',
+              borderTop: '1px solid rgba(128,128,128,0.25)',
+              margin: '8px 0 16px',
+              width: '100%',
+            }}
+          />
           <div className="fs-card">
             <div className="fs-card-head">
               <div className="fs-card-title">Stock Detail</div>
             </div>
             <div className="fs-card-body">
-              <p className="text-muted">⏳ 불러오는 중…</p>
+              <p className="text-muted">⏳ Loading…</p>
             </div>
           </div>
         </main>
@@ -83,28 +119,106 @@ function StockDetail() {
     );
   }
 
-  // 시각 표현 보조
   const fmtMoney = (v) =>
-    isFinite(v) ? `$${Number(v).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '—';
+    isFinite(v)
+      ? `$${Number(v).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+      : '—';
   const fmtInt = (v) => (isFinite(v) ? Number(v).toLocaleString() : '—');
+
+  // stats 안전 접근
+  const s = stats || {};
+  const previousClose = s.previousClose ? Number(s.previousClose) : null;
+  const marketCap = s.marketCap ? `$${Number(s.marketCap).toLocaleString()}` : '—';
+  const avgVolume = s.avgVolume ? Number(s.avgVolume).toLocaleString() : '—';
+  const bid = s.bid ? Number(s.bid).toLocaleString() : '—';
+  const ask = s.ask ? Number(s.ask).toLocaleString() : '—';
+  const targetEst = s.targetEst ? Number(s.targetEst).toLocaleString() : '—';
+  const peRatioTTM = s.peRatioTTM ? s.peRatioTTM.toFixed(2) : '—';
+  const epsTTM = (s.epsTTM || s.epsTTM === 0) ? String(s.epsTTM) : '—';
+  const dividendRate = (s.dividendRate || s.dividendRate === 0) ? String(s.dividendRate) : '—';
+  const exDividendDate = s.exDividendDate ? String(s.exDividendDate) : '—';
+  const open = s.open ? String(s.open) : '—';
+
+  const metaEmployees = companyMeta.fullTimeEmployees != null
+    ? Number(companyMeta.fullTimeEmployees).toLocaleString()
+    : '—';
+  const metaSector = companyMeta.sector || '—';
+  const metaIndustry = companyMeta.industry || '—';
+
+  // 변동값 계산
+  const safeNum = (v) => (v === null || v === undefined || v === '' || Number.isNaN(Number(v)) ? null : Number(v));
+  const prevCloseNum = safeNum(previousClose);
+  const closeNum = safeNum(close);
+
+  let delta = null;
+  let deltaPct = null;
+  if (prevCloseNum !== null && prevCloseNum > 0 && closeNum !== null) {
+    delta = closeNum - prevCloseNum;
+    deltaPct = (delta / prevCloseNum) * 100;
+  }
+
+  const isPos = delta !== null && delta > 0;
+  const isNeg = delta !== null && delta < 0;
+
+  const badgeBg = isPos
+    ? 'rgba(34,197,94,0.15)'
+    : isNeg
+    ? 'rgba(239,68,68,0.15)'
+    : 'rgba(128,128,128,0.15)';
+  const badgeColor = isPos ? '#16a34a' : isNeg ? '#dc2626' : '#6b7280';
+
+  const badgeText =
+    delta === null
+      ? '—'
+      : `${delta >= 0 ? '+' : ''}${fmtMoney(delta)} (${deltaPct >= 0 ? '+' : ''}${deltaPct.toFixed(2)}%)`;
+
+  // 작은 Key-Value 행 렌더러
+  const kv = (label, value) => (
+    <div className="d-flex justify-content-between align-items-baseline" style={{ padding: '8px 0' }}>
+      <div className="text-muted" style={{ fontSize: 14 }}>{label}</div>
+      <div className="fw-semibold" style={{ fontSize: 18 }}>{value}</div>
+    </div>
+  );
+
+  const colDivider = { borderRight: '1px solid rgba(128,128,128,0.25)' };
+
+  const VALUE_BOX_STYLE = {
+    flex: '0 0 156px',
+    width: 156,
+    maxWidth: 156,
+    minWidth: 0,
+    boxSizing: 'border-box',
+    overflow: 'hidden',
+  };
+  const LABEL_STYLE = { minWidth: 60, marginRight: 8 };
 
   return (
     <div className="fs-layout">
       <main className="fs-page fs-page--fluid">
-        {/* 상단 네비 헤더(좌측 Back, 우측 잔고)는 프로젝트 전역 Navbar가 담당한다고 가정 */}
-        <div className="fs-page-header">
-          <div>
-            <h2 className="fs-title">{stock?.name || symbol}</h2>
-            <p className="fs-sub">{symbol}</p>
-          </div>
+        <div className="fs-page-header d-flex align-items-center">
+          <button
+            className="fs-btn fs-btn-ghost"
+            onClick={() => navigate(-1)}
+            style={{ borderRadius: 999 }}
+          >
+            ← Back to Market
+          </button>
         </div>
 
-        {/* 상단: 좌(종목 카드) / 우(주문 카드) */}
-        <div className="row g-4">
-          {/* 좌측 큰 종목 카드 */}
-          <div className="col-12 col-lg-8">
-            <div className="fs-card">
-              <div className="fs-card-body">
+        <hr
+          style={{
+            border: 'none',
+            borderTop: '1px solid rgba(128,128,128,0.25)',
+            margin: '8px 0 16px',
+            width: '100%',
+          }}
+        />
+
+        {/* 상단 카드 */}
+        <div className="row g-4 align-items-stretch">
+          <div className="col-12 col-lg-8 d-flex">
+            <div className="fs-card h-100 w-100">
+              <div className="fs-card-body d-flex flex-column justify-content-between">
                 <div className="d-flex align-items-start justify-content-between">
                   <div>
                     <div className="d-flex align-items-center gap-3">
@@ -121,60 +235,80 @@ function StockDetail() {
 
                     <div className="mt-3 d-flex align-items-center gap-3">
                       <div style={{ fontSize: 32, fontWeight: 800 }}>{fmtMoney(close)}</div>
-                      {/* 변동률/변동액이 없을 수 있어 배지 형태만 틀 유지 */}
                       <span
-                        className="badge"
-                        style={{
-                          background: 'rgba(255, 68, 68, 0.12)',
-                          color: '#dc3545',
-                          padding: '8px 10px',
-                          borderRadius: 12,
-                          fontWeight: 700
-                        }}
-                      >
-                        {/* 예: -0.15% / -0.28 USD */}
-                        —
-                      </span>
-                    </div>
+  className="badge"
+  style={{
+    display: 'flex',
+    alignItems: 'center',      // ✅ 텍스트를 배지 내부에서 세로 중앙정렬
+    background: badgeBg,
+    color: badgeColor,
+    padding: '8px 10px',
+    borderRadius: 12,
+    fontWeight: 700,
+  }}
+>
+  {badgeText}
+</span>
 
-                    <div className="text-muted mt-1" style={{ fontSize: 12 }}>
-                      At Close · Latest quote
                     </div>
                   </div>
+                </div>
+              </div>
 
-                  <div className="d-none d-md-grid" style={{ gridTemplateColumns: '1fr 1fr', gap: 16, minWidth: 260 }}>
-                    <div>
-                      <div className="text-muted" style={{ fontSize: 12 }}>
-                        Market Cap
-                      </div>
-                      <div className="fw-bold" style={{ marginTop: 4 }}>—</div>
-                    </div>
-                    <div>
-                      <div className="text-muted" style={{ fontSize: 12 }}>
-                        Volume
-                      </div>
-                      <div className="fw-bold" style={{ marginTop: 4 }}>{fmtInt(volume)}</div>
-                    </div>
-                  </div>
+              <hr
+                style={{
+                  border: 'none',
+                  borderTop: '1px solid rgba(128,128,128,0.25)',
+                  margin: '16px 0',
+                  width: '100%',
+                }}
+              />
+
+              <div
+                className="d-flex align-items-center justify-content-between text-center"
+                style={{ width: '100%', minHeight: 48 }}
+              >
+                <div
+                  className="d-flex align-items-center justify-content-center flex-grow-1"
+                  style={{
+                    gap: 6,
+                    borderRight: '1px solid rgba(128,128,128,0.25)',
+                    padding: '0 8px',
+                  }}
+                >
+                  <span className="text-muted" style={{ fontSize: 12 }}>Employees</span>
+                  <span className="fw-semibold">{metaEmployees}</span>
+                </div>
+                <div
+                  className="d-flex align-items-center justify-content-center flex-grow-1"
+                  style={{
+                    gap: 6,
+                    borderRight: '1px solid rgba(128,128,128,0.25)',
+                    padding: '0 8px',
+                  }}
+                >
+                  <span className="text-muted" style={{ fontSize: 12 }}>Sector</span>
+                  <span className="fw-semibold">{metaSector}</span>
+                </div>
+                <div
+                  className="d-flex align-items-center justify-content-center flex-grow-1"
+                  style={{ gap: 6, padding: '0 8px' }}
+                >
+                  <span className="text-muted" style={{ fontSize: 12 }}>Industry</span>
+                  <span className="fw-semibold">{metaIndustry}</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* 우측 주문 패널 */}
-          <div className="col-12 col-lg-4">
-            <div className="fs-card">
-              <div className="fs-card-head">
+          {/* 주문 카드 */}
+          <div className="col-12 col-lg-4 d-flex">
+            <div className="fs-card h-100 w-100">
+              <div className="fs-card-head d-flex justify-content-between align-items-center">
                 <div className="fs-card-title">Order</div>
-                {/* Buy / Sell 세그먼트 */}
                 <div
                   className="d-inline-flex"
-                  style={{
-                    background: 'rgba(113, 113, 122, .12)',
-                    borderRadius: 999,
-                    padding: 4,
-                    gap: 4
-                  }}
+                  style={{ background: 'rgba(113, 113, 122, .12)', borderRadius: 999, padding: 4, gap: 4 }}
                 >
                   <button
                     className={`fs-btn ${side === 'buy' ? 'fs-btn-primary' : 'fs-btn-ghost'}`}
@@ -193,70 +327,62 @@ function StockDetail() {
                 </div>
               </div>
 
-              <div className="fs-card-body">
-                <div
-  className="mb-3 d-flex align-items-center"
-  style={{ gap: 8, width: '50%' }}
->
-  <div className="text-muted" style={{ minWidth: 60 }}>
-    Shares
-  </div>
-  <input
-    type="number"
-    min={1}
-    className="fs-search-input flex-grow-1 text-end"
-    placeholder="수량 입력"
-    value={quantity}
-    onChange={(e) => setQuantity(e.target.value)}
-    style={{
-      backgroundColor: '#f8f9fa', // 아주 연한 회색
-      textAlign: 'right',         // 우측 정렬
-      width: '100%'
-    }}
-  />
-</div>
-
-                <div
-  className="mb-3 d-flex align-items-center"
-  style={{ gap: 8, width: '50%' }}
->
-  <div className="text-muted" style={{ minWidth: 60 }}>
-    Price
-  </div>
-  <div
-    className="fs-search-input flex-grow-1 text-end"
-    style={{
-      pointerEvents: 'none',
-      color: '#000',          // 검은색 텍스트
-      opacity: 1,
-      textAlign: 'right',     // 우측 정렬
-      width: '100%'
-    }}
-  >
-    {fmtMoney(close)}
-  </div>
-</div>
-
-
-                <div className="mb-4 d-flex justify-content-between align-items-center">
-                  <div className="text-muted">Total</div>
-                  <div className="fw-bold">{fmtMoney(total)}</div>
+              <div className="fs-card-body d-flex flex-column">
+                {/* Shares */}
+                <div className="mb-3 d-flex align-items-center justify-content-between">
+                  <div className="text-muted" style={LABEL_STYLE}>Shares</div>
+                  <div style={VALUE_BOX_STYLE}>
+                    <input
+                      type="number"
+                      min={1}
+                      step={1}
+                      inputMode="numeric"
+                      className="fs-search-input"
+                      placeholder="Enter quantity"
+                      value={quantity}
+                      onChange={(e) => setQuantity(e.target.value)}
+                      style={{
+                        width: '100%',
+                        backgroundColor: '#f8f9fa',
+                        boxSizing: 'border-box',
+                      }}
+                    />
+                  </div>
                 </div>
 
-                <button
-                  className="fs-btn fs-btn-primary w-100"
-                  onClick={() => handleAction(side)}
-                >
+                {/* Price */}
+                <div className="mb-3 d-flex align-items-center" style={{ overflow: 'hidden' }}>
+                  <div className="text-muted me-2" style={{ minWidth: 60 }}>Price</div>
+                  <div className="ms-auto d-flex align-items-center justify-content-end" style={VALUE_BOX_STYLE}>
+                    <div
+                      className="fs-search-input text-end"
+                      style={{ pointerEvents: 'none', color: '#000', opacity: 1, width: '100%', boxSizing: 'border-box' }}
+                    >
+                      {fmtMoney(close)}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Total */}
+                <div className="mb-4 d-flex align-items-center" style={{ overflow: 'hidden' }}>
+                  <div className="text-muted me-2" style={{ minWidth: 60 }}>Total</div>
+                  <div className="ms-auto d-flex align-items-center justify-content-end" style={VALUE_BOX_STYLE}>
+                    <div className="fw-bold text-end" style={{ width: '100%', boxSizing: 'border-box' }}>
+                      {fmtMoney(total)}
+                    </div>
+                  </div>
+                </div>
+
+                <button className="fs-btn fs-btn-primary w-100 mt-auto" onClick={() => handleAction(side)}>
                   Order
                 </button>
-
                 {message && <div className="alert alert-info mt-3 mb-0">{message}</div>}
               </div>
             </div>
           </div>
         </div>
 
-        {/* 중단: Detail Stock */}
+        {/* Detail Stock */}
         <div className="fs-card mt-4">
           <div className="fs-card-head">
             <div>
@@ -266,99 +392,53 @@ function StockDetail() {
               </div>
             </div>
           </div>
+
           <div className="fs-card-body">
-            <div className="row g-4">
-              <div className="col-6 col-md-3">
-                <div className="text-muted" style={{ fontSize: 12 }}>Previous Close</div>
-                <div className="fw-semibold mt-1">{fmtMoney(close)}</div>
+            <div className="row g-0">
+              <div className="col-12 col-md-4 px-3 px-md-4" style={colDivider}>
+                {kv('Previous Close', previousClose ? fmtMoney(previousClose) : '—')}
+                {kv('Open', open)}
+                {kv('Bid', `${bid}`)}
+                {kv('Ask', `${ask}`)}
               </div>
-              <div className="col-6 col-md-3">
-                <div className="text-muted" style={{ fontSize: 12 }}>Open</div>
-                <div className="fw-semibold mt-1">—</div>
+              <div className="col-12 col-md-4 px-3 px-md-4" style={colDivider}>
+                {kv('Volume', fmtInt(volume))}
+                {kv('Avg. Volume', avgVolume)}
+                {kv('Market Cap', marketCap)}
+                {kv('PE Ratio (TTM)', peRatioTTM)}
               </div>
-              <div className="col-6 col-md-3">
-                <div className="text-muted" style={{ fontSize: 12 }}>Bid</div>
-                <div className="fw-semibold mt-1">—</div>
-              </div>
-              <div className="col-6 col-md-3">
-                <div className="text-muted" style={{ fontSize: 12 }}>Ask</div>
-                <div className="fw-semibold mt-1">—</div>
-              </div>
-
-              <div className="col-6 col-md-3">
-                <div className="text-muted" style={{ fontSize: 12 }}>Volume</div>
-                <div className="fw-semibold mt-1">{fmtInt(volume)}</div>
-              </div>
-              <div className="col-6 col-md-3">
-                <div className="text-muted" style={{ fontSize: 12 }}>Avg. Volume</div>
-                <div className="fw-semibold mt-1">—</div>
-              </div>
-              <div className="col-6 col-md-3">
-                <div className="text-muted" style={{ fontSize: 12 }}>Market Cap</div>
-                <div className="fw-semibold mt-1">—</div>
-              </div>
-              <div className="col-6 col-md-3">
-                <div className="text-muted" style={{ fontSize: 12 }}>PE Ratio (TTM)</div>
-                <div className="fw-semibold mt-1">—</div>
-              </div>
-
-              <div className="col-6 col-md-3">
-                <div className="text-muted" style={{ fontSize: 12 }}>EPS (TTM)</div>
-                <div className="fw-semibold mt-1">—</div>
-              </div>
-              <div className="col-6 col-md-3">
-                <div className="text-muted" style={{ fontSize: 12 }}>Forward Dividend</div>
-                <div className="fw-semibold mt-1">—</div>
-              </div>
-              <div className="col-6 col-md-3">
-                <div className="text-muted" style={{ fontSize: 12 }}>Ex-Dividend Date</div>
-                <div className="fw-semibold mt-1">—</div>
-              </div>
-              <div className="col-6 col-md-3">
-                <div className="text-muted" style={{ fontSize: 12 }}>Target Est</div>
-                <div className="fw-semibold mt-1">—</div>
+              <div className="col-12 col-md-4 px-3 px-md-4">
+                {kv('EPS (TTM)', epsTTM)}
+                {kv('Forward Dividend', dividendRate)}
+                {kv('Ex-Dividend Date', exDividendDate)}
+                {kv('Target Est', targetEst)}
               </div>
             </div>
           </div>
         </div>
 
-        {/* 하단: Overview + Facts */}
+        {/* Overview */}
         <div className="row g-4 mt-1">
-          <div className="col-12 col-lg-8">
+          <div className="col-12">
             <div className="fs-card">
               <div className="fs-card-head">
                 <div className="fs-card-title">{stock?.name || symbol} Overview</div>
               </div>
               <div className="fs-card-body">
-                <p className="text-muted" style={{ lineHeight: 1.7 }}>
-                  회사 설명 데이터가 아직 제공되지 않았습니다. 추후 회사 개요/제품/서비스/세그먼트 정보를 연결해 표시합니다.
-                </p>
-                <button className="fs-btn fs-btn-ghost">More about {stock?.name || symbol}</button>
-              </div>
-            </div>
-          </div>
-
-          <div className="col-12 col-lg-4">
-            <div className="fs-card">
-              <div className="fs-card-body">
-                <div className="d-grid" style={{ gap: 16 }}>
-                  <div className="d-flex justify-content-between">
-                    <span className="text-muted">Full Time Employees</span>
-                    <span className="fw-semibold">—</span>
-                  </div>
-                  <div className="d-flex justify-content-between">
-                    <span className="text-muted">Fiscal Year Ends</span>
-                    <span className="fw-semibold">—</span>
-                  </div>
-                  <div className="d-flex justify-content-between">
-                    <span className="text-muted">Sector</span>
-                    <span className="fw-semibold">—</span>
-                  </div>
-                  <div className="d-flex justify-content-between">
-                    <span className="text-muted">Industry</span>
-                    <span className="fw-semibold">—</span>
-                  </div>
-                </div>
+                {profile ? (
+                  <>
+                    <p className="text-muted" style={{ whiteSpace: 'pre-line', lineHeight: 1.7 }}>
+                      {profile}
+                    </p>
+                    {profileSrc && (
+                      <a className="fs-btn fs-btn-ghost" href={profileSrc} target="_blank" rel="noreferrer">
+                        View source (Yahoo Finance)
+                      </a>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-muted">Company description data is not yet ready.</p>
+                )}
               </div>
             </div>
           </div>

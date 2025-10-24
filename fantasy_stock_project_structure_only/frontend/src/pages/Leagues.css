@@ -4,6 +4,17 @@
   padding: 24px 20px;
 }
 
+.fs-search-input {
+  text-align: right;           /* 입력된 숫자는 오른쪽 정렬 */
+  box-sizing: border-box;
+}
+
+.fs-search-input::placeholder {
+  text-align: left;            /* 플레이스홀더만 왼쪽 정렬 */
+  opacity: .6;                 /* 살짝 연한 톤 */
+}
+
+
 .fs-leagues .fs-grid {
   display: grid;
   grid-template-columns: 1.1fr 1fr;

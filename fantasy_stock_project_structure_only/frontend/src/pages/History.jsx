@@ -195,12 +195,12 @@ function History() {
           )}
           {loadingLeagues && (
             <div className="fs-card" style={{ borderColor: 'transparent' }}>
-              <div className="fs-empty">⏳ 리그 목록을 불러오는 중…</div>
+              <div className="fs-empty">⏳ Loading league list…</div>
             </div>
           )}
           {!loadingLeagues && leagues.length === 0 && (
             <div className="fs-card" style={{ borderColor: 'transparent' }}>
-              <div className="fs-empty">참여한 리그가 없습니다.</div>
+              <div className="fs-empty">There are no leagues participated in.</div>
             </div>
           )}
 
@@ -289,7 +289,7 @@ function History() {
                             <tbody>
                               {mine.items.length === 0 && !mine.loading && !mine.hasMore ? (
                                 <tr>
-                                  <td colSpan={6} className="fs-empty">거래 내역이 없습니다.</td>
+                                  <td colSpan={6} className="fs-empty">There is no transaction history.</td>
                                 </tr>
                               ) : (
                                 mine.items.map((it, idx) => {
@@ -323,10 +323,10 @@ function History() {
                         >
                           {mine.loading && <p className="mb-0">Loading…</p>}
                           {!mine.loading && mine.hasMore && (
-                            <p className="fs-sub mb-0">아래로 스크롤하면 더 불러옵니다…</p>
+                            <p className="fs-sub mb-0">Scroll down to load more</p>
                           )}
                           {!mine.hasMore && mine.items.length > 0 && (
-                            <p className="fs-sub mb-0">모든 내역을 불러왔습니다.</p>
+                            <p className="fs-sub mb-0">All transaction history has been retrieved.</p>
                           )}
                         </div>
                       </div>

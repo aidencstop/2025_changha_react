@@ -54,7 +54,7 @@ export default function Leagues() {
           <div className="fs-card-head">
             <div>
               <div className="fs-card-title">Create a League</div>
-              <div className="fs-card-sub">초기 현금/정원 지정 후 리그를 개설하세요.</div>
+              <div className="fs-card-sub">Create a league after specifying the initial cash/garden.</div>
             </div>
           </div>
           <div className="fs-card-body">
@@ -102,7 +102,7 @@ export default function Leagues() {
             <div className="fs-card-head">
               <div>
                 <div className="fs-card-title">Open Leagues</div>
-                <div className="fs-card-sub">참여 가능한 리그 목록입니다.</div>
+                <div className="fs-card-sub">Here is a list of leagues you can join.</div>
               </div>
             </div>
             <div className="fs-card-body">

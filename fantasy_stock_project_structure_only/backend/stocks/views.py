@@ -102,7 +102,7 @@ class BuySellStockView(APIView):
             .first()
         )
         if not membership:
-            return Response({'error': '먼저 리그에 참여하세요.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'First, join the league.'}, status=status.HTTP_400_BAD_REQUEST)
 
         league = membership.league
 
@@ -566,7 +566,7 @@ def season_users(request):
         .first()
     )
     if not my_mem:
-        return Response({"error": "먼저 리그에 참여하세요."}, status=400)
+        return Response({"error": "First, join the league."}, status=400)
 
     my_league_id = my_mem.league_id
 
@@ -672,7 +672,7 @@ def my_portfolio(request):
         .first()
     )
     if not membership:
-        return Response({"error": "먼저 리그에 참여하세요."}, status=400)
+        return Response({"error": "First, join the league."}, status=400)
 
     league_id = membership.league.id
     data, error, status_code = get_user_portfolio_data(user_id=request.user.id, league_id=int(league_id))
@@ -690,7 +690,7 @@ def user_portfolio(request, user_id):
         .first()
     )
     if not membership:
-        return Response({"error": "먼저 리그에 참여하세요."}, status=400)
+        return Response({"error": "First, join the league."}, status=400)
 
     data, error, status_code = get_user_portfolio_data(
         user_id=int(user_id),
@@ -767,3 +767,212 @@ def backfill_stock_names(request):
         updated += cnt
 
     return Response({"updated": updated}, status=200)
+
+# backend/stocks/views.py (발췌/추가)
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
+from .utils_yahoo import fetch_yahoo_key_stats, fetch_yahoo_profile
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def key_stats(request, symbol: str):
+    """
+    GET /api/stocks/key-stats/<symbol>/
+    Detail Stock + 우상단 카드에 필요한 요약값들을 Yahoo에서 가져와 반환
+    """
+    try:
+        data = fetch_yahoo_key_stats(symbol.upper())
+        return Response(data)
+    except Exception as e:
+        return Response({"error": f"Failed to load Yahoo key stats: {e}"}, status=502)
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def company_profile(request, symbol: str):
+    """
+    GET /api/stocks/company-profile/<symbol>/
+    Overview(회사 개요) + 메타(섹터/산업/직원수/회계연도말) 반환
+    프론트 기존 스키마 {profile, source}는 유지, 추가 필드는 선택적으로 사용 가능
+    """
+    try:
+        data = fetch_yahoo_profile(symbol.upper())
+        # 기존 프론트 호환을 위해 최소 필드만 우선 노출
+        return Response({
+            "profile": data.get("profile", ""),
+            "source": data.get("source"),
+            # 필요 시 프론트에서 아래 4개도 활용 가능
+            "sector": data.get("sector"),
+            "industry": data.get("industry"),
+            "fullTimeEmployees": data.get("fullTimeEmployees"),
+            "fiscalYearEnd": data.get("fiscalYearEnd"),
+        })
+    except Exception as e:
+        return Response({"error": f"Failed to load Yahoo profile: {e}"}, status=502)
+
+
+# backend/stocks/views.py
+import html
+import re
+import requests
+from django.http import JsonResponse
+from xml.etree import ElementTree as ET
+
+RSS_URL = "https://finance.yahoo.com/news/rssindex"
+
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+}
+
+def _strip_tags(s: str) -> str:
+    return re.sub(r"<[^>]+>", "", s or "")
+
+def _fetch_og_image(url: str) -> str:
+    try:
+        r = requests.get(url, headers=HEADERS, timeout=8)
+        r.raise_for_status()
+        m = re.search(r'<meta[^>]+property=["\']og:image["\'][^>]+content=["\']([^"\']+)["\']', r.text, re.I)
+        return m.group(1) if m else ""
+    except Exception:
+        return ""
+
+def yahoo_top_news(request):
+    """
+    Yahoo Finance RSS에서 첫 기사를 안전하게 파싱해 반환.
+    title / description(짧게) / link / image 를 담아 JSON 응답.
+    """
+    try:
+        # 1) RSS 불러오기
+        rs = requests.get(RSS_URL, headers=HEADERS, timeout=8)
+        rs.raise_for_status()
+
+        # 2) XML 파싱
+        root = ET.fromstring(rs.content)
+        # 네임스페이스 처리 (media:content 등)
+        ns = {
+            "media": "http://search.yahoo.com/mrss/",
+            "content": "http://purl.org/rss/1.0/modules/content/"
+        }
+
+        # 3) 첫 item 추출
+        # 보통 구조: rss/channel/item
+        channel = root.find("channel")
+        if channel is None:
+            channel = root.find("./{*}channel")  # 방어적
+
+        if channel is None:
+            return JsonResponse({"error": "invalid rss format"}, status=502)
+
+        item = channel.find("item")
+        if item is None:
+            # 혹시 item이 없으면 폴백
+            return JsonResponse({
+                "title": "Top stories on Yahoo Finance",
+                "description": "최신 금융 헤드라인을 확인하세요.",
+                "image": "",
+                "url": "https://finance.yahoo.com/news/",
+                "source": "Yahoo Finance",
+            })
+
+        title = (item.findtext("title") or "").strip()
+        link = (item.findtext("link") or "").strip()
+
+        # description/encoded 중 택1
+        description = item.findtext("description") or ""
+        encoded = item.find("{http://purl.org/rss/1.0/modules/content/}encoded")
+        if encoded is not None and encoded.text:
+            description = encoded.text
+
+        description = html.unescape(_strip_tags(description)).strip()
+
+        # 4) 이미지: media:content 또는 og:image 폴백
+        image = ""
+        media_content = item.find("media:content", ns) or item.find("{http://search.yahoo.com/mrss/}content")
+        if media_content is not None:
+            image = media_content.attrib.get("url", "") or ""
+
+        if not image and link:
+            image = _fetch_og_image(link)
+
+        # 5) 길이 제한(프론트에서 다시 자르지만 서버도 안전하게 보정)
+        short_desc = (description[:240] + "…") if len(description) > 240 else description
+
+        return JsonResponse({
+            "title": title,
+            "description": short_desc,
+            "image": image,
+            "url": link or "https://finance.yahoo.com/news/",
+            "source": "Yahoo Finance",
+        })
+
+    except Exception as e:
+        # 완전 폴백
+        return JsonResponse({
+            "title": "Top stories on Yahoo Finance",
+            "description": "최신 금융 헤드라인을 확인하세요.",
+            "image": "",
+            "url": "https://finance.yahoo.com/news/",
+            "source": "Yahoo Finance",
+            "error": str(e),
+        }, status=502)
+
+# backend/stocks/views.py
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from django.db.models import Max
+import random
+
+from .models import Stock  # symbol, date, close 등 필드 존재 가정
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def tickerbar_random(request):
+    """
+    최신 date와 직전 date의 종가를 비교해 랜덤 10개 티커를 반환.
+    응답: { items: [{sym, price, chg}], asof: 'YYYY-MM-DD' }
+    sym: 티커
+    price: 최신 종가
+    chg: (latest - prev) / prev  (예: 0.0123 == +1.23%)
+    """
+    latest_date = Stock.objects.aggregate(m=Max('date'))['m']
+    if not latest_date:
+        return Response({"items": [], "asof": None})
+
+    prev_date = Stock.objects.filter(date__lt=latest_date).aggregate(m=Max('date'))['m']
+
+    # prev_date가 없을 수 있음(첫 스냅샷인 날)
+    qs = Stock.objects.filter(date__in=[latest_date, prev_date] if prev_date else [latest_date]) \
+                      .values('symbol', 'date', 'close')
+
+    per_sym = {}
+    for row in qs:
+        sym = row['symbol']
+        d = per_sym.setdefault(sym, {})
+        if row['date'] == latest_date:
+            d['last'] = row['close']
+        elif prev_date and row['date'] == prev_date:
+            d['prev'] = row['close']
+
+    items = []
+    for sym, v in per_sym.items():
+        last = v.get('last')
+        prev = v.get('prev')
+        if last is None:
+            continue
+        if prev and prev != 0:
+            chg = (last - prev) / prev
+        else:
+            chg = 0.0  # 직전 없음/0이면 0으로 처리(또는 제외 가능)
+        items.append({
+            "sym": sym,
+            "price": round(float(last), 2),
+            "chg": float(chg),
+        })
+
+    # 10개 랜덤 샘플 (10개 미만이면 있는 만큼)
+    if len(items) > 10:
+        items = random.sample(items, 10)
+
+    return Response({"items": items, "asof": str(latest_date)})

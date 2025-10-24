@@ -1,0 +1,396 @@
+/* ────────────────────────────────────────────────────────────────────────────
+   LIGHT THEME — 이미지와 동일한 톤
+   카드: #ffffff, 페이지 배경: #f3f4f8, 텍스트: #0f1222
+   모든 선택자에 #fs-dashboard 스코프 적용 → 전역 CSS와 충돌 없음
+──────────────────────────────────────────────────────────────────────────── */
+
+#fs-dashboard.fs-dashboard.fs-page {
+  padding: 16px 20px 28px;
+  background: #f3f4f8;
+  color: #0f1222;
+  min-height: 100%;
+}
+
+/* 헤더 */
+#fs-dashboard .fs-dash-head {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 0 14px;
+  border-bottom: 1px solid rgba(15,18,34,0.08);
+}
+#fs-dashboard .fs-dash-title { font-size: 22px; font-weight: 800; letter-spacing: .2px; }
+#fs-dashboard .fs-dash-sub { font-size: 12px; color: rgba(15,18,34,0.55); margin-top: 2px; }
+#fs-dashboard .fs-dash-right { display: flex; align-items: center; gap: 16px; }
+#fs-dashboard .fs-dash-balance { text-align: right; }
+#fs-dashboard .fs-dash-balance span { display:block; font-size:12px; color:rgba(15,18,34,0.55); }
+#fs-dashboard .fs-dash-balance strong { font-size:16px; }
+#fs-dashboard .fs-dash-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: #e6e9f2; color:#0f1222; display:flex; align-items:center; justify-content:center; font-weight:700;
+}
+
+/* 티커 바 */
+#fs-dashboard .fs-tickerbar {
+  overflow: hidden; border-bottom: 1px solid rgba(15,18,34,0.06); background: #ffffff;
+  border-radius: 12px; margin-top: 12px;
+  box-shadow: 0 2px 6px rgba(15,18,34,0.04);
+}
+#fs-dashboard .fs-tickerbar__track {
+  display: flex; gap: 24px; padding: 10px 16px; animation: fsTicker 26s linear infinite;
+}
+@keyframes fsTicker { from { transform: translateX(0) } to { transform: translateX(-50%) } }
+#fs-dashboard .fs-ticker { display:flex; align-items:center; gap: 8px; white-space: nowrap; opacity:.9 }
+#fs-dashboard .fs-ticker .dot { width:10px; height:10px; border-radius:50%; background:#6366f1; display:inline-block }
+#fs-dashboard .fs-ticker .sym { font-weight:700; letter-spacing:.3px }
+#fs-dashboard .fs-ticker .price { opacity:.85 }
+#fs-dashboard .fs-ticker .chg { font-size:12px; }
+#fs-dashboard .fs-ticker .chg.up { color:#22c55e }
+#fs-dashboard .fs-ticker .chg.dn { color:#ef4444 }
+
+/* 그리드/카드 공통 */
+#fs-dashboard .fs-grid { display: grid; gap: 18px; margin-top: 18px; }
+
+/* ✅ 상단 2열: 좌:우 = 1:2 고정 */
+#fs-dashboard .fs-grid--top { grid-template-columns: 1fr 2fr; }
+#fs-dashboard .fs-grid.fs-grid--top.fs-grid--1to2 { grid-template-columns: 1fr 2fr; } /* 일관성 보강 */
+
+/* 하단 2열: 기존 비율 유지(원 코드 1.1:0.9) */
+#fs-dashboard .fs-grid--bottom { grid-template-columns: 1.1fr 0.9fr; align-items: stretch; }
+
+#fs-dashboard .fs-card {
+  background: #ffffff;                 /* ← 카드 흰색 고정 */
+  border: 1px solid rgba(15,18,34,0.08);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow:
+    0 2px 8px rgba(15,18,34,0.06),
+    0 12px 24px rgba(15,18,34,0.04);
+}
+#fs-dashboard .fs-card__title { font-size: 13px; color: rgba(15,18,34,0.65); }
+#fs-dashboard .fs-card__row { display:flex; align-items:center; justify-content:space-between; }
+
+/* Total Balance 카드 (블루 톤 박스) */
+#fs-dashboard .fs-balance {
+  background: linear-gradient(180deg, #4f46e5 0%, #8ea5ff 120%);
+  color: #ffffff;
+  border: none;
+  box-shadow:
+    0 10px 30px rgba(79,70,229,0.28),
+    0 4px 12px rgba(79,70,229,0.18);
+}
+#fs-dashboard .fs-balance .fs-card__title { color: #e8ebff; }
+#fs-dashboard .fs-balance__value { font-size: 34px; font-weight: 900; margin: 8px 0 12px; }
+#fs-dashboard .fs-balance__badges { display:flex; gap:12px; flex-wrap: wrap; }
+#fs-dashboard .fs-balance .pill {
+  display:flex; gap:10px; align-items:center;
+  background: rgba(255,255,255,0.14);
+  border: 1px solid rgba(255,255,255,0.28);
+  padding:10px 12px; border-radius: 12px;
+}
+#fs-dashboard .fs-balance .pill .ic {
+  font-size:14px; width:22px; height:22px; display:flex; align-items:center; justify-content:center;
+  background: rgba(255,255,255,0.25); border-radius:50%;
+}
+#fs-dashboard .pill-title { font-size:11px; opacity:.9 }
+#fs-dashboard .pill-val { font-weight:700 }
+
+/* 포트폴리오 */
+#fs-dashboard .fs-portfolio__list { display:flex; gap:12px; overflow-x:auto; padding-top: 10px; }
+#fs-dashboard .fs-asset {
+  min-width: 240px; display:flex; align-items:center; justify-content:space-between; gap:12px;
+  background:#ffffff; border:1px solid rgba(15,18,34,0.08); border-radius:12px; padding:12px 14px;
+  box-shadow: 0 1px 4px rgba(15,18,34,0.06);
+}
+#fs-dashboard .fs-asset__icon { width:36px; height:36px; border-radius:10px; background:#eef2ff; color:#4f46e5; display:flex; align-items:center; justify-content:center; font-weight:800 }
+#fs-dashboard .fs-asset__meta .name { font-weight:700 }
+#fs-dashboard .fs-asset__meta .sub { font-size:12px; color:rgba(15,18,34,0.55) }
+#fs-dashboard .fs-asset__val { text-align:right }
+#fs-dashboard .fs-asset__val .val { font-weight:700 }
+#fs-dashboard .fs-asset__val .chg.up { color:#22c55e }
+#fs-dashboard .fs-asset__val .chg.dn { color:#ef4444 }
+#fs-dashboard .fs-link { background:none; border:none; color:#4f46e5; font-weight:700; cursor:pointer }
+
+/* ── 리더보드(히어로를 이미지처럼 배치) ───────────────────────── */
+#fs-dashboard .fs-leader__hero {
+  padding: 8px 12px 14px;
+  border-bottom: 1px solid rgba(15,18,34,0.08);
+  margin-bottom: 8px;
+}
+#fs-dashboard .fs-leader__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+#fs-dashboard .fs-leader__topuser {
+  font-weight: 700;
+  font-size: 18px; /* 제목과 균형 */
+  line-height: 1.2;
+}
+#fs-dashboard .fs-leader__amount {
+  margin-top: 6px;
+  width: 100%;
+  text-align: right;
+  font-weight: 800;
+  font-size: 40px;   /* 이미지처럼 크게 */
+  letter-spacing: 0.2px;
+}
+
+#fs-dashboard .table-wrap { margin-top: 6px; }
+#fs-dashboard .fs-table { width:100%; border-collapse: collapse; }
+#fs-dashboard .fs-table thead th {
+  font-size:12px; font-weight:700; text-align:left; color:rgba(15,18,34,0.60);
+  padding:10px 8px; border-bottom:1px solid rgba(15,18,34,0.10);
+}
+#fs-dashboard .fs-table tbody td {
+  padding:12px 8px; border-bottom:1px solid rgba(15,18,34,0.06);
+}
+#fs-dashboard .fs-table .player .avatar { width:22px; height:22px; border-radius:50%; background:#e2e8f0; display:inline-block; margin-right:8px; vertical-align:middle }
+#fs-dashboard .fs-table .num { text-align:right; }
+#fs-dashboard .fs-table .chg.up { color:#22c55e }
+#fs-dashboard .fs-table .chg.dn { color:#ef4444 }
+#fs-dashboard .pager { display:flex; align-items:center; justify-content:space-between; gap:12px; padding-top:10px }
+#fs-dashboard .pager .ghost { background:none; border:none; color:#4b5563; }
+#fs-dashboard .pager .pages { display:flex; gap:6px }
+#fs-dashboard .pager .page { border:none; background:#eef2ff; padding:6px 10px; border-radius:8px; color:#374151; }
+#fs-dashboard .pager .page.is-active { background:#4f46e5; color:#fff; }
+
+/* 우측 컬럼 */
+#fs-dashboard .fs-col-right { display:flex; flex-direction:column; gap:18px; }
+
+/* Latest Transactions */
+#fs-dashboard .fs-tx-list { list-style:none; margin: 10px 0 0; padding:0; display:flex; flex-direction:column; gap:12px; }
+#fs-dashboard .fs-tx-list li { display:grid; grid-template-columns: 1fr auto auto; align-items:center; gap:10px; }
+#fs-dashboard .fs-tx-list .who { display:flex; align-items:center; gap:8px }
+#fs-dashboard .fs-tx-list .dot { width:8px; height:8px; border-radius:50%; background:#6366f1 }
+#fs-dashboard .fs-tx-list .name { font-weight:700 }
+#fs-dashboard .fs-tx-list .side { margin-left:8px; font-size:12px; color:#6b7280 }
+#fs-dashboard .fs-tx-list .amt.up { color:#22c55e }
+#fs-dashboard .fs-tx-list .amt.dn { color:#ef4444 }
+#fs-dashboard .fs-tx-list .when { font-size:12px; color:#6b7280 }
+
+/* News (카드 내부 기본형) */
+#fs-dashboard .fs-news { display:grid; grid-template-columns: 120px 1fr; gap:12px; }
+#fs-dashboard .fs-news .thumb { background:#e5e7eb; border-radius:12px; }
+#fs-dashboard .fs-news .headline { margin:6px 0 6px; font-size:16px; font-weight:800; color:#111827 }
+#fs-dashboard .fs-news .summary { font-size:12px; color:#4b5563; margin:0 0 10px }
+#fs-dashboard .fs-btn {
+  display:inline-block; padding:8px 12px; border-radius:10px; background:#111827; color:white; text-decoration:none;
+}
+
+/* 반응형 */
+@media (max-width: 1100px) {
+  #fs-dashboard .fs-grid--top,
+  #fs-dashboard .fs-grid--bottom { grid-template-columns: 1fr; }
+}
+
+/* ✅ (정리) 상단 2열 1:2 비율 — 스코프/우선순위 통일 */
+#fs-dashboard .fs-grid--top.fs-grid--1to2,
+#fs-dashboard .fs-grid.fs-grid--top.fs-grid--1to2 {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: var(--fs-gap, 16px);
+}
+
+/* 포트폴리오 카드가 화면을 뚫지 않도록 */
+#fs-dashboard .fs-card.fs-portfolio {
+  overflow: hidden;
+  max-width: 100%;
+}
+#fs-dashboard .fs-portfolio__list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 360px;       /* 필요시 조절 */
+  overflow: auto;          /* 내용이 길어지면 내부 스크롤 */
+}
+#fs-dashboard .fs-asset { min-width: 0; } /* 아이템 내부 텍스트줄바꿈 허용 */
+#fs-dashboard .fs-asset__meta .sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* 페이지 패딩으로 우측 여백 관리 (전체 화면 안에 정돈) */
+#fs-dashboard.fs-page {
+  padding-right: min(24px, 4vw);
+  padding-left: min(24px, 4vw);
+}
+
+/* 뉴스 카드 (확장형) */
+#fs-dashboard .fs-card.fs-news { display: flex; gap: 16px; }
+#fs-dashboard .fs-card.fs-news .thumb {
+  width: 34%;
+  aspect-ratio: 16 / 10;
+  background-size: cover;
+  background-position: center;
+  border-radius: 10px;
+  background-color: #e9eef5; /* 이미지 없을 때 */
+}
+#fs-dashboard .fs-card.fs-news .news-body { flex: 1; display: flex; flex-direction: column; }
+#fs-dashboard .fs-card.fs-news .headline { margin: 6px 0 8px; line-height: 1.2; }
+#fs-dashboard .fs-card.fs-news .summary { color: #556; font-size: 0.95rem; margin-bottom: 10px; }
+
+/* 뉴스 스켈레톤 */
+#fs-dashboard .fs-news__skeleton .thumb.sk { animation: fs-shimmer 1.2s linear infinite alternate; }
+#fs-dashboard .sk-line { height: 12px; margin: 6px 0; border-radius: 6px; background: #e6ebf2; animation: fs-shimmer 1.2s linear infinite alternate; }
+#fs-dashboard .sk-line.short { width: 60%; }
+@keyframes fs-shimmer { to { opacity: .55; } }
+
+/* ── Portfolio: 한 줄 3타일 고정 ───────────────────────────── */
+#fs-dashboard .fs-portfolio__row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: nowrap;          /* 한 줄 유지 */
+  overflow: hidden;           /* 넘치면 숨김 */
+}
+
+#fs-dashboard .fs-asset.fs-asset--tile {
+  flex: 0 0 calc((100% - 24px) / 3);  /* 3개 + 12px*2 간격 */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border: 1px solid rgba(15,18,34,0.08);
+  border-radius: 16px;
+  background: #ffffff;
+  min-width: 0;               /* 텍스트 말줄임 허용 */
+}
+
+#fs-dashboard .fs-asset__meta {
+  min-width: 0;
+}
+#fs-dashboard .fs-asset__meta .name {
+  font-weight: 700;
+  line-height: 1.15;
+}
+#fs-dashboard .fs-asset__meta .sub {
+  color: #6b7280;             /* 중간 회색 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 18ch;            /* 긴 종목명 말줄임 */
+}
+
+#fs-dashboard .fs-asset__val {
+  text-align: right;
+}
+#fs-dashboard .fs-asset__val .val {
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+/* 상승/하락 색 (프로젝트에 이미 있으면 생략 가능) */
+#fs-dashboard .chg.up { color: #16a34a; }
+#fs-dashboard .chg.dn { color: #dc2626; }
+
+/* ── 섹션 타이틀 볼드 + 크기 업 ───────────────────────────────── */
+#fs-dashboard .fs-balance .fs-card__title,
+#fs-dashboard .fs-portfolio .fs-card__title,
+#fs-dashboard .fs-latest .fs-card__title,
+#fs-dashboard .fs-news .fs-card__title,
+#fs-dashboard .fs-leader .fs-card__title {
+  font-weight: 800;      /* 볼드 */
+  font-size: 18px;       /* 기존보다 조금 크게 */
+  line-height: 1.2;
+}
+
+/* ── 화살표(→) 링크 버튼 크기 업 (포트폴리오/최근거래) ─────────── */
+#fs-dashboard .fs-portfolio .fs-link,
+#fs-dashboard .fs-latest .fs-link {
+  font-size: 20px;       /* 아이콘 느낌 살짝 키움 */
+  padding: 4px 10px;     /* 터치 타겟 확대 */
+  line-height: 1;
+  border-radius: 10px;
+}
+
+/* ── Your Portfolio : 3개 타일 줄(행)을 카드 내 세로 중앙 정렬 ─── */
+#fs-dashboard .fs-portfolio {
+  display: flex;
+  flex-direction: column;
+  min-height: 190px;     /* 카드 높이 확보(프로젝트 톤에 맞게 조절 가능) */
+}
+
+#fs-dashboard .fs-portfolio .fs-card__row {
+  /* 상단 타이틀 영역은 그대로 */
+}
+
+#fs-dashboard .fs-portfolio .fs-portfolio__row {
+  margin-top: auto;      /* 남은 공간 기준으로 중앙 정렬 */
+  margin-bottom: auto;   /* ────────────────〃────────────── */
+  align-items: center;   /* 타일 자체 세로정렬 */
+}
+
+/* (참고) 앞서 적용한 1행 3타일 스타일이 없다면 함께 유지하세요 */
+#fs-dashboard .fs-portfolio__row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: nowrap;     /* 한 줄 유지 */
+  overflow: hidden;
+}
+#fs-dashboard .fs-asset.fs-asset--tile {
+  flex: 0 0 calc((100% - 24px) / 3);
+  display: flex;
+  align-items: center;   /* 타일 내부 세로 가운데 */
+  justify-content: space-between;
+  padding: 12px 14px;
+  border: 1px solid rgba(15,18,34,0.08);
+  border-radius: 16px;
+  background: #ffffff;
+  min-width: 0;
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   Balance 아래 P/L 배지 좌측정렬 + 상단 2열 세로 여백 축소
+──────────────────────────────────────────────────────────────────────────── */
+
+/* 상단 2열 카드 여백 더 줄이기 */
+#fs-dashboard .fs-grid--top .fs-card {
+  padding: 14px 16px; /* 더 타이트 */
+}
+
+/* Balance 숫자와 간격 최소화 */
+#fs-dashboard .fs-balance .fs-balance__value {
+  margin-top: 4px;
+  white-space: nowrap;
+}
+
+/* P/L 칩: Balance 밑, 좌측정렬 */
+#fs-dashboard .fs-balance .fs-chip.fs-chip--pnl {
+  margin-top: 8px;             /* Balance와 적절 간격 */
+  align-self: flex-start;      /* 좌측 정렬 */
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(15, 18, 34, 0.06);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 1;
+  box-shadow: 0 1px 2px rgba(15, 18, 34, 0.06);
+  display: inline-block;       /* 줄 폭을 내용에 맞게 */
+}
+
+/* 수익/손실 색상 */
+#fs-dashboard .fs-chip.fs-chip--pnl.is-pos { color: #117a37; } /* 초록 */
+#fs-dashboard .fs-chip.fs-chip--pnl.is-neg { color: #c92a2a; } /* 빨강 */
+
+/* 포트폴리오 카드도 상하 여백 소폭 축소 */
+#fs-dashboard .fs-portfolio.fs-card {
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+
+/* Leaderboard 헤더 중앙정렬 */
+#fs-dashboard .fs-table thead th {
+  font-size:12px; font-weight:700;
+  text-align:center;               /* ← left → center */
+  color:rgba(15,18,34,0.60);
+  padding:10px 8px;
+  border-bottom:1px solid rgba(15,18,34,0.10);
+}
+
+/* (선택) 바디 첫 컬럼(POS) 중앙정렬을 보장하고 싶으면 */
+#fs-dashboard .fs-table tbody td:first-child {
+  text-align: center;
+}
+/* Latest Transactions: 로딩 끝난 뒤엔 실제 항목 수 만큼만 공간 사용 */
+#fs-dashboard .fs-tx-list {
+  max-height: none;   /* 고정 높이/스크롤 강제 방지 */
+  min-height: 0;      /* 혹시 상위에서 생긴 최소높이 상쇄 */
+  padding-bottom: 0;  /* 불필요한 하단 여백 제거 */
+}
