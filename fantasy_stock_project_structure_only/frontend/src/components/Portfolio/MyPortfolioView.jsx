@@ -39,7 +39,7 @@ const MyPortfolioView = () => {
       const msg =
         e?.response?.data?.detail ||
         e?.response?.data?.error ||
-        '포트폴리오를 불러오지 못했습니다';
+        'Failed to load portfolio';
       setErr(msg);
     } finally {
       setLoading(false);
@@ -85,8 +85,8 @@ const MyPortfolioView = () => {
         </div>
       </div>
 
-      {loading && <div className="text-muted">불러오는 중…</div>}
-      {!loading && rows.length === 0 && <div className="fs-empty">보유 종목이 없습니다.</div>}
+      {loading && <div className="text-muted">Loading…</div>}
+      {!loading && rows.length === 0 && <div className="fs-empty">There are no holdings.</div>}
 
       {!loading && rows.length > 0 && (
         <div className="fs-card fs-portfolio__table">

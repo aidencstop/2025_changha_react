@@ -1,6 +1,7 @@
+// frontend/src/App.jsx
 import './styles/theme.css';
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import NavBar from './components/NavBar';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
@@ -20,6 +21,54 @@ import History from './pages/History';
 
 // ⬇️ ACTIVE 리그면 Leagues 접근 차단 가드
 import BlockIfActiveLeague from './components/BlockIfActiveLeague';
+
+/**
+ * 라우팅 내부에서 현재 경로를 확인하고,
+ * 특정 경로에서만 NavBar(=좌측 Sidebar)를 숨기는 래퍼 컴포넌트
+ */
+function AppShell() {
+  const location = useLocation();
+
+  // ⬇️ 여기서 Sidebar를 숨길 경로를 관리합니다. 현재는 Landing('/')만 숨김.
+  const hideSidebarRoutes = ['/']; // 필요 시 '/login', '/register' 등 추가 가능
+  const showSidebar = !hideSidebarRoutes.includes(location.pathname);
+
+  return (
+    <div className={`app ${showSidebar ? 'with-sidebar' : 'no-sidebar'}`}>
+      {showSidebar && <NavBar />}
+
+      {/* 본문 래퍼: 사이드바 유무에 따라 좌측 여백을 CSS에서 제어 */}
+      <main className="fs-main">
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/market" element={<MarketOverview />} />
+          <Route path="/stock/:symbol" element={<StockDetail />} />
+          <Route path="/portfolio" element={<Portfolio />} />
+          <Route path="/history" element={<History />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/admin" element={<AdminPanel />} />
+          <Route path="/trade-history" element={<TradeHistory />} />
+          <Route path="/admin/init-season" element={<InitializeSeason />} />
+
+          {/* ⬇️ 여기만 가드로 감쌌습니다 */}
+          <Route
+            path="/leagues"
+            element={
+              <BlockIfActiveLeague>
+                <Leagues />
+              </BlockIfActiveLeague>
+            }
+          />
+
+          <Route path="/my-league" element={<MyLeague />} />
+        </Routes>
+      </main>
+    </div>
+  );
+}
 
 function App() {
   useEffect(() => {
@@ -41,33 +90,7 @@ function App() {
 
   return (
     <Router>
-      <NavBar />
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/market" element={<MarketOverview />} />
-        <Route path="/stock/:symbol" element={<StockDetail />} />
-        <Route path="/portfolio" element={<Portfolio />} />
-        <Route path="/history" element={<History />} />
-        <Route path="/leaderboard" element={<Leaderboard />} />
-        <Route path="/admin" element={<AdminPanel />} />
-        <Route path="/trade-history" element={<TradeHistory />} />
-        <Route path="/admin/init-season" element={<InitializeSeason />} />
-
-        {/* ⬇️ 여기만 가드로 감쌌습니다 */}
-        <Route
-          path="/leagues"
-          element={
-            <BlockIfActiveLeague>
-              <Leagues />
-            </BlockIfActiveLeague>
-          }
-        />
-
-        <Route path="/my-league" element={<MyLeague />} />
-      </Routes>
+      <AppShell />
     </Router>
   );
 }

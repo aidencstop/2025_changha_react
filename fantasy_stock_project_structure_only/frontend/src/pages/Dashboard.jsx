@@ -70,6 +70,19 @@ export default function Dashboard() {
   const [txLoading, setTxLoading] = useState(true);
   const [txError, setTxError] = useState('');
 
+  // ── 진행 중(Active) 리그 id 조회 헬퍼 ──────────────────────────────────────
+  const getActiveLeagueId = async () => {
+    try {
+      const { data } = await api.get('/leagues/my/');
+      const lg = data?.league;
+      const st = (lg?.status || lg?.state || '').toUpperCase();
+      if (lg?.id && st === 'ACTIVE') return lg.id;
+    } catch (_) {
+      // ignore
+    }
+    return null;
+  };
+
   // ── 데이터 로드 ─────────────────────────────────────────────────────────────
   useEffect(() => {
     let alive = true;
@@ -88,7 +101,8 @@ export default function Dashboard() {
 
     const loadNews = async () => {
       try {
-        const { data } = await api.get('/news/yahoo-top/');
+        // 개선(예: 3건 받아서 1건만 보여주고, 이미지 품질 보강 끔):
+        const { data } = await api.get('/news/yahoo-top/', { params: { limit: 3, fetch_og: 0 } });
         if (!alive) return;
         const desc = data?.description || '';
         setNews({
@@ -219,48 +233,81 @@ export default function Dashboard() {
       }
     };
 
-    // 최신 거래 최대 5건 (로딩 외엔 실제 개수만 렌더)
-    const loadLatestTx = async () => {
-      setTxLoading(true);
-      setTxError('');
-      try {
-        const { data } = await api.get('/stocks/trade-history/', {
-          params: { page: 1, page_size: 5 }, // ← 최대 5건
-        });
-        const items = Array.isArray(data?.results || data) ? (data.results || data) : [];
-        const mapped = items
-          .map((t) => {
-            const who = t.symbol || t.ticker || t.name || '';
-            const sideRaw = t.side || t.action || '';
-            const side = String(sideRaw || '').toLowerCase();
-            const isBuy = side.startsWith('b');   // buy
-            const isSell = side.startsWith('s');  // sell
+    // 최신 거래 최대 5건 (진행 중인 리그 한정)
+    // 최신 거래 최대 5건 (진행 중인 리그 한정)
+const loadLatestTx = async () => {
+  setTxLoading(true);
+  setTxError('');
+  try {
+    // 1) 내 Active 리그 id 조회
+    const leagueId = await getActiveLeagueId();
 
-            const price = Number(t.price ?? t.fill_price ?? t.executed_price ?? 0);
-            const qty = Number(t.quantity ?? t.qty ?? 0);
-            const amt = price * qty;
-            const signedAmt = (isBuy ? -1 : 1) * amt;
+    // 2) 서버가 지원하면 league_id 또는 league 로 필터링 (둘 다 넣어서 호환성 확보)
+    const params = { page: 1, page_size: 5 };
+    if (leagueId != null) {
+      params.league_id = leagueId;
+      params.league = leagueId;
+    }
 
-            return {
-              who,
-              side: sideRaw || '',
-              amt: Number.isFinite(signedAmt) ? signedAmt : 0,
-              cur: t.currency || t.ccy || 'USD',
-              when: fmtDateYmd(t.timestamp || t.created_at || t.date),
-            };
-          })
-          .filter(x => x.who || x.side || x.amt || x.when); // 의미 있는 행만
+    const { data } = await api.get('/stocks/trade-history/', { params });
+    const raw = Array.isArray(data?.results || data) ? (data.results || data) : [];
 
-        if (!alive) return;
-        setTxItems(mapped);
-      } catch (e) {
-        if (!alive) return;
-        setTxError(e?.response?.data?.detail || 'Failed to load recent transactions.');
-        setTxItems([]);
-      } finally {
-        if (alive) setTxLoading(false);
-      }
-    };
+    // 3) 클라이언트 보정 필터 (서버가 필터 못 했을 경우 대비)
+    const filtered = leagueId != null
+      ? raw.filter(t => {
+          // 서버 응답 형태별 모든 케이스 방어:
+          // - t.league_id (숫자/문자)
+          // - t.league (숫자 ID 그대로 오는 케이스)
+          // - t.league.id (중첩 객체)
+          // - t.leagueId (카멜)
+          const lid =
+            t?.league_id ??
+            t?.league ??                // 🔴 숫자 ID 직접 제공되는 케이스
+            t?.leagueId ??
+            t?.league?.id;
+
+          // 타입 차이 방지 위해 숫자로 비교
+          const a = Number(lid);
+          const b = Number(leagueId);
+          return Number.isFinite(a) && Number.isFinite(b) && a === b;
+        })
+      : raw;
+
+    // 4) 최대 5개로 제한
+    const items = filtered.slice(0, 5);
+
+    // 5) 표시에 맞게 매핑
+    const mapped = items
+      .map((t) => {
+        const who = t.symbol || t.ticker || t.name || '';
+        const sideRaw = t.side || t.action || '';
+        const side = String(sideRaw || '').toLowerCase();
+        const isBuy = side.startsWith('b');   // buy
+        const isSell = side.startsWith('s');  // sell
+
+        const price = Number(t.price ?? t.fill_price ?? t.executed_price ?? 0);
+        const qty = Number(t.quantity ?? t.qty ?? 0);
+        const amt = price * qty;
+        const signedAmt = (isBuy ? -1 : 1) * amt;
+
+        return {
+          who,
+          side: sideRaw || '',
+          amt: Number.isFinite(signedAmt) ? signedAmt : 0,
+          cur: t.currency || t.ccy || 'USD',
+          when: fmtDateYmd(t.timestamp || t.created_at || t.date),
+        };
+      })
+      .filter(x => x.who || x.side || x.amt || x.when);
+
+    setTxItems(mapped);
+  } catch (e) {
+    setTxError(e?.response?.data?.detail || 'Failed to load recent transactions.');
+    setTxItems([]);
+  } finally {
+    setTxLoading(false);
+  }
+};
 
     loadTickerbar();
     loadNews();
@@ -282,7 +329,7 @@ export default function Dashboard() {
       <header className="fs-dash-head">
         <div>
           <h1 className="fs-dash-title">Dashboard</h1>
-        <div className="fs-dash-sub">Check your investment performance at a glance</div>
+          <div className="fs-dash-sub">Check your investment performance at a glance</div>
         </div>
       </header>
 

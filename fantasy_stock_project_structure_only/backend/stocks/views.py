@@ -816,106 +816,213 @@ def company_profile(request, symbol: str):
 import html
 import re
 import requests
+from datetime import datetime, timezone
 from django.http import JsonResponse
+from django.core.cache import cache
 from xml.etree import ElementTree as ET
 
 RSS_URL = "https://finance.yahoo.com/news/rssindex"
-
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+    "Accept": "application/rss+xml,application/xml;q=0.9,text/xml;q=0.8,*/*;q=0.7",
+    "Accept-Language": "en-US,en;q=0.7",
+    "Connection": "keep-alive",
 }
+CACHE_KEY = "news:yahoo_top_v2"
+CACHE_TTL = 300  # 5분
 
 def _strip_tags(s: str) -> str:
     return re.sub(r"<[^>]+>", "", s or "")
 
+def _clean_text(s: str, limit: int = 240) -> str:
+    s = html.unescape(_strip_tags(s)).strip()
+    s = re.sub(r"\s+", " ", s)
+    return (s[:limit] + "…") if len(s) > limit else s
+
+def _parse_pub_date(text: str) -> str:
+    if not text:
+        return ""
+    try:
+        dt = datetime.strptime(text, "%a, %d %b %Y %H:%M:%S %z")
+        return dt.astimezone(timezone.utc).isoformat()
+    except Exception:
+        return ""
+
+def _find_image_for_item(item, ns) -> str:
+    mc = item.find("media:content", ns) or item.find("{http://search.yahoo.com/mrss/}content")
+    if mc is not None:
+        url = mc.attrib.get("url") or ""
+        if url:
+            return url
+    mt = item.find("media:thumbnail", ns) or item.find("{http://search.yahoo.com/mrss/}thumbnail")
+    if mt is not None:
+        url = mt.attrib.get("url") or ""
+        if url:
+            return url
+    enc = item.find("enclosure")
+    if enc is not None:
+        url = enc.attrib.get("url") or ""
+        if url:
+            return url
+    return ""
+
 def _fetch_og_image(url: str) -> str:
     try:
-        r = requests.get(url, headers=HEADERS, timeout=8)
+        r = requests.get(url, headers=HEADERS, timeout=6)
         r.raise_for_status()
         m = re.search(r'<meta[^>]+property=["\']og:image["\'][^>]+content=["\']([^"\']+)["\']', r.text, re.I)
         return m.group(1) if m else ""
     except Exception:
         return ""
 
+def _fetch_og_description(url: str) -> str:
+    """필요 시 기사 본문 페이지의 og:description을 폴백으로 사용"""
+    try:
+        r = requests.get(url, headers=HEADERS, timeout=6)
+        r.raise_for_status()
+        m = re.search(r'<meta[^>]+property=["\']og:description["\'][^>]+content=["\']([^"\']+)["\']', r.text, re.I)
+        return m.group(1) if m else ""
+    except Exception:
+        return ""
+
+def _best_description(item, ns, link: str, allow_og: bool) -> str:
+    """content:encoded → media:description → description → (옵션) og:description"""
+    # 1) content:encoded
+    encoded = item.find("{http://purl.org/rss/1.0/modules/content/}encoded")
+    if encoded is not None and encoded.text:
+        return _clean_text(encoded.text, 240)
+
+    # 2) media:description
+    mdesc = item.find("media:description", ns) or item.find("{http://search.yahoo.com/mrss/}description")
+    if mdesc is not None and mdesc.text:
+        return _clean_text(mdesc.text, 240)
+
+    # 3) description
+    desc = item.findtext("description") or ""
+    if desc.strip():
+        return _clean_text(desc, 240)
+
+    # 4) (옵션) og:description 폴백
+    if allow_og and link:
+        ogd = _fetch_og_description(link)
+        if ogd.strip():
+            return _clean_text(ogd, 240)
+
+    return ""  # 최종 실패 시 빈 문자열
+
 def yahoo_top_news(request):
     """
-    Yahoo Finance RSS에서 첫 기사를 안전하게 파싱해 반환.
-    title / description(짧게) / link / image 를 담아 JSON 응답.
+    Yahoo Finance RSS에서 상위 기사들을 파싱해 반환.
+    - 호환: 첫 기사(title/description/image/url/source).
+    - 추가: published_at(ISO 8601), items 배열.
+    - 옵션: ?limit=1..5 (기본 1), ?fetch_og=0|1 (기본 0; 이미지/설명 og 메타 보강 허용)
+    - 캐시: 5분
     """
     try:
-        # 1) RSS 불러오기
-        rs = requests.get(RSS_URL, headers=HEADERS, timeout=8)
+        limit = max(1, min(5, int(request.GET.get("limit", "1"))))
+    except ValueError:
+        limit = 1
+    fetch_og = request.GET.get("fetch_og", "0").lower() in ("1", "true")
+
+    cache_key = f"{CACHE_KEY}:l{limit}:og{int(fetch_og)}"
+    cached = cache.get(cache_key)
+    if cached:
+        return JsonResponse(cached)
+
+    try:
+        # 1) RSS 요청 (리다이렉트 허용)
+        rs = requests.get(RSS_URL, headers=HEADERS, timeout=8, allow_redirects=True)
         rs.raise_for_status()
 
         # 2) XML 파싱
         root = ET.fromstring(rs.content)
-        # 네임스페이스 처리 (media:content 등)
         ns = {
             "media": "http://search.yahoo.com/mrss/",
-            "content": "http://purl.org/rss/1.0/modules/content/"
+            "content": "http://purl.org/rss/1.0/modules/content/",
         }
-
-        # 3) 첫 item 추출
-        # 보통 구조: rss/channel/item
-        channel = root.find("channel")
+        channel = root.find("channel") or root.find("./{*}channel")
         if channel is None:
-            channel = root.find("./{*}channel")  # 방어적
-
-        if channel is None:
-            return JsonResponse({"error": "invalid rss format"}, status=502)
-
-        item = channel.find("item")
-        if item is None:
-            # 혹시 item이 없으면 폴백
-            return JsonResponse({
+            data = {
                 "title": "Top stories on Yahoo Finance",
                 "description": "최신 금융 헤드라인을 확인하세요.",
                 "image": "",
                 "url": "https://finance.yahoo.com/news/",
                 "source": "Yahoo Finance",
+                "items": [],
+            }
+            cache.set(cache_key, data, CACHE_TTL)
+            return JsonResponse(data, status=502)
+
+        # 3) 상위 N개 수집
+        items_xml = channel.findall("item")[:limit]
+        items = []
+        for it in items_xml:
+            title = (it.findtext("title") or "").strip()
+            link = (it.findtext("link") or "").strip()
+
+            # ⬇️ 설명 우선순위 보강
+            desc = _best_description(it, ns, link, allow_og=fetch_og)
+
+            pub = _parse_pub_date(it.findtext("pubDate") or "")
+            image = _find_image_for_item(it, ns)
+
+            items.append({
+                "title": title,
+                "description": desc,
+                "image": image,  # 비어 있을 수 있음
+                "url": link or "https://finance.yahoo.com/news/",
+                "source": "Yahoo Finance",
+                "published_at": pub,
             })
 
-        title = (item.findtext("title") or "").strip()
-        link = (item.findtext("link") or "").strip()
+        # 4) 필요 시 이미지 og 보강(최대 3건)
+        if fetch_og:
+            patched = 0
+            for obj in items:
+                if obj["image"] or not obj["url"]:
+                    continue
+                og = _fetch_og_image(obj["url"])
+                if og:
+                    obj["image"] = og
+                    patched += 1
+                if patched >= 3:
+                    break
 
-        # description/encoded 중 택1
-        description = item.findtext("description") or ""
-        encoded = item.find("{http://purl.org/rss/1.0/modules/content/}encoded")
-        if encoded is not None and encoded.text:
-            description = encoded.text
-
-        description = html.unescape(_strip_tags(description)).strip()
-
-        # 4) 이미지: media:content 또는 og:image 폴백
-        image = ""
-        media_content = item.find("media:content", ns) or item.find("{http://search.yahoo.com/mrss/}content")
-        if media_content is not None:
-            image = media_content.attrib.get("url", "") or ""
-
-        if not image and link:
-            image = _fetch_og_image(link)
-
-        # 5) 길이 제한(프론트에서 다시 자르지만 서버도 안전하게 보정)
-        short_desc = (description[:240] + "…") if len(description) > 240 else description
-
-        return JsonResponse({
-            "title": title,
-            "description": short_desc,
-            "image": image,
-            "url": link or "https://finance.yahoo.com/news/",
-            "source": "Yahoo Finance",
-        })
-
-    except Exception as e:
-        # 완전 폴백
-        return JsonResponse({
+        # 5) 호환 필드 + 리스트 제공
+        head = items[0] if items else {
             "title": "Top stories on Yahoo Finance",
             "description": "최신 금융 헤드라인을 확인하세요.",
             "image": "",
             "url": "https://finance.yahoo.com/news/",
             "source": "Yahoo Finance",
+            "published_at": "",
+        }
+        payload = {
+            "title": head["title"],
+            "description": head["description"],
+            "image": head["image"],
+            "url": head["url"],
+            "source": head["source"],
+            "published_at": head.get("published_at", ""),
+            "items": items,
+        }
+        cache.set(cache_key, payload, CACHE_TTL)
+        return JsonResponse(payload)
+
+    except Exception as e:
+        data = {
+            "title": "Top stories on Yahoo Finance",
+            "description": "최신 금융 헤드라인을 확인하세요.",
+            "image": "",
+            "url": "https://finance.yahoo.com/news/",
+            "source": "Yahoo Finance",
+            "published_at": "",
+            "items": [],
             "error": str(e),
-        }, status=502)
+        }
+        cache.set(cache_key, data, CACHE_TTL)
+        return JsonResponse(data, status=502)
+
 
 # backend/stocks/views.py
 from rest_framework.decorators import api_view, permission_classes

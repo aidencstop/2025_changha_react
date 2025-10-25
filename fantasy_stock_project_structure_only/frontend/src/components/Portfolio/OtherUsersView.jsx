@@ -83,7 +83,7 @@ const OtherUsersView = () => {
         })
       );
     } catch (e) {
-      console.warn('초기 총자산 보강 실패:', e);
+      console.warn('Failure to initially reinforce total assets:', e);
     }
   };
 
@@ -116,11 +116,11 @@ const OtherUsersView = () => {
         )
       );
     } catch (err) {
-      console.error('포트폴리오 불러오기 실패:', err);
+      console.error('Failed to load portfolio:', err);
       const msg =
         err?.response?.data?.error ||
         err?.response?.data?.detail ||
-        '포트폴리오를 불러오지 못했습니다.';
+        'Failed to load portfolio.';
       setPortfolioData(null);
       setError(msg);
     } finally {
@@ -128,7 +128,7 @@ const OtherUsersView = () => {
     }
   };
 
-  if (loading) return <div className="text-muted">로딩 중...</div>;
+  if (loading) return <div className="text-muted">Loading...</div>;
   if (error) return <div className="text-danger">{error}</div>;
 
   return (
@@ -185,7 +185,7 @@ const OtherUsersView = () => {
                     {/* 🔁 기존 total_asset/pnl 요약 블록 제거 → Cash만 표시 */}
                     <div className="fs-userpanel__meta">
                       {portfolioLoading ? (
-                        <div className="text-muted">불러오는 중...</div>
+                        <div className="text-muted">Loading...</div>
                       ) : (
                         <>
                           <div className="fs-user__cash">
@@ -200,7 +200,7 @@ const OtherUsersView = () => {
                     </div>
                   </div>
 
-                  {portfolioLoading && <div className="text-muted">불러오는 중...</div>}
+                  {portfolioLoading && <div className="text-muted">Loading...</div>}
                   {!portfolioLoading && portfolioData ? (
                     <div className="fs-userpanel__body">
                       <table className="fs-table">
@@ -233,7 +233,7 @@ const OtherUsersView = () => {
                       </table>
                     </div>
                   ) : !portfolioLoading && !portfolioData ? (
-                    <div className="fs-empty">포트폴리오 없음</div>
+                    <div className="fs-empty">There are no holdings.</div>
                   ) : null}
                 </div>
               )}

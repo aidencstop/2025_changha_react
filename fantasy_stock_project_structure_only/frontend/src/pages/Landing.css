@@ -1,0 +1,255 @@
+/* ─────────────────────────────────────────────────────────────
+   Landing page — 프로젝트 공통 톤과 맞춘 라이트 테마
+   모든 스타일은 #fs-landing 스코프로 격리 (전역 충돌 방지)
+────────────────────────────────────────────────────────────── */
+#fs-landing.fs-landing.fs-page {
+  padding: 16px 20px 28px;
+  background: #ffffff;   /* ← 기존 #f7f8fb 대신 흰색으로 변경 */
+  color: #0f1222;
+  min-height: 100%;
+}
+
+
+/* ───────────── Header / Footer ───────────── */
+
+/* Header (Top) — 아래 회색 구분선 추가 */
+#fs-landing .fs-landing__top {
+  width: 100%;
+  padding: 20px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+#fs-landing .fs-landing__top .brand { display: flex; align-items: center; gap: 10px; }
+#fs-landing .logo {
+  width: 28px; height: 28px; border-radius: 8px;
+  display: grid; place-items: center; font-weight: 800; color: #fff;
+  background: linear-gradient(135deg, #5b7cff, #3f6bff);
+}
+#fs-landing .name { font-weight: 800; letter-spacing: .2px; }
+#fs-landing .actions { display: flex; gap: 10px; }
+
+/* Footer — 위 회색 구분선 유지 + 풀폭 패딩 */
+#fs-landing .footer {
+  width: 100%;
+  padding: 30px 40px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  display: flex; justify-content: space-between; align-items: center;
+}
+#fs-landing .copy { color: #6a7390; font-size: 13px; }
+
+/* Buttons */
+#fs-landing .btn {
+  height: 36px; padding: 0 14px; border-radius: 10px; font-weight: 700;
+  border: 1px solid transparent; cursor: pointer;
+}
+#fs-landing .btn.primary { background: #4e6bff; color: #fff; }
+#fs-landing .btn.primary:hover { filter: brightness(0.95); }
+#fs-landing .btn.ghost { background: #fff; border-color: rgba(15,18,34,.15); }
+#fs-landing .btn.ghost:hover { background: #f1f3f9; }
+
+/* ───────────── 본문 섹션 공통: 좌우 10vw 패딩 ───────────── */
+#fs-landing .hero,
+#fs-landing .title-block,
+#fs-landing .features,
+#fs-landing .cta {
+  padding-left: 10vw;
+  padding-right: 10vw;
+}
+
+/* ───────────── HERO ───────────── */
+#fs-landing .hero {
+  display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 32px;
+  align-items: center; padding-top: 60px; padding-bottom: 80px;
+}
+#fs-landing .pill {
+  display: inline-block; padding: 6px 10px; border-radius: 999px;
+  background: rgba(78,107,255,0.1); color: #4e6bff; font-weight: 700; font-size: 12px;
+}
+#fs-landing h1 { font-size: 40px; margin: 14px 0 10px; font-weight: 900; }
+#fs-landing .hero p { color: #475070; max-width: 520px; }
+#fs-landing .hero__cta { margin-top: 18px; display: flex; gap: 10px; }
+
+/* Hero art cards */
+#fs-landing .hero__art { position: relative; }
+#fs-landing .card {
+  background: #ffffff; border: 1px solid rgba(15,18,34,0.08);
+  border-radius: 16px; box-shadow: 0 10px 30px rgba(31,41,55,.08);
+}
+#fs-landing .card.mini {
+  padding: 12px; width: 320px; position: absolute; left: 18px; top: 16px;
+}
+#fs-landing .mini__row {
+  display: grid; grid-template-columns: 36px 1fr auto auto; align-items: center;
+  gap: 8px; padding: 8px 6px; border-radius: 10px;
+}
+#fs-landing .mini__row + .mini__row { background: #f7f8ff; }
+#fs-landing .avatar { width: 36px; height: 36px; border-radius: 50%; background: #eef1ff; display:grid; place-items:center; font-weight:800; color:#4e6bff;}
+#fs-landing .mini .meta .t1 { font-weight: 700; }
+#fs-landing .mini .meta .t2 { font-size: 12px; color: #6a7390; }
+#fs-landing .mini .val { font-weight: 800; }
+#fs-landing .chg.pos { color: #0aa870; }
+#fs-landing .chg.neg { color: #dc3545; }
+
+#fs-landing .card.table {
+  padding: 14px; width: 460px; position: relative; left: 120px; top: 120px;
+}
+#fs-landing .table__head, #fs-landing .table__row {
+  display: grid; grid-template-columns: 1.3fr .6fr 1fr 1fr 1.2fr; align-items: center; gap: 6px;
+}
+#fs-landing .table__head { font-weight: 800; font-size: 12px; color: #6a7390; padding-bottom: 8px; }
+#fs-landing .table__row { padding: 8px 0; border-top: 1px dashed rgba(15,18,34,0.08); }
+#fs-landing .table .dot { width: 8px; height: 8px; border-radius: 50%; background: #4e6bff; display: inline-block; margin-right: 6px; }
+#fs-landing .stk { display: flex; align-items: center; }
+
+/* ───────────── Title block ───────────── */
+#fs-landing .title-block { text-align: center; padding: 40px 0 18px; }
+#fs-landing .title-block h2 { font-size: 26px; font-weight: 900; }
+#fs-landing .title-block p { color: #59607a; }
+
+/* ───────────── Features grid ───────────── */
+#fs-landing .features {
+  display: grid; grid-template-columns: 1.1fr 0.9fr;  row-gap: 60px;
+  column-gap: 28px;
+  align-items: center; padding-top: 60px; padding-bottom: 60px;
+}
+#fs-landing .feature h3 { font-size: 20px; font-weight: 800; margin: 10px 0 8px; }
+#fs-landing .feature p { color: #475070; }
+#fs-landing .badge { display: inline-block; padding: 6px 10px; border-radius: 10px; font-weight: 800; font-size: 12px; }
+#fs-landing .badge.blue   { background: rgba(78,107,255,.12); color:#4e6bff; }
+#fs-landing .badge.green  { background: rgba(13,178,120,.12); color:#0db278; }
+#fs-landing .badge.yellow { background: rgba(248,193,0,.18); color:#b58900; }
+#fs-landing .checks { margin-top: 10px; display: grid; gap: 6px; }
+#fs-landing .checks li { list-style: none; padding-left: 22px; position: relative; }
+#fs-landing .checks li::before {
+  content: '✓'; position: absolute; left: 0; top: 0; color: #0db278; font-weight: 900;
+}
+
+/* Feature right cards */
+#fs-landing .feature.card { padding: 16px; }
+#fs-landing .overview .icon { width: 36px; height: 36px; border-radius: 10px; background: #eef1ff; display:grid; place-items:center; color:#4e6bff; font-weight:800; }
+#fs-landing .overview {
+  display: grid;
+  grid-template-columns: 1fr;  /* ← 한 컬럼만 사용 */
+  gap: 12px;
+}
+#fs-landing .overview .t1 { font-weight: 900; margin-bottom: 8px; }
+#fs-landing .overview .kv { display: flex; justify-content: space-between; padding: 8px 10px; border-radius: 10px; background: #fafbff; font-weight: 700; }
+#fs-landing .overview .kv + .kv { margin-top: 8px; }
+#fs-landing .overview .pos { color: #0aa870; }
+
+#fs-landing .toplist__head { font-weight: 900; margin-bottom: 8px; }
+#fs-landing .toplist__row { display: grid; grid-template-columns: 64px 1fr auto; align-items: center; padding: 10px 12px; border-radius: 12px; background: #fafbff; }
+#fs-landing .toplist__row + .toplist__row { margin-top: 8px; }
+#fs-landing .rank { font-weight: 900; }
+#fs-landing .rank.gold { color: #d4aa00; }
+#fs-landing .rank.silver { color: #9aa3b2; }
+#fs-landing .pnl { font-weight: 800; }
+#fs-landing .pnl .pos { color: #0aa870; }
+
+#fs-landing .market__head { font-weight: 900; margin-bottom: 10px; }
+#fs-landing .market__row { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: center; padding: 10px; border-radius: 12px; background: #fafbff; }
+#fs-landing .market__row + .market__row { margin-top: 8px; }
+#fs-landing .market .dot { width: 8px; height: 8px; border-radius: 50%; background: #4e6bff; display: inline-block; margin-right: 6px; }
+#fs-landing .market .stk { display: flex; align-items: center; }
+#fs-landing .market .price { font-weight: 800; }
+#fs-landing .market .chg.pos { color: #0aa870; font-weight: 800; }
+#fs-landing .market .chg.neg { color: #dc3545; font-weight: 800; }
+
+/* ───────────── CTA ───────────── */
+#fs-landing .cta { text-align: center; padding-top: 80px; padding-bottom: 80px; }
+#fs-landing .cta h3 { font-size: 22px; font-weight: 900; margin-bottom: 8px; }
+#fs-landing .cta p { color: #59607a; }
+#fs-landing .cta__btns { margin-top: 14px; display: flex; gap: 10px; justify-content: center; }
+
+/* ───────────── Responsive ───────────── */
+@media (max-width: 1024px) {
+  #fs-landing .hero, #fs-landing .features {
+    grid-template-columns: 1fr;
+  }
+  #fs-landing .hero__art { margin-top: 12px; min-height: 420px; }
+  #fs-landing .card.mini { position: absolute; left: 0; top: 0; }
+  #fs-landing .card.table { position: absolute; left: 40px; top: 150px; width: 92%; }
+}
+
+/* feature card right: 흰색 카드 + 바깥 둥근 사각형(기존 페이지 배경색) */
+#fs-landing .feature.card.right {
+  background: #ffffff;                           /* 카드 본체 흰색 */
+  border: 20px solid rgba(15,18,34,0.08);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+/* 화면이 좁을 때 외곽 두께 살짝 줄이기 */
+@media (max-width: 1024px) {
+  #fs-landing .feature.card.right {
+    box-shadow:
+      0 10px 24px rgba(31,41,55,.08),
+      0 0 0 14px #f7f8fb;
+  }
+}
+
+/* 파란 둥근 사각형 프레임 */
+#fs-landing .hero__art-frame {
+  position: relative;
+  border-radius: 18px;              /* 둥근 모서리 */
+  padding: 28px;                    /* 프레임 안쪽 여백 */
+  isolation: isolate;               /* 내부 효과 분리 */
+}
+
+/* 파란빛 배경/외곽선/그림자 효과를 before로 만들어 카드와 분리 */
+#fs-landing .hero__art-frame::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  background: rgba(62, 117, 255, 0.06);         /* 아주 연한 파란 배경 */
+  box-shadow:
+    0 0 0 1px rgba(62,117,255,0.25) inset,      /* 파란 테두리 느낌 */
+    0 18px 40px rgba(62,117,255,0.18);          /* 부드러운 그림자 */
+  z-index: -1;                                   /* 내용 뒤로 */
+}
+
+/* 프레임 내부 레이아웃: 원래 카드들을 그대로 배치 */
+#fs-landing .hero__art-inner {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr; /* 예시: 미니카드 : 테이블 */
+  gap: 20px;
+  align-items: center;
+}
+
+/* 반응형: 좁아지면 세로 스택 */
+@media (max-width: 900px) {
+  #fs-landing .hero__art-inner {
+    grid-template-columns: 1fr;
+  }
+  #fs-landing .hero__art-frame {
+    padding: 20px;
+  }
+}
+/* 프레임 안에 있는 요소들의 그림자가 밖으로 새지 않도록 클립 */
+#fs-landing .hero__art-frame {
+  overflow: hidden;              /* ✅ 바깥으로 튀어나온 그림자/모서리 클립 */
+  border-radius: 18px;           /* 프레임과 동일 반경 */
+}
+
+/* 테이블 카드가 프레임 안쪽 레이어로 보이게 미세 조정 */
+#fs-landing .hero__art-frame .card.table {
+  position: relative;
+  z-index: 0;                    /* 프레임 배경 위, 다른 떠있는 요소보다 낮게 */
+  border-radius: 14px;           /* 프레임 반경보다 살짝 작게 → 안쪽에 들어간 느낌 */
+  box-shadow: 0 10px 28px rgba(15, 18, 34, 0.08); /* 너무 퍼지지 않는 부드러운 그림자 */
+  background-clip: padding-box;  /* 테두리/배경이 반경을 또렷하게 유지 */
+  max-width: 100%;               /* 혹시 모를 넘침 방지 */
+}
+
+/* 프레임의 파란 윤곽을 조금 더 강조(옵션) */
+#fs-landing .hero__art-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  box-shadow: 0 0 0 2px rgba(62,117,255,0.22) inset; /* 안쪽 파란 윤곽선 */
+  pointer-events: none;
+}
