@@ -8,7 +8,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-CHANGE_THIS_KEY'
 
 DEBUG = False
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [os.getenv('ALLOWED_HOSTS', 'ChanghaLee.pythonanywhere.com'),'*.pythonanywhere.com']
+
+
 
 # Application definition
 INSTALLED_APPS = [
@@ -88,7 +90,18 @@ REST_FRAMEWORK = {
 }
 
 # CORS
-CORS_ALLOW_ALL_ORIGINS = True
+# CORS / CSRF
+CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOWED_ORIGINS = [
+    # Vercel 프리뷰/프로덕션 도메인들
+    "https://your-project.vercel.app",
+    "https://your-preview-domain.vercel.app",
+]
+CSRF_TRUSTED_ORIGINS = [
+    "https://ChanghaLee.pythonanywhere.com",
+    "https://your-project.vercel.app",
+    "https://your-preview-domain.vercel.app",
+]
 
 # Static files
 STATIC_URL = '/static/'
