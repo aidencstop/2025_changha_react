@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "https://ChanghaLee.pythonanywhere.com/api/$1" }
+  ]
+}
