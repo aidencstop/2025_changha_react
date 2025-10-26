@@ -10,16 +10,36 @@ function Navbar() {
     navigate('/login');
   };
 
-  // NavLink용 클래스 빌더: 활성 시 fs-menu__link--active 추가
+  const handleBrandClick = () => {
+    if (token) {
+      navigate('/dashboard');
+    } else {
+      navigate('/');
+    }
+  };
+
   const linkClass = ({ isActive }) =>
     `fs-menu__link${isActive ? ' fs-menu__link--active' : ''}`;
 
   return (
     <>
-      {/* Sidebar */}
       <aside className="fs-sidebar">
         <div className="fs-sidebar__brand">
-          <Link to="/" className="fs-brand-link">FantasyStock</Link>
+          {/* ✅ GROWLIO 버튼 (볼드, 테두리·배경 없음) */}
+          <button
+            onClick={handleBrandClick}
+            style={{
+              background: 'none',
+              border: 'none',
+              fontWeight: 800,
+              fontSize: '22px',
+              color: '#000',
+              cursor: 'pointer',
+              padding: 0,
+            }}
+          >
+            GROWLIO
+          </button>
         </div>
 
         <nav className="fs-sidebar__nav" aria-label="Primary">
@@ -33,7 +53,6 @@ function Navbar() {
               </li>
 
               <li>
-                {/* 하위 경로(/market/XYZ)도 활성 처리: end 생략 */}
                 <NavLink className={linkClass} to="/market">
                   <span className="fs-menu__icon" aria-hidden>○</span>
                   <span className="fs-menu__text">Market</span>
@@ -86,7 +105,6 @@ function Navbar() {
         </div>
       </aside>
 
-      {/* Spacer to prevent content overlap */}
       <div className="fs-sidebar-spacer" />
     </>
   );

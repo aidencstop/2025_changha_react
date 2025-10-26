@@ -70,6 +70,10 @@ export default function Dashboard() {
   const [txLoading, setTxLoading] = useState(true);
   const [txError, setTxError] = useState('');
 
+  // ── 진행 중(Active) 리그 존재 여부/ID ──────────────────────────────────────
+  const [activeLeagueId, setActiveLeagueId] = useState(null);
+  const [hasActiveLeague, setHasActiveLeague] = useState(null); // null=초기/로딩, true/false 확정
+
   // ── 진행 중(Active) 리그 id 조회 헬퍼 ──────────────────────────────────────
   const getActiveLeagueId = async () => {
     try {
@@ -101,8 +105,7 @@ export default function Dashboard() {
 
     const loadNews = async () => {
       try {
-        // 개선(예: 3건 받아서 1건만 보여주고, 이미지 품질 보강 끔):
-        const { data } = await api.get('/news/yahoo-top/', { params: { limit: 3, fetch_og: 0 } });
+        const { data } = await api.get('/stocks/news/yahoo-top/', { params: { limit: 3, fetch_og: 0 } });
         if (!alive) return;
         const desc = data?.description || '';
         setNews({
@@ -195,7 +198,7 @@ export default function Dashboard() {
 
           // 수익/총자산/수익률/초기자금 보강
           if ((out.total_asset ?? 0) === 0 && m?.total_asset != null) out.total_asset = m.total_asset;
-          if ((out.pnl ?? 0) === 0 && m?.pnl != null) out.pnl = m.pnl; // 참고값(표시용은 아래에서 재계산)
+          if ((out.pnl ?? 0) === 0 && m?.pnl != null) out.pnl = m.pnl; // 참고값
           if ((out.return_pct ?? 0) === 0 && m?.return_pct != null) out.return_pct = m.return_pct; // %값
           if (out.starting_cash == null && m?.starting_cash != null) out.starting_cash = m.starting_cash;
 
@@ -234,87 +237,114 @@ export default function Dashboard() {
     };
 
     // 최신 거래 최대 5건 (진행 중인 리그 한정)
-    // 최신 거래 최대 5건 (진행 중인 리그 한정)
-const loadLatestTx = async () => {
-  setTxLoading(true);
-  setTxError('');
-  try {
-    // 1) 내 Active 리그 id 조회
-    const leagueId = await getActiveLeagueId();
+    const loadLatestTx = async (forceLeagueId = null) => {
+      setTxLoading(true);
+      setTxError('');
+      try {
+        // 1) 내 Active 리그 id 조회(전달되면 우선 사용)
+        const leagueId = forceLeagueId ?? await getActiveLeagueId();
 
-    // 2) 서버가 지원하면 league_id 또는 league 로 필터링 (둘 다 넣어서 호환성 확보)
-    const params = { page: 1, page_size: 5 };
-    if (leagueId != null) {
-      params.league_id = leagueId;
-      params.league = leagueId;
-    }
+        // 2) 서버가 지원하면 league_id 또는 league 로 필터링 (둘 다 넣어서 호환성 확보)
+        const params = { page: 1, page_size: 5 };
+        if (leagueId != null) {
+          params.league_id = leagueId;
+          params.league = leagueId;
+        }
 
-    const { data } = await api.get('/stocks/trade-history/', { params });
-    const raw = Array.isArray(data?.results || data) ? (data.results || data) : [];
+        const { data } = await api.get('/stocks/trade-history/', { params });
+        const raw = Array.isArray(data?.results || data) ? (data.results || data) : [];
 
-    // 3) 클라이언트 보정 필터 (서버가 필터 못 했을 경우 대비)
-    const filtered = leagueId != null
-      ? raw.filter(t => {
-          // 서버 응답 형태별 모든 케이스 방어:
-          // - t.league_id (숫자/문자)
-          // - t.league (숫자 ID 그대로 오는 케이스)
-          // - t.league.id (중첩 객체)
-          // - t.leagueId (카멜)
-          const lid =
-            t?.league_id ??
-            t?.league ??                // 🔴 숫자 ID 직접 제공되는 케이스
-            t?.leagueId ??
-            t?.league?.id;
+        // 3) 클라이언트 보정 필터 (서버가 필터 못 했을 경우 대비)
+        const filtered = leagueId != null
+          ? raw.filter(t => {
+              // 서버 응답 형태별 모든 케이스 방어
+              const lid =
+                t?.league_id ??
+                t?.league ??                // 숫자 ID 직접 제공되는 케이스
+                t?.leagueId ??
+                t?.league?.id;
+              const a = Number(lid);
+              const b = Number(leagueId);
+              return Number.isFinite(a) && Number.isFinite(b) && a === b;
+            })
+          : raw;
 
-          // 타입 차이 방지 위해 숫자로 비교
-          const a = Number(lid);
-          const b = Number(leagueId);
-          return Number.isFinite(a) && Number.isFinite(b) && a === b;
-        })
-      : raw;
+        // 4) 최대 5개로 제한
+        const items = filtered.slice(0, 5);
 
-    // 4) 최대 5개로 제한
-    const items = filtered.slice(0, 5);
+        // 5) 표시에 맞게 매핑
+        const mapped = items
+          .map((t) => {
+            const who = t.symbol || t.ticker || t.name || '';
+            const sideRaw = t.side || t.action || '';
+            const side = String(sideRaw || '').toLowerCase();
+            const isBuy = side.startsWith('b');   // buy
+            const isSell = side.startsWith('s');  // sell
 
-    // 5) 표시에 맞게 매핑
-    const mapped = items
-      .map((t) => {
-        const who = t.symbol || t.ticker || t.name || '';
-        const sideRaw = t.side || t.action || '';
-        const side = String(sideRaw || '').toLowerCase();
-        const isBuy = side.startsWith('b');   // buy
-        const isSell = side.startsWith('s');  // sell
+            const price = Number(t.price ?? t.fill_price ?? t.executed_price ?? 0);
+            const qty = Number(t.quantity ?? t.qty ?? 0);
+            const amt = price * qty;
+            const signedAmt = (isBuy ? -1 : 1) * amt;
 
-        const price = Number(t.price ?? t.fill_price ?? t.executed_price ?? 0);
-        const qty = Number(t.quantity ?? t.qty ?? 0);
-        const amt = price * qty;
-        const signedAmt = (isBuy ? -1 : 1) * amt;
+            return {
+              who,
+              side: sideRaw || '',
+              amt: Number.isFinite(signedAmt) ? signedAmt : 0,
+              cur: t.currency || t.ccy || 'USD',
+              when: fmtDateYmd(t.timestamp || t.created_at || t.date),
+            };
+          })
+          .filter(x => x.who || x.side || x.amt || x.when);
 
-        return {
-          who,
-          side: sideRaw || '',
-          amt: Number.isFinite(signedAmt) ? signedAmt : 0,
-          cur: t.currency || t.ccy || 'USD',
-          when: fmtDateYmd(t.timestamp || t.created_at || t.date),
-        };
-      })
-      .filter(x => x.who || x.side || x.amt || x.when);
+        setTxItems(mapped);
+      } catch (e) {
+        setTxError(e?.response?.data?.detail || 'Failed to load recent transactions.');
+        setTxItems([]);
+      } finally {
+        setTxLoading(false);
+      }
+    };
 
-    setTxItems(mapped);
-  } catch (e) {
-    setTxError(e?.response?.data?.detail || 'Failed to load recent transactions.');
-    setTxItems([]);
-  } finally {
-    setTxLoading(false);
-  }
-};
+    // ── 초기화: Active 리그 확인 후 섹션 로딩 제어 ───────────────────────────
+    const init = async () => {
+      const id = await getActiveLeagueId();
+      if (!alive) return;
+      setActiveLeagueId(id);
+      setHasActiveLeague(!!id);
 
-    loadTickerbar();
-    loadNews();
-    loadPortfolio();
-    loadLeaderboard();
-    loadLatestTx();
+      // 티커바/뉴스는 리그와 무관 → 항상 로드(기존 동작 유지)
+      loadTickerbar();
+      loadNews();
 
+      if (id) {
+        await Promise.all([
+          loadPortfolio(),
+          loadLeaderboard(),
+          loadLatestTx(id),
+        ]);
+      } else {
+        // 리그가 없을 때: 각 섹션을 안내문이 바로 보이도록 로딩 해제/초기화
+        setLoadingPortfolio(false);
+        setSummary({
+          starting_cash: 0,
+          cash: 0,
+          total_stock_value: 0,
+          total_asset: 0,
+          return_pct: 0,
+        });
+        setPortfolioTop([]);
+
+        setLbLoading(false);
+        setLbUsers([]);
+        setLbError('');
+
+        setTxLoading(false);
+        setTxItems([]);
+        setTxError('');
+      }
+    };
+
+    init();
     return () => { alive = false; };
   }, []);
 
@@ -355,17 +385,27 @@ const loadLatestTx = async () => {
         <div className="fs-card fs-balance">
           <div className="fs-card__title">Total Balance</div>
 
-          <div className="fs-balance__value">
-            {loadingPortfolio ? '—' : `$${money(summary.total_asset)}`}
-          </div>
+          {hasActiveLeague === false ? (
+            <div className="fs-empty">
+              There is no active league at the moment.{' '}Visit
+<button className="fs-link" onClick={() => navigate('/leagues')}>Leagues</button>
+{' '}page and join a new league!
+            </div>
+          ) : (
+            <>
+              <div className="fs-balance__value">
+                {loadingPortfolio ? '—' : `$${money(summary.total_asset)}`}
+              </div>
 
-          <div className={`fs-chip fs-chip--pnl ${pnlAbs >= 0 ? 'is-pos' : 'is-neg'}`}>
-            {loadingPortfolio ? '—' : (
-              <>
-                {pnlAbs >= 0 ? '+' : '-'}${money(Math.abs(pnlAbs))} ({pnlAbs >= 0 ? '+' : ''}{pct(pnlPctForChip)})
-              </>
-            )}
-          </div>
+              <div className={`fs-chip fs-chip--pnl ${pnlAbs >= 0 ? 'is-pos' : 'is-neg'}`}>
+                {loadingPortfolio ? '—' : (
+                  <>
+                    {pnlAbs >= 0 ? '+' : '-'}${money(Math.abs(pnlAbs))} ({pnlAbs >= 0 ? '+' : ''}{pct(pnlPctForChip)})
+                  </>
+                )}
+              </div>
+            </>
+          )}
         </div>
 
         {/* 우: 수익률 상위 3 종목 */}
@@ -375,32 +415,40 @@ const loadLatestTx = async () => {
             <button className="fs-link" onClick={() => navigate('/portfolio')} aria-label="Go to Portfolio">→</button>
           </div>
 
-          <div className="fs-portfolio__row">
-            {loadingPortfolio ? (
-              <>
-                <div className="fs-asset fs-asset--tile sk" />
-                <div className="fs-asset fs-asset--tile sk" />
-                <div className="fs-asset fs-asset--tile sk" />
-              </>
-            ) : (
-              (portfolioTop.length ? portfolioTop : []).map((p) => (
-                <div className="fs-asset fs-asset--tile" key={p.sym}>
-                  <div className="fs-asset__meta">
-                    <div className="name">{p.sym}</div>
-                    <div className="sub">{p.name}</div>
-                  </div>
-                  <div className="fs-asset__val">
-                    <div className="val">${money(p.market_value ?? 0)}</div>
-                    <div className={`chg ${Number(p.return_pct) >= 0 ? 'up' : 'dn'}`}>
-                      {Number(p.return_pct) >= 0 ? '▲' : '▼'} {pct(Number(p.return_pct))}
+          {hasActiveLeague === false ? (
+            <div className="fs-empty">
+              There is no active league at the moment.{' '}Visit
+<button className="fs-link" onClick={() => navigate('/leagues')}>Leagues</button>
+{' '}page and join a new league!
+            </div>
+          ) : (
+            <div className="fs-portfolio__row">
+              {loadingPortfolio ? (
+                <>
+                  <div className="fs-asset fs-asset--tile sk" />
+                  <div className="fs-asset fs-asset--tile sk" />
+                  <div className="fs-asset fs-asset--tile sk" />
+                </>
+              ) : (
+                (portfolioTop.length ? portfolioTop : []).map((p) => (
+                  <div className="fs-asset fs-asset--tile" key={p.sym}>
+                    <div className="fs-asset__meta">
+                      <div className="name">{p.sym}</div>
+                      <div className="sub">{p.name}</div>
+                    </div>
+                    <div className="fs-asset__val">
+                      <div className="val">${money(p.market_value ?? 0)}</div>
+                      <div className={`chg ${Number(p.return_pct) >= 0 ? 'up' : 'dn'}`}>
+                        {Number(p.return_pct) >= 0 ? '▲' : '▼'} {pct(Number(p.return_pct))}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))
-            )}
-          </div>
+                ))
+              )}
+            </div>
+          )}
 
-          {!loadingPortfolio && portfolioTop.length === 0 && (
+          {!loadingPortfolio && hasActiveLeague !== false && portfolioTop.length === 0 && (
             <div className="fs-empty">There are no holdings.</div>
           )}
         </div>
@@ -410,92 +458,107 @@ const loadLatestTx = async () => {
       <section className="fs-grid fs-grid--bottom">
         {/* 좌: 실제 리더보드 */}
         <div className="fs-card fs-leader">
-          {/* 제목 & #1 영역 (히어로) */}
-          {lbLoading ? (
+          {hasActiveLeague === false ? (
             <div className="fs-leader__hero">
               <div className="fs-leader__head">
                 <div className="fs-card__title">Leaderboard</div>
-                <div className="fs-leader__topuser">#1 —</div>
               </div>
-              <div className="fs-leader__amount">—</div>
-            </div>
-          ) : lbError ? (
-            <div className="fs-leader__hero">
-              <div className="fs-leader__head">
-                <div className="fs-card__title">Leaderboard</div>
-                <div className="fs-leader__topuser text-danger">—</div>
-              </div>
-              <div className="fs-leader__amount text-danger" style={{ fontWeight: 700 }}>{lbError}</div>
-            </div>
-          ) : lbUsers.length ? (
-            <div className="fs-leader__hero">
-              <div className="fs-leader__head">
-                <div className="fs-card__title">Leaderboard</div>
-                <div className="fs-leader__topuser">#{String(1)} {lbUsers[0]?.username ?? '—'}</div>
-              </div>
-              <div className="fs-leader__amount">
-                ${money(lbUsers[0]?.total_asset ?? 0)}
+              <div className="fs-empty" style={{ paddingTop: 8 }}>
+                There is no active league at the moment.{' '}Visit
+<button className="fs-link" onClick={() => navigate('/leagues')}>Leagues</button>
+{' '}page and join a new league!
               </div>
             </div>
           ) : (
-            <div className="fs-leader__hero">
-              <div className="fs-leader__head">
-                <div className="fs-card__title">Leaderboard</div>
-                <div className="fs-leader__topuser">—</div>
-              </div>
-              <div className="fs-leader__amount">—</div>
-            </div>
-          )}
+            <>
+              {/* 제목 & #1 영역 (히어로) */}
+              {lbLoading ? (
+                <div className="fs-leader__hero">
+                  <div className="fs-leader__head">
+                    <div className="fs-card__title">Leaderboard</div>
+                    <div className="fs-leader__topuser">#1 —</div>
+                  </div>
+                  <div className="fs-leader__amount">—</div>
+                </div>
+              ) : lbError ? (
+                <div className="fs-leader__hero">
+                  <div className="fs-leader__head">
+                    <div className="fs-card__title">Leaderboard</div>
+                    <div className="fs-leader__topuser text-danger">—</div>
+                  </div>
+                  <div className="fs-leader__amount text-danger" style={{ fontWeight: 700 }}>{lbError}</div>
+                </div>
+              ) : lbUsers.length ? (
+                <div className="fs-leader__hero">
+                  <div className="fs-leader__head">
+                    <div className="fs-card__title">Leaderboard</div>
+                    <div className="fs-leader__topuser">#{String(1)} {lbUsers[0]?.username ?? '—'}</div>
+                  </div>
+                  <div className="fs-leader__amount">
+                    ${money(lbUsers[0]?.total_asset ?? 0)}
+                  </div>
+                </div>
+              ) : (
+                <div className="fs-leader__hero">
+                  <div className="fs-leader__head">
+                    <div className="fs-card__title">Leaderboard</div>
+                    <div className="fs-leader__topuser">—</div>
+                  </div>
+                  <div className="fs-leader__amount">—</div>
+                </div>
+              )}
 
-          {/* 표: 수익 순서 (Balance/PNL 규칙 적용) */}
-          <div className="table-wrap">
-            <table className="fs-table">
-              <thead>
-                <tr>
-                  <th>POS</th>
-                  <th>Player</th>
-                  <th>Balance</th>
-                  <th>PNL</th>
-                  <th>Return</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(lbLoading
-                  ? Array.from({ length: 8 }).map((_, i) => ({
-                      pos: i + 1,
-                      user_id: `sk-${i}`,
-                      username: '—',
-                      balance: null,
-                      starting_cash: null,
-                      pnl: null,
-                      return_pct: null,
-                    }))
-                  : lbUsers
-                ).map((u, idx) => {
-                  const pos = idx + 1;
-                  const bal = getBalance(u) ?? 0;
-                  const rowStartingCash = Number(u.starting_cash ?? summary.starting_cash ?? 0); // 리그 공통 초기자금 fallback
-                  const rulePnl = bal - rowStartingCash; // 규칙: PNL = balance - initial cash
-                  const isUp = rulePnl >= 0;
-                  const retPctRatio = Number(u.return_pct ?? 0) / 100; // % → 비율
-
-                  return (
-                    <tr key={u.user_id ?? `sk-${idx}`}>
-                      <td>{String(pos).padStart(2, '0')}</td>
-                      <td className="player"><span className="avatar" />{u.username}</td>
-                      <td className="num">{bal != null ? `$${money(bal)}` : ''}</td>
-                      <td className={`num ${isUp ? 'chg up' : 'chg dn'}`}>
-                        {isUp ? '+' : '-'}${money(Math.abs(rulePnl))}
-                      </td>
-                      <td className={`num ${retPctRatio >= 0 ? 'chg up' : 'chg dn'}`}>
-                        {pct(retPctRatio)}
-                      </td>
+              {/* 표: 수익 순서 (Balance/PNL 규칙 적용) */}
+              <div className="table-wrap">
+                <table className="fs-table">
+                  <thead>
+                    <tr>
+                      <th>POS</th>
+                      <th>Player</th>
+                      <th>Balance</th>
+                      <th>PNL</th>
+                      <th>Return</th>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                  </thead>
+                  <tbody>
+                    {(lbLoading
+                      ? Array.from({ length: 8 }).map((_, i) => ({
+                          pos: i + 1,
+                          user_id: `sk-${i}`,
+                          username: '—',
+                          balance: null,
+                          starting_cash: null,
+                          pnl: null,
+                          return_pct: null,
+                        }))
+                      : lbUsers
+                    ).map((u, idx) => {
+                      const pos = idx + 1;
+                      const bal = getBalance(u) ?? 0;
+                      const rowStartingCash = Number(u.starting_cash ?? summary.starting_cash ?? 0); // 리그 공통 초기자금 fallback
+                      const rulePnl = bal - rowStartingCash; // 규칙: PNL = balance - initial cash
+                      const isUp = rulePnl >= 0;
+                      const retPctRatio = Number(u.return_pct ?? 0) / 100; // % → 비율
+
+                      return (
+                        <tr key={u.user_id ?? `sk-${idx}`}>
+                          <td>{String(pos).padStart(2, '0')}</td>
+                          <td className="player"><span className="avatar" />{u.username}</td>
+                          <td className="num">{bal != null ? `$${money(bal)}` : ''}</td>
+                          <td className={`num ${isUp ? 'chg up' : 'chg dn'}`}>
+                            {isUp ? '+' : '-'}${money(Math.abs(rulePnl))}
+                          </td>
+                          <td className={`num ${retPctRatio >= 0 ? 'chg up' : 'chg dn'}`}>
+                            {pct(retPctRatio)}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
         </div>
 
         {/* 우: 최신 거래(실제값) */}
@@ -506,9 +569,15 @@ const loadLatestTx = async () => {
               <button className="fs-link" onClick={() => navigate('/history')} aria-label="Go to History">→</button>
             </div>
 
-            {txLoading ? (
+            {hasActiveLeague === false ? (
+              <div className="fs-empty">
+                There is no active league at the moment.{' '}Visit
+<button className="fs-link" onClick={() => navigate('/leagues')}>Leagues</button>
+{' '}page and join a new league!
+              </div>
+            ) : txLoading ? (
               <ul className="fs-tx-list">
-                {Array.from({ length: 5 }).map((_, i) => ( // ← 스켈레톤도 5개로
+                {Array.from({ length: 5 }).map((_, i) => (
                   <li key={`sk-${i}`}>
                     <div className="who">
                       <div className="dot" />
