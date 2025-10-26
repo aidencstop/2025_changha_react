@@ -29,8 +29,8 @@ import BlockIfActiveLeague from './components/BlockIfActiveLeague';
 function AppShell() {
   const location = useLocation();
 
-  // ⬇️ 여기서 Sidebar를 숨길 경로를 관리합니다. 현재는 Landing('/')만 숨김.
-  const hideSidebarRoutes = ['/']; // 필요 시 '/login', '/register' 등 추가 가능
+  // ⬇️ Sidebar 숨길 경로: 랜딩(/), 로그인(/login), 회원가입(/register)
+  const hideSidebarRoutes = ['/', '/login', '/register'];
   const showSidebar = !hideSidebarRoutes.includes(location.pathname);
 
   return (
