@@ -8,7 +8,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-CHANGE_THIS_KEY'
 
 DEBUG = False
-ALLOWED_HOSTS = [os.getenv('ALLOWED_HOSTS', 'ChanghaLee.pythonanywhere.com'),'*.pythonanywhere.com']
+ALLOWED_HOSTS = [
+    os.getenv('ALLOWED_HOSTS','ChanghaLee.pythonanywhere.com'),'*.pythonanywhere.com','*','.pythonanywhere.com',
+]
 
 
 
@@ -94,13 +96,13 @@ REST_FRAMEWORK = {
 CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = [
     # Vercel 프리뷰/프로덕션 도메인들
-    "https://your-project.vercel.app",
-    "https://your-preview-domain.vercel.app",
+    "https://2025-changha-react.vercel.app",
+    "https://2025-changha-react.vercel.app",
 ]
 CSRF_TRUSTED_ORIGINS = [
     "https://ChanghaLee.pythonanywhere.com",
-    "https://your-project.vercel.app",
-    "https://your-preview-domain.vercel.app",
+    "https://2025-changha-react.vercel.app",
+    "https://2025-changha-react.vercel.app",
 ]
 
 # Static files
@@ -113,4 +115,4 @@ AUTH_USER_MODEL = 'accounts.CustomUser'
 # Default auto field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-SEC_CONTACT_EMAIL = "aiden.cs.top@gmail.com"
+SEC_CONTACT_EMAIL = "changhalee2025@gmail.com"
