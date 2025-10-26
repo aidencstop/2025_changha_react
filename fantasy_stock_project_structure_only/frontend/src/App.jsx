@@ -2,7 +2,7 @@
 import './styles/theme.css';
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import NavBar from './components/NavBar';
+import NavBar from './components/Navbar';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
