@@ -21,71 +21,73 @@ export default function Landing() {
 
       {/* ── HERO */}
       <section className="hero">
-        <div className="hero__text">
-          <span className="pill">Perfect for beginners</span>
-          <h1>Master stock trading</h1>
-          <p>
-            Start with $100,000 virtual money and learn trading with real market data.
-            Perfect for students who want to understand finance and the stock market.
-          </p>
-          <div className="hero__cta">
+  <div className="hero__text">
+    <span className="pill">Perfect for beginners</span>
+    <h1>Master stock trading</h1>
+    <p>
+      Start with $100,000 virtual money and learn trading with real market data.
+      Perfect for students who want to understand finance and the stock market.
+    </p>
+    <div className="hero__cta">
+      <button className="btn ghost" onClick={() => navigate('/market')}>Learn More</button>
+    </div>
+  </div>
 
-            <button className="btn ghost" onClick={() => navigate('/market')}>Learn More</button>
+  {/* ⬇️ 오른쪽 영역: 이미지 자리만 남김 */}
+  <div className="hero__image-placeholder">
+    {/* 여기에 나중에 hero 이미지 들어감 */}
+  </div>
+</section>
+
+{/* ⬇️ hero__art 전체를 hero 섹션 밖으로 이동 — 단독 한 줄 전폭 */}
+<div className="hero__art">
+  <div className="hero__art-frame">
+    <div className="hero__art-inner">
+      {/* 카드 1: 작은 포트폴리오 */}
+      <div className="card mini">
+        <div className="mini__row">
+          <div className="avatar">A</div>
+          <div className="meta">
+            <div className="t1">AAPL</div>
+            <div className="t2">Apple Inc</div>
           </div>
+          <div className="val">$1,222.09</div>
+          <div className="chg neg">-0.31%</div>
         </div>
-
-        <div className="hero__art">
-    {/* 🔵 파란 둥근 사각형 프레임 래퍼 추가 */}
-    <div className="hero__art-frame">
-      <div className="hero__art-inner">
-        {/* ⬇️ 기존 카드 두 개 그대로 이동 */}
-        {/* 카드 1: 작은 포트폴리오 미리보기 */}
-        <div className="card mini">
-          <div className="mini__row">
-            <div className="avatar">A</div>
-            <div className="meta">
-              <div className="t1">AAPL</div>
-              <div className="t2">Apple Inc</div>
-            </div>
-            <div className="val">$1,222.09</div>
-            <div className="chg neg">-0.31%</div>
+        <div className="mini__row">
+          <div className="avatar">A</div>
+          <div className="meta">
+            <div className="t1">TSLA</div>
+            <div className="t2">Tesla Inc</div>
           </div>
-          <div className="mini__row">
-            <div className="avatar">A</div>
-            <div className="meta">
-              <div className="t1">TSLA</div>
-              <div className="t2">Tesla Inc</div>
-            </div>
-            <div className="val">$1,782.29</div>
-            <div className="chg pos">+1.26%</div>
-          </div>
-        </div>
-
-        {/* 카드 2: 테이블 */}
-        <div className="card table">
-          <div className="table__head">
-            <div>Stocks</div><div>Qty</div><div>Avg. Cost($)</div><div>Current($)</div><div>Market Value($)</div>
-          </div>
-          {[
-            { s: 'AAPL', q: 10, c: 150.00, p: 172.32, v: 432.00 },
-            { s: 'TSLA', q: 5,  c: 160.00, p: 182.45, v: 450.00 },
-            { s: 'AMZN', q: 3,  c: 170.00, p: 193.56, v: 475.00 },
-            { s: 'GOOGL',q: 1,  c: 180.00, p: 204.67, v: 500.00 }
-          ].map((r, i) => (
-            <div className="table__row" key={i}>
-              <div className="stk"><span className="dot" /> {r.s}</div>
-              <div>{r.q}</div>
-              <div>{r.c.toFixed(2)}</div>
-              <div>{r.p.toFixed(2)}</div>
-              <div>{r.v.toFixed(2)}</div>
-            </div>
-          ))}
+          <div className="val">$1,782.29</div>
+          <div className="chg pos">+1.26%</div>
         </div>
       </div>
+
+      {/* 카드 2: 테이블 */}
+      <div className="card table">
+        <div className="table__head">
+          <div>Stocks</div><div>Qty</div><div>Avg. Cost($)</div><div>Current($)</div><div>Market Value($)</div>
+        </div>
+        {[
+          { s: 'AAPL', q: 10, c: 150.0, p: 172.32, v: 432.0 },
+          { s: 'TSLA', q: 5, c: 160.0, p: 182.45, v: 450.0 },
+          { s: 'AMZN', q: 3, c: 170.0, p: 193.56, v: 475.0 },
+          { s: 'GOOGL', q: 1, c: 180.0, p: 204.67, v: 500.0 },
+        ].map((r, i) => (
+          <div className="table__row" key={i}>
+            <div className="stk"><span className="dot" /> {r.s}</div>
+            <div>{r.q}</div>
+            <div>{r.c.toFixed(2)}</div>
+            <div>{r.p.toFixed(2)}</div>
+            <div>{r.v.toFixed(2)}</div>
+          </div>
+        ))}
+      </div>
     </div>
-    {/* 🔵 프레임 끝 */}
   </div>
-      </section>
+</div>
 
       {/* ── SECTION TITLE */}
       <section className="title-block">

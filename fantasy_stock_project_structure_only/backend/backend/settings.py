@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING
 SECRET_KEY = 'django-insecure-CHANGE_THIS_KEY'
 
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = [
     os.getenv('ALLOWED_HOSTS','ChanghaLee.pythonanywhere.com'),'*.pythonanywhere.com','*','.pythonanywhere.com',
 ]

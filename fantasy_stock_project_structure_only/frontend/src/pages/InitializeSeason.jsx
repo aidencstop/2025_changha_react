@@ -9,7 +9,7 @@ function InitializeSeason() {
   const [error, setError] = useState("");
 
   const handleInit = async () => {
-    setMessage("요청 중...");
+    setMessage("Requesting...");
     setError("");
     try {
       const res = await axios.post("/api/stocks/admin/init-season/", {}, {
@@ -21,7 +21,7 @@ function InitializeSeason() {
       setCreated(res.data.created_users);
       setSkipped(res.data.skipped_users);
     } catch (err) {
-      setError("실패: " + (err.response?.data?.detail || "알 수 없는 오류"));
+      setError("failed:" + (err.response?.data?.detail || "unknown error"));
     }
   };
 

@@ -15,7 +15,7 @@ const TradeHistory = () => {
     if (loading || !hasMore) return;
     const league_id = getSelectedLeagueId();
     if (!league_id) {
-      setError('리그를 먼저 선택하세요.');
+      setError('Please select a league first.');
       return;
     }
     try {
@@ -34,7 +34,7 @@ const TradeHistory = () => {
       }
     } catch (err) {
       console.error('Error loading trade history:', err);
-      setError(err?.response?.data?.error || '거래내역을 불러오지 못했습니다.');
+      setError(err?.response?.data?.error || 'Failed to retrieve transaction details.');
       setHasMore(false);
     } finally {
       setLoading(false);
@@ -71,8 +71,8 @@ const TradeHistory = () => {
         ))}
       </ul>
       <div ref={loader} style={{ height: '30px' }} />
-      {loading && <div className="text-center my-3">불러오는 중...</div>}
-      {!hasMore && <div className="text-center my-3 text-muted">더 이상 내역이 없습니다.</div>}
+      {loading && <div className="text-center my-3">Loading...</div>}
+      {!hasMore && <div className="text-center my-3 text-muted">There are no more details.</div>}
     </div>
   );
 };

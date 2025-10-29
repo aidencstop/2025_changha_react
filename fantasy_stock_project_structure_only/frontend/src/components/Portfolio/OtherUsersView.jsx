@@ -19,7 +19,7 @@ const OtherUsersView = () => {
     const fetchUsers = async () => {
       const token = localStorage.getItem('token');
       if (!token) {
-        setError('로그인이 필요합니다.');
+        setError('Login is required.');
         navigate('/login');
         return;
       }
@@ -34,15 +34,15 @@ const OtherUsersView = () => {
         // 초기 로드 시 각 유저의 요약(총자산/수익률) 보강
         enrichUsersWithTotals(list, token);
       } catch (err) {
-        console.error('유저 불러오기 실패:', err);
+        console.error('Failed to load user:', err);
         if (err.response?.status === 401) {
-          setError('로그인 정보가 만료되었습니다.');
+          setError('Failed to load user:');
           navigate('/login');
         } else {
           const msg =
             err?.response?.data?.error ||
             err?.response?.data?.detail ||
-            '유저 정보를 불러오지 못했습니다.';
+            'Failed to retrieve user information.';
           setError(msg);
         }
         setLoading(false);

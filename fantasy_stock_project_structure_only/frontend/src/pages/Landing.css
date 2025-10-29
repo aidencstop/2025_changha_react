@@ -135,12 +135,12 @@
   gap: 12px;
 }
 #fs-landing .overview .t1 { font-weight: 900; margin-bottom: 8px; }
-#fs-landing .overview .kv { display: flex; justify-content: space-between; padding: 8px 10px; border-radius: 10px; background: #fafbff; font-weight: 700; }
+#fs-landing .overview .kv { display: flex; justify-content: space-between; padding: 8px 10px; border-radius: 10px; background: #ffffff; font-weight: 700; }
 #fs-landing .overview .kv + .kv { margin-top: 8px; }
 #fs-landing .overview .pos { color: #0aa870; }
 
 #fs-landing .toplist__head { font-weight: 900; margin-bottom: 8px; }
-#fs-landing .toplist__row { display: grid; grid-template-columns: 64px 1fr auto; align-items: center; padding: 10px 12px; border-radius: 12px; background: #fafbff; }
+#fs-landing .toplist__row { display: grid; grid-template-columns: 64px 1fr auto; align-items: center; padding: 10px 12px; border-radius: 12px; background: #ffffff; }
 #fs-landing .toplist__row + .toplist__row { margin-top: 8px; }
 #fs-landing .rank { font-weight: 900; }
 #fs-landing .rank.gold { color: #d4aa00; }
@@ -149,7 +149,7 @@
 #fs-landing .pnl .pos { color: #0aa870; }
 
 #fs-landing .market__head { font-weight: 900; margin-bottom: 10px; }
-#fs-landing .market__row { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: center; padding: 10px; border-radius: 12px; background: #fafbff; }
+#fs-landing .market__row { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: center; padding: 10px; border-radius: 12px; background: #ffffff; }
 #fs-landing .market__row + .market__row { margin-top: 8px; }
 #fs-landing .market .dot { width: 8px; height: 8px; border-radius: 50%; background: #4e6bff; display: inline-block; margin-right: 6px; }
 #fs-landing .market .stk { display: flex; align-items: center; }
@@ -252,4 +252,141 @@
   border-radius: 18px;
   box-shadow: 0 0 0 2px rgba(62,117,255,0.22) inset; /* 안쪽 파란 윤곽선 */
   pointer-events: none;
+}
+.hero__image-placeholder {
+  flex: 1;
+  min-height: 280px;
+  background: #eef2f7;
+  border-radius: 20px;
+  margin-left: 40px;
+}
+
+.hero__art {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin: 60px 0; /* hero와 title-block 사이 여백 */
+}
+
+/* 카드가 그리드 셀을 꽉 채우도록 */
+.hero__art-inner .card { height: 100%; width: 100%; }
+
+
+
+
+/* 반응형: 좁아지면 1열로 스택 */
+@media (max-width: 900px) {
+  .hero__art-inner { grid-template-columns: 1fr; }
+}
+
+/* =========================
+   HERO 오른쪽: 이미지 자리
+   ========================= */
+#fs-landing .hero__image-placeholder {
+  flex: 1;
+  min-height: 280px;
+  background: #eef2f7;
+  border-radius: 20px;
+  margin-left: 40px;
+}
+
+/* =========================
+   HERO_ART 전폭 밴드 (섹션 사이)
+   ========================= */
+#fs-landing .hero__art {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin: 60px 0; /* hero 와 title-block 사이 여백 */
+}
+
+/* 파란 둥근 사각형 프레임 */
+#fs-landing .hero__art-frame {
+  position: relative;
+  width: min(1200px, 92vw);
+  padding: 28px;
+  border-radius: 24px;
+  overflow: hidden;   /* 안쪽 모서리/그림자 클립 */
+  isolation: isolate; /* 내부 효과 분리 */
+}
+
+/* 파란빛 배경 + 윤곽선 */
+#fs-landing .hero__art-frame::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(62,117,255,0.06), rgba(62,117,255,0.02));
+  box-shadow:
+    0 0 0 1px rgba(62,117,255,0.25) inset,
+    0 18px 40px rgba(62,117,255,0.18);
+  z-index: -1;
+}
+#fs-landing .hero__art-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 24px;
+  box-shadow: 0 0 0 2px rgba(62,117,255,0.18) inset; /* 안쪽 파란 윤곽 */
+  pointer-events: none;
+}
+
+/* 내부 레이아웃: 1:1 동일 비율 + 같은 높이 */
+#fs-landing .hero__art-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* ✅ 같은 비율 */
+  gap: 24px;
+  align-items: stretch;           /* ✅ 같은 높이로 늘림 */
+}
+
+/* 카드가 셀을 꽉 채우도록 */
+#fs-landing .hero__art-inner .card {
+  width: 100%;
+  height: 100%;
+}
+
+/* --- mini/table 카드: 기존 '절대 위치' 스타일 무효화(오버라이드) --- */
+#fs-landing .hero__art-inner .card.mini {
+  position: static;   /* 기존 absolute 무효화 */
+  width: auto;        /* 고정폭 제거 */
+  padding: 16px;
+}
+#fs-landing .hero__art-inner .card.table {
+  position: static;   /* 기존 relative+left/top 제거 */
+  width: auto;
+  padding: 16px;
+  border-radius: 14px;
+  box-shadow: 0 10px 28px rgba(15, 18, 34, 0.08);
+  background-clip: padding-box;
+  max-width: 100%;
+}
+
+/* mini 카드 내부 정돈 */
+#fs-landing .card.mini { display: flex; flex-direction: column; gap: 12px; }
+#fs-landing .card.mini .mini__row {
+  display: grid;
+  grid-template-columns: 36px 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+}
+
+/* table 카드 컬럼 비율(가독성 좋은 균형) */
+#fs-landing .card.table .table__head,
+#fs-landing .card.table .table__row {
+  display: grid;
+  grid-template-columns: 1.4fr 0.8fr 1.2fr 1.2fr 1.4fr;
+  align-items: center;
+  column-gap: 16px;
+}
+
+/* =========================
+   반응형
+   ========================= */
+@media (max-width: 1024px) {
+  #fs-landing .hero__art { margin: 36px 0; }
+}
+@media (max-width: 900px) {
+  #fs-landing .hero__art-inner { grid-template-columns: 1fr; }  /* 세로 스택 */
+  #fs-landing .hero__art-frame { padding: 20px; }
+  #fs-landing .hero__image-placeholder { margin-left: 0; min-height: 220px; }
 }
