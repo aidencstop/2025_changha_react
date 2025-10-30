@@ -18,6 +18,7 @@ import InitializeSeason from './pages/InitializeSeason';
 import Leagues from './pages/Leagues';
 import MyLeague from './pages/MyLeague';
 import History from './pages/History';
+import Profile from './pages/Profile'
 
 // ⬇️ ACTIVE 리그면 Leagues 접근 차단 가드
 import BlockIfActiveLeague from './components/BlockIfActiveLeague';
@@ -52,6 +53,7 @@ function AppShell() {
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/trade-history" element={<TradeHistory />} />
           <Route path="/admin/init-season" element={<InitializeSeason />} />
+          <Route path="/profile" element={<Profile />} />
 
           {/* ⬇️ 여기만 가드로 감쌌습니다 */}
           <Route

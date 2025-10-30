@@ -77,10 +77,17 @@ function StockDetail() {
     try {
       const endpoint = action === 'buy' ? '/stocks/buy/' : '/stocks/sell/';
       const res = await api.post(endpoint, { symbol, shares: qty });
-      setMessage(res.data.status || res.data.message || (action === 'buy' ? 'Purchase completed' : 'Sale completed'));
+      setMessage(
+        res.data.status ||
+          res.data.message ||
+          (action === 'buy' ? 'Purchase completed' : 'Sale completed')
+      );
       setQuantity('');
     } catch (err) {
-      const errMsg = err?.response?.data?.error || err?.response?.data?.detail || 'Trade failed.';
+      const errMsg =
+        err?.response?.data?.error ||
+        err?.response?.data?.detail ||
+        'Trade failed.';
       setMessage(errMsg);
     }
   };
@@ -121,7 +128,10 @@ function StockDetail() {
 
   const fmtMoney = (v) =>
     isFinite(v)
-      ? `$${Number(v).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+      ? `$${Number(v).toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}`
       : '—';
   const fmtInt = (v) => (isFinite(v) ? Number(v).toLocaleString() : '—');
 
@@ -134,19 +144,25 @@ function StockDetail() {
   const ask = s.ask ? Number(s.ask).toLocaleString() : '—';
   const targetEst = s.targetEst ? Number(s.targetEst).toLocaleString() : '—';
   const peRatioTTM = s.peRatioTTM ? s.peRatioTTM.toFixed(2) : '—';
-  const epsTTM = (s.epsTTM || s.epsTTM === 0) ? String(s.epsTTM) : '—';
-  const dividendRate = (s.dividendRate || s.dividendRate === 0) ? String(s.dividendRate) : '—';
+  const epsTTM =
+    s.epsTTM || s.epsTTM === 0 ? String(s.epsTTM) : '—';
+  const dividendRate =
+    s.dividendRate || s.dividendRate === 0 ? String(s.dividendRate) : '—';
   const exDividendDate = s.exDividendDate ? String(s.exDividendDate) : '—';
   const open = s.open ? String(s.open) : '—';
 
-  const metaEmployees = companyMeta.fullTimeEmployees != null
-    ? Number(companyMeta.fullTimeEmployees).toLocaleString()
-    : '—';
+  const metaEmployees =
+    companyMeta.fullTimeEmployees != null
+      ? Number(companyMeta.fullTimeEmployees).toLocaleString()
+      : '—';
   const metaSector = companyMeta.sector || '—';
   const metaIndustry = companyMeta.industry || '—';
 
   // 변동값 계산
-  const safeNum = (v) => (v === null || v === undefined || v === '' || Number.isNaN(Number(v)) ? null : Number(v));
+  const safeNum = (v) =>
+    v === null || v === undefined || v === '' || Number.isNaN(Number(v))
+      ? null
+      : Number(v);
   const prevCloseNum = safeNum(previousClose);
   const closeNum = safeNum(close);
 
@@ -170,13 +186,22 @@ function StockDetail() {
   const badgeText =
     delta === null
       ? '—'
-      : `${delta >= 0 ? '+' : ''}${fmtMoney(delta)} (${deltaPct >= 0 ? '+' : ''}${deltaPct.toFixed(2)}%)`;
+      : `${delta >= 0 ? '+' : ''}${fmtMoney(delta)} (${
+          deltaPct >= 0 ? '+' : ''
+        }${deltaPct.toFixed(2)}%)`;
 
   // 작은 Key-Value 행 렌더러
   const kv = (label, value) => (
-    <div className="d-flex justify-content-between align-items-baseline" style={{ padding: '8px 0' }}>
-      <div className="text-muted" style={{ fontSize: 14 }}>{label}</div>
-      <div className="fw-semibold" style={{ fontSize: 18 }}>{value}</div>
+    <div
+      className="d-flex justify-content-between align-items-baseline"
+      style={{ padding: '8px 0' }}
+    >
+      <div className="text-muted" style={{ fontSize: 14 }}>
+        {label}
+      </div>
+      <div className="fw-semibold" style={{ fontSize: 18 }}>
+        {value}
+      </div>
     </div>
   );
 
@@ -222,34 +247,42 @@ function StockDetail() {
                 <div className="d-flex align-items-start justify-content-between">
                   <div>
                     <div className="d-flex align-items-center gap-3">
-                      <h1 className="m-0" style={{ fontWeight: 800, letterSpacing: -0.3 }}>
+                      <h1
+                        className="m-0"
+                        style={{ fontWeight: 800, letterSpacing: -0.3 }}
+                      >
                         {stock?.name || symbol}
                       </h1>
                       <div className="text-muted">
                         <div style={{ lineHeight: 1.2, marginTop: 4 }}>
                           <span className="fw-semibold">{symbol}</span>
-                          <div style={{ fontSize: 12, opacity: 0.8 }}>{stock?.name}</div>
+                          <div style={{ fontSize: 12, opacity: 0.8 }}>
+                            {stock?.name}
+                          </div>
                         </div>
                       </div>
                     </div>
 
                     <div className="mt-3 d-flex align-items-center gap-3">
-                      <div style={{ fontSize: 32, fontWeight: 800 }}>{fmtMoney(close)}</div>
+                      <div
+                        style={{ fontSize: 32, fontWeight: 800 }}
+                      >
+                        {fmtMoney(close)}
+                      </div>
                       <span
-  className="badge"
-  style={{
-    display: 'flex',
-    alignItems: 'center',      // ✅ 텍스트를 배지 내부에서 세로 중앙정렬
-    background: badgeBg,
-    color: badgeColor,
-    padding: '8px 10px',
-    borderRadius: 12,
-    fontWeight: 700,
-  }}
->
-  {badgeText}
-</span>
-
+                        className="badge"
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          background: badgeBg,
+                          color: badgeColor,
+                          padding: '8px 10px',
+                          borderRadius: 12,
+                          fontWeight: 700,
+                        }}
+                      >
+                        {badgeText}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -276,8 +309,15 @@ function StockDetail() {
                     padding: '0 8px',
                   }}
                 >
-                  <span className="text-muted" style={{ fontSize: 12 }}>Employees</span>
-                  <span className="fw-semibold">{metaEmployees}</span>
+                  <span
+                    className="text-muted"
+                    style={{ fontSize: 12 }}
+                  >
+                    Employees
+                  </span>
+                  <span className="fw-semibold">
+                    {metaEmployees}
+                  </span>
                 </div>
                 <div
                   className="d-flex align-items-center justify-content-center flex-grow-1"
@@ -287,15 +327,29 @@ function StockDetail() {
                     padding: '0 8px',
                   }}
                 >
-                  <span className="text-muted" style={{ fontSize: 12 }}>Sector</span>
-                  <span className="fw-semibold">{metaSector}</span>
+                  <span
+                    className="text-muted"
+                    style={{ fontSize: 12 }}
+                  >
+                    Sector
+                  </span>
+                  <span className="fw-semibold">
+                    {metaSector}
+                  </span>
                 </div>
                 <div
                   className="d-flex align-items-center justify-content-center flex-grow-1"
                   style={{ gap: 6, padding: '0 8px' }}
                 >
-                  <span className="text-muted" style={{ fontSize: 12 }}>Industry</span>
-                  <span className="fw-semibold">{metaIndustry}</span>
+                  <span
+                    className="text-muted"
+                    style={{ fontSize: 12 }}
+                  >
+                    Industry
+                  </span>
+                  <span className="fw-semibold">
+                    {metaIndustry}
+                  </span>
                 </div>
               </div>
             </div>
@@ -308,17 +362,30 @@ function StockDetail() {
                 <div className="fs-card-title">Order</div>
                 <div
                   className="d-inline-flex"
-                  style={{ background: 'rgba(113, 113, 122, .12)', borderRadius: 999, padding: 4, gap: 4 }}
+                  style={{
+                    background: 'rgba(113, 113, 122, .12)',
+                    borderRadius: 999,
+                    padding: 4,
+                    gap: 4,
+                  }}
                 >
                   <button
-                    className={`fs-btn ${side === 'buy' ? 'fs-btn-primary' : 'fs-btn-ghost'}`}
+                    className={`fs-btn ${
+                      side === 'buy'
+                        ? 'fs-btn-primary'
+                        : 'fs-btn-ghost'
+                    }`}
                     onClick={() => setSide('buy')}
                     style={{ borderRadius: 999, minWidth: 72 }}
                   >
                     Buy
                   </button>
                   <button
-                    className={`fs-btn ${side === 'sell' ? 'fs-btn-primary' : 'fs-btn-ghost'}`}
+                    className={`fs-btn ${
+                      side === 'sell'
+                        ? 'fs-btn-primary'
+                        : 'fs-btn-ghost'
+                    }`}
                     onClick={() => setSide('sell')}
                     style={{ borderRadius: 999, minWidth: 72 }}
                   >
@@ -330,7 +397,9 @@ function StockDetail() {
               <div className="fs-card-body d-flex flex-column">
                 {/* Shares */}
                 <div className="mb-3 d-flex align-items-center justify-content-between">
-                  <div className="text-muted" style={LABEL_STYLE}>Shares</div>
+                  <div className="text-muted" style={LABEL_STYLE}>
+                    Shares
+                  </div>
                   <div style={VALUE_BOX_STYLE}>
                     <input
                       type="number"
@@ -340,23 +409,46 @@ function StockDetail() {
                       className="fs-search-input"
                       placeholder="Enter quantity"
                       value={quantity}
-                      onChange={(e) => setQuantity(e.target.value)}
+                      onChange={(e) =>
+                        setQuantity(e.target.value)
+                      }
                       style={{
                         width: '100%',
                         backgroundColor: '#f8f9fa',
                         boxSizing: 'border-box',
+                        padding: '8px 12px',
+                        minWidth: 0,
+                        caretColor: '#000', // 커서 보이게
+                        color: '#000', // 입력 텍스트 명확하게
                       }}
                     />
                   </div>
                 </div>
 
                 {/* Price */}
-                <div className="mb-3 d-flex align-items-center" style={{ overflow: 'hidden' }}>
-                  <div className="text-muted me-2" style={{ minWidth: 60 }}>Price</div>
-                  <div className="ms-auto d-flex align-items-center justify-content-end" style={VALUE_BOX_STYLE}>
+                <div
+                  className="mb-3 d-flex align-items-center"
+                  style={{ overflow: 'hidden' }}
+                >
+                  <div
+                    className="text-muted me-2"
+                    style={{ minWidth: 60 }}
+                  >
+                    Price
+                  </div>
+                  <div
+                    className="ms-auto d-flex align-items-center justify-content-end"
+                    style={VALUE_BOX_STYLE}
+                  >
                     <div
                       className="fs-search-input text-end"
-                      style={{ pointerEvents: 'none', color: '#000', opacity: 1, width: '100%', boxSizing: 'border-box' }}
+                      style={{
+                        pointerEvents: 'none',
+                        color: '#000',
+                        opacity: 1,
+                        width: '100%',
+                        boxSizing: 'border-box',
+                      }}
                     >
                       {fmtMoney(close)}
                     </div>
@@ -364,19 +456,43 @@ function StockDetail() {
                 </div>
 
                 {/* Total */}
-                <div className="mb-4 d-flex align-items-center" style={{ overflow: 'hidden' }}>
-                  <div className="text-muted me-2" style={{ minWidth: 60 }}>Total</div>
-                  <div className="ms-auto d-flex align-items-center justify-content-end" style={VALUE_BOX_STYLE}>
-                    <div className="fw-bold text-end" style={{ width: '100%', boxSizing: 'border-box' }}>
+                <div
+                  className="mb-4 d-flex align-items-center"
+                  style={{ overflow: 'hidden' }}
+                >
+                  <div
+                    className="text-muted me-2"
+                    style={{ minWidth: 60 }}
+                  >
+                    Total
+                  </div>
+                  <div
+                    className="ms-auto d-flex align-items-center justify-content-end"
+                    style={VALUE_BOX_STYLE}
+                  >
+                    <div
+                      className="fw-bold text-end"
+                      style={{
+                        width: '100%',
+                        boxSizing: 'border-box',
+                      }}
+                    >
                       {fmtMoney(total)}
                     </div>
                   </div>
                 </div>
 
-                <button className="fs-btn fs-btn-primary w-100 mt-auto" onClick={() => handleAction(side)}>
+                <button
+                  className="fs-btn fs-btn-primary w-100 mt-auto"
+                  onClick={() => handleAction(side)}
+                >
                   Order
                 </button>
-                {message && <div className="alert alert-info mt-3 mb-0">{message}</div>}
+                {message && (
+                  <div className="alert alert-info mt-3 mb-0">
+                    {message}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -387,7 +503,10 @@ function StockDetail() {
           <div className="fs-card-head">
             <div>
               <div className="fs-card-title">Detail Stock</div>
-              <div className="text-muted" style={{ fontSize: 12 }}>
+              <div
+                className="text-muted"
+                style={{ fontSize: 12 }}
+              >
                 Comprehensive details on individual stocks
               </div>
             </div>
@@ -395,13 +514,24 @@ function StockDetail() {
 
           <div className="fs-card-body">
             <div className="row g-0">
-              <div className="col-12 col-md-4 px-3 px-md-4" style={colDivider}>
-                {kv('Previous Close', previousClose ? fmtMoney(previousClose) : '—')}
+              <div
+                className="col-12 col-md-4 px-3 px-md-4"
+                style={colDivider}
+              >
+                {kv(
+                  'Previous Close',
+                  previousClose
+                    ? fmtMoney(previousClose)
+                    : '—'
+                )}
                 {kv('Open', open)}
                 {kv('Bid', `${bid}`)}
                 {kv('Ask', `${ask}`)}
               </div>
-              <div className="col-12 col-md-4 px-3 px-md-4" style={colDivider}>
+              <div
+                className="col-12 col-md-4 px-3 px-md-4"
+                style={colDivider}
+              >
                 {kv('Volume', fmtInt(volume))}
                 {kv('Avg. Volume', avgVolume)}
                 {kv('Market Cap', marketCap)}
@@ -422,22 +552,38 @@ function StockDetail() {
           <div className="col-12">
             <div className="fs-card">
               <div className="fs-card-head">
-                <div className="fs-card-title">{stock?.name || symbol} Overview</div>
+                <div className="fs-card-title">
+                  {stock?.name || symbol} Overview
+                </div>
               </div>
               <div className="fs-card-body">
                 {profile ? (
                   <>
-                    <p className="text-muted" style={{ whiteSpace: 'pre-line', lineHeight: 1.7 }}>
+                    <p
+                      className="text-muted"
+                      style={{
+                        whiteSpace: 'pre-line',
+                        lineHeight: 1.7,
+                      }}
+                    >
                       {profile}
                     </p>
                     {profileSrc && (
-                      <a className="fs-btn fs-btn-ghost" href={profileSrc} target="_blank" rel="noreferrer">
+                      <a
+                        className="fs-btn fs-btn-ghost"
+                        href={profileSrc}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
                         View source (Yahoo Finance)
                       </a>
                     )}
                   </>
                 ) : (
-                  <p className="text-muted">Company description data is not yet ready.</p>
+                  <p className="text-muted">
+                    Company description data is not yet
+                    ready.
+                  </p>
                 )}
               </div>
             </div>

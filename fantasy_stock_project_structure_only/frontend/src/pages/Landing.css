@@ -1,18 +1,14 @@
 /* ─────────────────────────────────────────────────────────────
-   Landing page — 프로젝트 공통 톤과 맞춘 라이트 테마
-   모든 스타일은 #fs-landing 스코프로 격리 (전역 충돌 방지)
+   Landing page — light theme, scoped with #fs-landing
 ────────────────────────────────────────────────────────────── */
 #fs-landing.fs-landing.fs-page {
   padding: 16px 20px 28px;
-  background: #ffffff;   /* ← 기존 #f7f8fb 대신 흰색으로 변경 */
+  background: #ffffff;
   color: #0f1222;
   min-height: 100%;
 }
 
-
-/* ───────────── Header / Footer ───────────── */
-
-/* Header (Top) — 아래 회색 구분선 추가 */
+/* Header / Footer */
 #fs-landing .fs-landing__top {
   width: 100%;
   padding: 20px 40px;
@@ -21,35 +17,68 @@
   align-items: center;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
-#fs-landing .fs-landing__top .brand { display: flex; align-items: center; gap: 10px; }
+#fs-landing .fs-landing__top .brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 #fs-landing .logo {
-  width: 28px; height: 28px; border-radius: 8px;
-  display: grid; place-items: center; font-weight: 800; color: #fff;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  color: #fff;
   background: linear-gradient(135deg, #5b7cff, #3f6bff);
 }
-#fs-landing .name { font-weight: 800; letter-spacing: .2px; }
-#fs-landing .actions { display: flex; gap: 10px; }
+#fs-landing .name {
+  font-weight: 800;
+  letter-spacing: .2px;
+}
+#fs-landing .actions {
+  display: flex;
+  gap: 10px;
+}
 
-/* Footer — 위 회색 구분선 유지 + 풀폭 패딩 */
 #fs-landing .footer {
   width: 100%;
   padding: 30px 40px;
   border-top: 1px solid rgba(0, 0, 0, 0.08);
-  display: flex; justify-content: space-between; align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
-#fs-landing .copy { color: #6a7390; font-size: 13px; }
+#fs-landing .copy {
+  color: #6a7390;
+  font-size: 13px;
+}
 
 /* Buttons */
 #fs-landing .btn {
-  height: 36px; padding: 0 14px; border-radius: 10px; font-weight: 700;
-  border: 1px solid transparent; cursor: pointer;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 10px;
+  font-weight: 700;
+  border: 1px solid transparent;
+  cursor: pointer;
 }
-#fs-landing .btn.primary { background: #4e6bff; color: #fff; }
-#fs-landing .btn.primary:hover { filter: brightness(0.95); }
-#fs-landing .btn.ghost { background: #fff; border-color: rgba(15,18,34,.15); }
-#fs-landing .btn.ghost:hover { background: #f1f3f9; }
+#fs-landing .btn.primary {
+  background: #4e6bff;
+  color: #fff;
+}
+#fs-landing .btn.primary:hover {
+  filter: brightness(0.95);
+}
+#fs-landing .btn.ghost {
+  background: #fff;
+  border-color: rgba(15,18,34,.15);
+}
+#fs-landing .btn.ghost:hover {
+  background: #f1f3f9;
+}
 
-/* ───────────── 본문 섹션 공통: 좌우 10vw 패딩 ───────────── */
+/* Shared section padding */
 #fs-landing .hero,
 #fs-landing .title-block,
 #fs-landing .features,
@@ -58,230 +87,38 @@
   padding-right: 10vw;
 }
 
-/* ───────────── HERO ───────────── */
+/* HERO */
 #fs-landing .hero {
-  display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 32px;
-  align-items: center; padding-top: 60px; padding-bottom: 80px;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 32px;
+  align-items: center;
+  padding-top: 60px;
+  padding-bottom: 80px;
 }
 #fs-landing .pill {
-  display: inline-block; padding: 6px 10px; border-radius: 999px;
-  background: rgba(78,107,255,0.1); color: #4e6bff; font-weight: 700; font-size: 12px;
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(78,107,255,0.1);
+  color: #4e6bff;
+  font-weight: 700;
+  font-size: 12px;
 }
-#fs-landing h1 { font-size: 40px; margin: 14px 0 10px; font-weight: 900; }
-#fs-landing .hero p { color: #475070; max-width: 520px; }
-#fs-landing .hero__cta { margin-top: 18px; display: flex; gap: 10px; }
-
-/* Hero art cards */
-#fs-landing .hero__art { position: relative; }
-#fs-landing .card {
-  background: #ffffff; border: 1px solid rgba(15,18,34,0.08);
-  border-radius: 16px; box-shadow: 0 10px 30px rgba(31,41,55,.08);
+#fs-landing h1 {
+  font-size: 40px;
+  margin: 14px 0 10px;
+  font-weight: 900;
 }
-#fs-landing .card.mini {
-  padding: 12px; width: 320px; position: absolute; left: 18px; top: 16px;
+#fs-landing .hero p {
+  color: #475070;
+  max-width: 520px;
 }
-#fs-landing .mini__row {
-  display: grid; grid-template-columns: 36px 1fr auto auto; align-items: center;
-  gap: 8px; padding: 8px 6px; border-radius: 10px;
-}
-#fs-landing .mini__row + .mini__row { background: #f7f8ff; }
-#fs-landing .avatar { width: 36px; height: 36px; border-radius: 50%; background: #eef1ff; display:grid; place-items:center; font-weight:800; color:#4e6bff;}
-#fs-landing .mini .meta .t1 { font-weight: 700; }
-#fs-landing .mini .meta .t2 { font-size: 12px; color: #6a7390; }
-#fs-landing .mini .val { font-weight: 800; }
-#fs-landing .chg.pos { color: #0aa870; }
-#fs-landing .chg.neg { color: #dc3545; }
-
-#fs-landing .card.table {
-  padding: 14px; width: 460px; position: relative; left: 120px; top: 120px;
-}
-#fs-landing .table__head, #fs-landing .table__row {
-  display: grid; grid-template-columns: 1.3fr .6fr 1fr 1fr 1.2fr; align-items: center; gap: 6px;
-}
-#fs-landing .table__head { font-weight: 800; font-size: 12px; color: #6a7390; padding-bottom: 8px; }
-#fs-landing .table__row { padding: 8px 0; border-top: 1px dashed rgba(15,18,34,0.08); }
-#fs-landing .table .dot { width: 8px; height: 8px; border-radius: 50%; background: #4e6bff; display: inline-block; margin-right: 6px; }
-#fs-landing .stk { display: flex; align-items: center; }
-
-/* ───────────── Title block ───────────── */
-#fs-landing .title-block { text-align: center; padding: 40px 0 18px; }
-#fs-landing .title-block h2 { font-size: 26px; font-weight: 900; }
-#fs-landing .title-block p { color: #59607a; }
-
-/* ───────────── Features grid ───────────── */
-#fs-landing .features {
-  display: grid; grid-template-columns: 1.1fr 0.9fr;  row-gap: 60px;
-  column-gap: 28px;
-  align-items: center; padding-top: 60px; padding-bottom: 60px;
-}
-#fs-landing .feature h3 { font-size: 20px; font-weight: 800; margin: 10px 0 8px; }
-#fs-landing .feature p { color: #475070; }
-#fs-landing .badge { display: inline-block; padding: 6px 10px; border-radius: 10px; font-weight: 800; font-size: 12px; }
-#fs-landing .badge.blue   { background: rgba(78,107,255,.12); color:#4e6bff; }
-#fs-landing .badge.green  { background: rgba(13,178,120,.12); color:#0db278; }
-#fs-landing .badge.yellow { background: rgba(248,193,0,.18); color:#b58900; }
-#fs-landing .checks { margin-top: 10px; display: grid; gap: 6px; }
-#fs-landing .checks li { list-style: none; padding-left: 22px; position: relative; }
-#fs-landing .checks li::before {
-  content: '✓'; position: absolute; left: 0; top: 0; color: #0db278; font-weight: 900;
-}
-
-/* Feature right cards */
-#fs-landing .feature.card { padding: 16px; }
-#fs-landing .overview .icon { width: 36px; height: 36px; border-radius: 10px; background: #eef1ff; display:grid; place-items:center; color:#4e6bff; font-weight:800; }
-#fs-landing .overview {
-  display: grid;
-  grid-template-columns: 1fr;  /* ← 한 컬럼만 사용 */
-  gap: 12px;
-}
-#fs-landing .overview .t1 { font-weight: 900; margin-bottom: 8px; }
-#fs-landing .overview .kv { display: flex; justify-content: space-between; padding: 8px 10px; border-radius: 10px; background: #ffffff; font-weight: 700; }
-#fs-landing .overview .kv + .kv { margin-top: 8px; }
-#fs-landing .overview .pos { color: #0aa870; }
-
-#fs-landing .toplist__head { font-weight: 900; margin-bottom: 8px; }
-#fs-landing .toplist__row { display: grid; grid-template-columns: 64px 1fr auto; align-items: center; padding: 10px 12px; border-radius: 12px; background: #ffffff; }
-#fs-landing .toplist__row + .toplist__row { margin-top: 8px; }
-#fs-landing .rank { font-weight: 900; }
-#fs-landing .rank.gold { color: #d4aa00; }
-#fs-landing .rank.silver { color: #9aa3b2; }
-#fs-landing .pnl { font-weight: 800; }
-#fs-landing .pnl .pos { color: #0aa870; }
-
-#fs-landing .market__head { font-weight: 900; margin-bottom: 10px; }
-#fs-landing .market__row { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: center; padding: 10px; border-radius: 12px; background: #ffffff; }
-#fs-landing .market__row + .market__row { margin-top: 8px; }
-#fs-landing .market .dot { width: 8px; height: 8px; border-radius: 50%; background: #4e6bff; display: inline-block; margin-right: 6px; }
-#fs-landing .market .stk { display: flex; align-items: center; }
-#fs-landing .market .price { font-weight: 800; }
-#fs-landing .market .chg.pos { color: #0aa870; font-weight: 800; }
-#fs-landing .market .chg.neg { color: #dc3545; font-weight: 800; }
-
-/* ───────────── CTA ───────────── */
-#fs-landing .cta { text-align: center; padding-top: 80px; padding-bottom: 80px; }
-#fs-landing .cta h3 { font-size: 22px; font-weight: 900; margin-bottom: 8px; }
-#fs-landing .cta p { color: #59607a; }
-#fs-landing .cta__btns { margin-top: 14px; display: flex; gap: 10px; justify-content: center; }
-
-/* ───────────── Responsive ───────────── */
-@media (max-width: 1024px) {
-  #fs-landing .hero, #fs-landing .features {
-    grid-template-columns: 1fr;
-  }
-  #fs-landing .hero__art { margin-top: 12px; min-height: 420px; }
-  #fs-landing .card.mini { position: absolute; left: 0; top: 0; }
-  #fs-landing .card.table { position: absolute; left: 40px; top: 150px; width: 92%; }
-}
-
-/* feature card right: 흰색 카드 + 바깥 둥근 사각형(기존 페이지 배경색) */
-#fs-landing .feature.card.right {
-  background: #ffffff;                           /* 카드 본체 흰색 */
-  border: 20px solid rgba(15,18,34,0.08);
-  border-radius: 16px;
-  padding: 20px;
-}
-
-/* 화면이 좁을 때 외곽 두께 살짝 줄이기 */
-@media (max-width: 1024px) {
-  #fs-landing .feature.card.right {
-    box-shadow:
-      0 10px 24px rgba(31,41,55,.08),
-      0 0 0 14px #f7f8fb;
-  }
-}
-
-/* 파란 둥근 사각형 프레임 */
-#fs-landing .hero__art-frame {
-  position: relative;
-  border-radius: 18px;              /* 둥근 모서리 */
-  padding: 28px;                    /* 프레임 안쪽 여백 */
-  isolation: isolate;               /* 내부 효과 분리 */
-}
-
-/* 파란빛 배경/외곽선/그림자 효과를 before로 만들어 카드와 분리 */
-#fs-landing .hero__art-frame::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 18px;
-  background: rgba(62, 117, 255, 0.06);         /* 아주 연한 파란 배경 */
-  box-shadow:
-    0 0 0 1px rgba(62,117,255,0.25) inset,      /* 파란 테두리 느낌 */
-    0 18px 40px rgba(62,117,255,0.18);          /* 부드러운 그림자 */
-  z-index: -1;                                   /* 내용 뒤로 */
-}
-
-/* 프레임 내부 레이아웃: 원래 카드들을 그대로 배치 */
-#fs-landing .hero__art-inner {
-  display: grid;
-  grid-template-columns: 1fr 1.2fr; /* 예시: 미니카드 : 테이블 */
-  gap: 20px;
-  align-items: center;
-}
-
-/* 반응형: 좁아지면 세로 스택 */
-@media (max-width: 900px) {
-  #fs-landing .hero__art-inner {
-    grid-template-columns: 1fr;
-  }
-  #fs-landing .hero__art-frame {
-    padding: 20px;
-  }
-}
-/* 프레임 안에 있는 요소들의 그림자가 밖으로 새지 않도록 클립 */
-#fs-landing .hero__art-frame {
-  overflow: hidden;              /* ✅ 바깥으로 튀어나온 그림자/모서리 클립 */
-  border-radius: 18px;           /* 프레임과 동일 반경 */
-}
-
-/* 테이블 카드가 프레임 안쪽 레이어로 보이게 미세 조정 */
-#fs-landing .hero__art-frame .card.table {
-  position: relative;
-  z-index: 0;                    /* 프레임 배경 위, 다른 떠있는 요소보다 낮게 */
-  border-radius: 14px;           /* 프레임 반경보다 살짝 작게 → 안쪽에 들어간 느낌 */
-  box-shadow: 0 10px 28px rgba(15, 18, 34, 0.08); /* 너무 퍼지지 않는 부드러운 그림자 */
-  background-clip: padding-box;  /* 테두리/배경이 반경을 또렷하게 유지 */
-  max-width: 100%;               /* 혹시 모를 넘침 방지 */
-}
-
-/* 프레임의 파란 윤곽을 조금 더 강조(옵션) */
-#fs-landing .hero__art-frame::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 18px;
-  box-shadow: 0 0 0 2px rgba(62,117,255,0.22) inset; /* 안쪽 파란 윤곽선 */
-  pointer-events: none;
-}
-.hero__image-placeholder {
-  flex: 1;
-  min-height: 280px;
-  background: #eef2f7;
-  border-radius: 20px;
-  margin-left: 40px;
-}
-
-.hero__art {
-  width: 100%;
+#fs-landing .hero__cta {
+  margin-top: 18px;
   display: flex;
-  justify-content: center;
-  margin: 60px 0; /* hero와 title-block 사이 여백 */
+  gap: 10px;
 }
-
-/* 카드가 그리드 셀을 꽉 채우도록 */
-.hero__art-inner .card { height: 100%; width: 100%; }
-
-
-
-
-/* 반응형: 좁아지면 1열로 스택 */
-@media (max-width: 900px) {
-  .hero__art-inner { grid-template-columns: 1fr; }
-}
-
-/* =========================
-   HERO 오른쪽: 이미지 자리
-   ========================= */
 #fs-landing .hero__image-placeholder {
   flex: 1;
   min-height: 280px;
@@ -290,103 +127,579 @@
   margin-left: 40px;
 }
 
-/* =========================
-   HERO_ART 전폭 밴드 (섹션 사이)
-   ========================= */
+/* HERO ART BAND */
 #fs-landing .hero__art {
   width: 100%;
   display: flex;
   justify-content: center;
-  margin: 60px 0; /* hero 와 title-block 사이 여백 */
+  margin: 60px 0 60px 0;
+  padding-left: 10vw;
+  padding-right: 10vw;
 }
-
-/* 파란 둥근 사각형 프레임 */
 #fs-landing .hero__art-frame {
   position: relative;
-  width: min(1200px, 92vw);
-  padding: 28px;
+  width: 100%;
+  min-height: 360px;
   border-radius: 24px;
-  overflow: hidden;   /* 안쪽 모서리/그림자 클립 */
-  isolation: isolate; /* 내부 효과 분리 */
+  overflow: hidden;
+  border: 1px solid rgba(62,117,255,0.4);
+  box-shadow: none;
+  background: radial-gradient(
+    circle at 20% 20%,
+    rgba(255,255,255,0.95) 0%,
+    rgba(240,243,253,0.8) 60%,
+    rgba(230,237,255,0.5) 100%
+  );
 }
-
-/* 파란빛 배경 + 윤곽선 */
-#fs-landing .hero__art-frame::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 24px;
-  background: linear-gradient(180deg, rgba(62,117,255,0.06), rgba(62,117,255,0.02));
-  box-shadow:
-    0 0 0 1px rgba(62,117,255,0.25) inset,
-    0 18px 40px rgba(62,117,255,0.18);
-  z-index: -1;
-}
-#fs-landing .hero__art-frame::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 24px;
-  box-shadow: 0 0 0 2px rgba(62,117,255,0.18) inset; /* 안쪽 파란 윤곽 */
-  pointer-events: none;
-}
-
-/* 내부 레이아웃: 1:1 동일 비율 + 같은 높이 */
-#fs-landing .hero__art-inner {
-  display: grid;
-  grid-template-columns: 1fr 1fr; /* ✅ 같은 비율 */
-  gap: 24px;
-  align-items: stretch;           /* ✅ 같은 높이로 늘림 */
-}
-
-/* 카드가 셀을 꽉 채우도록 */
-#fs-landing .hero__art-inner .card {
+#fs-landing .hero__stage {
+  position: relative;
   width: 100%;
   height: 100%;
+  box-sizing: border-box;
+  padding: 48px 64px 64px 64px;
 }
 
-/* --- mini/table 카드: 기존 '절대 위치' 스타일 무효화(오버라이드) --- */
-#fs-landing .hero__art-inner .card.mini {
-  position: static;   /* 기존 absolute 무효화 */
-  width: auto;        /* 고정폭 제거 */
-  padding: 16px;
+/* Portfolio block */
+#fs-landing .portfolio-block {
+  position: absolute;
+  top: 30px !important;   /* 아래로 30px */
+  left: 40px !important;  /* 오른쪽으로 40px */
+  width: 520px;
+  border-radius: 12px;
+  background: radial-gradient(
+    circle at 50% 0%,
+    rgba(255,255,255,1) 0%,
+    rgba(250,250,250,0.8) 70%,
+    rgba(240,240,240,0) 100%
+  );
+  background-color: #ffffff;
+  box-shadow:
+    0 24px 40px rgba(0,0,0,0.08),
+    0 0 60px rgba(0,0,0,0.04);
+  border: 1px solid rgba(0,0,0,0.06);
+  padding: 24px;
+  box-sizing: border-box;
 }
-#fs-landing .hero__art-inner .card.table {
-  position: static;   /* 기존 relative+left/top 제거 */
-  width: auto;
+#fs-landing .portfolio-block__title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #000;
+  margin: 0 0 20px 0;
+}
+#fs-landing .portfolio-block__rowwrap {
+  display: flex;
+  gap: 16px;
+}
+#fs-landing .pf-tile {
+  flex: 1 1 0;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.12);
+  background: #ffffff;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.05);
   padding: 16px;
-  border-radius: 14px;
-  box-shadow: 0 10px 28px rgba(15, 18, 34, 0.08);
-  background-clip: padding-box;
-  max-width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+#fs-landing .pf-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+#fs-landing .pf-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  border: 1px solid rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#fs-landing .pf-avatar__img {
+  width: 24px;
+  height: 24px;
+  background: #d1d5db;
+  border-radius: 4px;
+}
+#fs-landing .pf-meta {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+#fs-landing .pf-sym {
+  font-weight: 600;
+  color: #000;
+  font-size: 14px;
+}
+#fs-landing .pf-name {
+  color: #4b5563;
+  font-size: 13px;
+  font-weight: 400;
+}
+#fs-landing .pf-right {
+  text-align: right;
+  line-height: 1.3;
+}
+#fs-landing .pf-value {
+  font-weight: 500;
+  font-size: 14px;
+  color: #000;
+  margin-bottom: 4px;
+}
+#fs-landing .pf-change {
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+#fs-landing .pf-change .arrow {
+  color: #dc2626;
+  font-size: 13px;
+  line-height: 1;
+}
+#fs-landing .pf-change .pct {
+  color: #dc2626;
+  font-size: 13px;
+}
+#fs-landing .pf-change.neg {
+  color: #dc2626;
+}
+#fs-landing .pf-change.pos {
+  color: #006242;
 }
 
-/* mini 카드 내부 정돈 */
-#fs-landing .card.mini { display: flex; flex-direction: column; gap: 12px; }
-#fs-landing .card.mini .mini__row {
+/* Stocks table block */
+#fs-landing .stocks-block {
+  position: absolute;
+  top: 110px;
+  left: 460px;
+  width: 640px;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow:
+    0 32px 50px rgba(0,0,0,0.12),
+    0 0 60px rgba(0,0,0,0.04);
+  border: 1px solid rgba(0,0,0,0.08);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+#fs-landing .stocks-table {
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 15px;
+  font-weight: 500;
+  color: #000;
+}
+#fs-landing .stocks-head {
   display: grid;
-  grid-template-columns: 36px 1fr auto auto;
+  grid-template-columns: 1.2fr 0.6fr 0.9fr 1.2fr 1.3fr;
+  column-gap: 16px;
+  padding: 24px 24px 20px 24px;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+  font-weight: 600;
+  line-height: 1.4;
+  color: #000;
+  text-align: left;
+}
+#fs-landing .stocks-row {
+  display: grid;
+  grid-template-columns: 1.2fr 0.6fr 0.9fr 1.2fr 1.3fr;
+  column-gap: 16px;
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+  align-items: center;
+  text-align: left;
+  line-height: 1.4;
+}
+#fs-landing .stocks-cell {
+  color: #000;
+  font-weight: 400;
+  font-size: 15px;
+}
+#fs-landing .stock-with-avatar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 500;
+  color: #000;
+}
+#fs-landing .stocks-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: #ede9e6;
+  border: 1px solid rgba(0,0,0,0.08);
+}
+#fs-landing .stocks-symbol {
+  font-size: 15px;
+  font-weight: 500;
+  color: #000;
+}
+
+/* Title block */
+#fs-landing .title-block {
+  text-align: center;
+  padding: 40px 0 18px;
+}
+#fs-landing .title-block h2 {
+  font-size: 26px;
+  font-weight: 900;
+}
+#fs-landing .title-block p {
+  color: #59607a;
+}
+
+/* Features grid */
+#fs-landing .features {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  row-gap: 60px;
+  column-gap: 28px;
+  align-items: flex-start;
+  padding-top: 60px;
+  padding-bottom: 60px;
+}
+#fs-landing .feature h3 {
+  font-size: 20px;
+  font-weight: 800;
+  margin: 10px 0 8px;
+}
+#fs-landing .feature p {
+  color: #475070;
+  font-size: 15px;
+  line-height: 1.5;
+  font-weight: 400;
+}
+#fs-landing .badge {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 12px;
+}
+#fs-landing .badge.blue {
+  background: rgba(78,107,255,.12);
+  color:#4e6bff;
+}
+#fs-landing .badge.green {
+  background: rgba(13,178,120,.12);
+  color:#0db278;
+}
+#fs-landing .badge.yellow {
+  background: rgba(248,193,0,.18);
+  color:#b58900;
+}
+#fs-landing .checks {
+  margin-top: 10px;
+  display: grid;
+  gap: 6px;
+  font-size: 15px;
+  line-height: 1.5;
+  font-weight: 400;
+  color: #0f1222;
+}
+#fs-landing .checks li {
+  list-style: none;
+  padding-left: 22px;
+  position: relative;
+}
+#fs-landing .checks li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: #0db278;
+  font-weight: 900;
+}
+
+/* Feature card wrapper */
+#fs-landing .feature.card.right {
+  background: #f5f5f5;
+  border-radius: 24px;
+  padding: 24px;
+  width: 95%;
+  max-width: 95%;
+  box-sizing: border-box;
+
+  /* ↓↓↓ 추가 */
+  border: 1px solid #f5f5f5;
+}
+
+/* inner card - updated: remove thick blue border */
+#fs-landing .feature.card.right .feature-inner {
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid rgba(0,0,0,0); /* thin light gray line */
+  padding: 20px 24px;
+  box-shadow: none;
+  outline: none;
+  box-sizing: border-box;
+  font-size: 15px;
+  line-height: 1.45;
+  font-weight: 400;
+  color: #0f1222;
+}
+
+/* row alignment logic */
+#fs-landing .features > .feature.card.right:nth-child(2),
+#fs-landing .features > .feature.card.right:nth-child(6) {
+  justify-self: end;
+}
+#fs-landing .features > .feature.card.right:nth-child(3) {
+  justify-self: start;
+}
+
+/* Portfolio Overview block inside card */
+#fs-landing .overview {
+  display: block;
+  font-size: 15px;
+  font-weight: 400;
+  color: #0f1222;
+  line-height: 1.45;
+}
+#fs-landing .overview .t1 {
+  font-size: 16px;           /* smaller title per request */
+  font-weight: 600;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #0f1222;
+}
+/* each row */
+#fs-landing .overview .kv {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  font-size: 15px;           /* same as body text */
+  font-weight: 400;          /* lighter, not heavy bold */
+  line-height: 1.45;
+  color: #0f1222;
+}
+#fs-landing .overview .kv:last-child {
+  border-bottom: none;
+}
+#fs-landing .overview .kv-label {
+  color: #0f1222;
+  font-weight: 400;
+}
+#fs-landing .overview .kv-value {
+  text-align: right;
+  font-weight: 600;
+  color: #0f1222;
+  font-size: 15px;
+}
+#fs-landing .overview .kv-value.kv-pos {
+  color: #4e6bff;    /* blue accent for positive/important values */
+  font-weight: 600;
+}
+
+/* Toplist (Top Performers) */
+#fs-landing .toplist__head {
+  font-weight: 600;          /* smaller/softer title */
+  font-size: 16px;
+  margin-bottom: 16px;
+  line-height: 1.4;
+  color: #0f1222;
+  display: flex;
   align-items: center;
   gap: 10px;
 }
-
-/* table 카드 컬럼 비율(가독성 좋은 균형) */
-#fs-landing .card.table .table__head,
-#fs-landing .card.table .table__row {
+#fs-landing .toplist__row {
   display: grid;
-  grid-template-columns: 1.4fr 0.8fr 1.2fr 1.2fr 1.4fr;
-  align-items: center;
-  column-gap: 16px;
+  grid-template-columns: auto 1fr auto;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  font-size: 15px;           /* normal text size */
+  line-height: 1.4;
+  color: #0f1222;
+}
+#fs-landing .toplist__row:last-child {
+  border-bottom: none;
+}
+/* badge (#1) */
+#fs-landing .rank-badge {
+  background: #4e6bff;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  border-radius: 6px;
+  padding: 6px 8px;
+}
+/* middle area: trader name */
+#fs-landing .tp-mid {
+  padding: 0 12px;
+}
+#fs-landing .tp-name {
+  font-size: 15px;
+  font-weight: 400;      /* <- NOT bold now */
+  color: #0f1222;
+}
+/* right area: value + change */
+#fs-landing .tp-right {
+  text-align: right;
+}
+#fs-landing .tp-value {
+  font-size: 15px;
+  font-weight: 600;      /* slightly stronger but still not heavy bold */
+  color: #0f1222;
+  line-height: 1.3;
+}
+#fs-landing .tp-change {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+#fs-landing .tp-change.tp-pos {
+  color: #4e6bff;
 }
 
-/* =========================
-   반응형
-   ========================= */
-@media (max-width: 1024px) {
-  #fs-landing .hero__art { margin: 36px 0; }
+/* Market block */
+#fs-landing .market__head {
+  font-weight: 600;    /* smaller/softer */
+  font-size: 16px;     /* smaller than before */
+  margin-bottom: 16px;
+  line-height: 1.4;
+  color: #0f1222;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
+#fs-landing .market__row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  font-size: 15px;     /* normal body text */
+  line-height: 1.4;
+  color: #0f1222;
+}
+#fs-landing .market__row:last-child {
+  border-bottom: none;
+}
+#fs-landing .mk-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+#fs-landing .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #4e6bff;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+#fs-landing .mk-symbol {
+  font-size: 15px;
+  font-weight: 400;  /* <- NOT bold now */
+  color: #0f1222;
+  line-height: 1.4;
+}
+#fs-landing .mk-mid {
+  font-size: 15px;
+  font-weight: 600;
+  color: #0f1222;
+  line-height: 1.4;
+}
+#fs-landing .mk-right {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: right;
+}
+#fs-landing .mk-right.mk-pos {
+  color: #0aa870;
+}
+#fs-landing .mk-right.mk-neg {
+  color: #dc3545;
+}
+
+/* CTA */
+#fs-landing .cta {
+  text-align: center;
+  padding-top: 80px;
+  padding-bottom: 80px;
+}
+#fs-landing .cta h3 {
+  font-size: 22px;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+#fs-landing .cta p {
+  color: #59607a;
+}
+#fs-landing .cta__btns {
+  margin-top: 14px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  #fs-landing .hero,
+  #fs-landing .features {
+    grid-template-columns: 1fr;
+  }
+
+  /* mobile: cards full width */
+  #fs-landing .feature.card.right {
+    width: 100%;
+    max-width: 100%;
+    justify-self: stretch;
+  }
+}
+
 @media (max-width: 900px) {
-  #fs-landing .hero__art-inner { grid-template-columns: 1fr; }  /* 세로 스택 */
-  #fs-landing .hero__art-frame { padding: 20px; }
-  #fs-landing .hero__image-placeholder { margin-left: 0; min-height: 220px; }
+  #fs-landing .hero {
+    grid-template-columns: 1fr;
+  }
+  #fs-landing .hero__image-placeholder {
+    margin-left: 0;
+    min-height: 220px;
+  }
+  #fs-landing .hero__stage {
+    padding: 32px 24px 48px 24px;
+    min-height: 600px;
+  }
+  #fs-landing .portfolio-block {
+    position: static;
+    width: 100%;
+    max-width: 520px;
+    margin: 0 auto 24px auto;
+  }
+  #fs-landing .portfolio-block__rowwrap {
+    flex-direction: column;
+  }
+  #fs-landing .stocks-block {
+    position: static;
+    width: 100%;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  #fs-landing .stocks-head,
+  #fs-landing .stocks-row {
+    grid-template-columns: 1fr 0.5fr 0.8fr 0.8fr 0.8fr;
+    column-gap: 12px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  #fs-landing .features {
+    grid-template-columns: 1fr;
+  }
+  #fs-landing .features > .feature.card.right:nth-child(2),
+  #fs-landing .features > .feature.card.right:nth-child(3),
+  #fs-landing .features > .feature.card.right:nth-child(6) {
+    justify-self: stretch;
+  }
 }

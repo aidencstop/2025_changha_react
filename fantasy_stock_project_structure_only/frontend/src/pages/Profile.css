@@ -1,0 +1,305 @@
+/* frontend/src/pages/Profile.css */
+/* 전역 충돌 방지: #fs-profile 스코프 */
+
+#fs-profile {
+  background: #ffffff;
+  min-height: 100vh;
+  padding: 16px 20px 28px;
+  color: #0f1222;
+  margin-left: var(--fs-sidebar-w, 240px);
+
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Header 영역 ─── */
+#fs-profile .fs-profile__headerwrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  /* 명암/그라데이션 제거 -> 그냥 흰색 배경 */
+  background: #ffffff;
+
+  padding: 0 0 16px;
+  /* 아래쪽만 연한 라인 */
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+#fs-profile .fs-profile__title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #0f1222;
+  line-height: 1.3;
+  margin-bottom: 4px;
+}
+
+#fs-profile .fs-profile__subtitle {
+  font-size: 14px;
+  color: rgba(15,18,34,0.6);
+  line-height: 1.4;
+}
+
+#fs-profile .fs-profile__header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+#fs-profile .fs-profile__balanceblock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+#fs-profile .fs-profile__balance-label {
+  font-size: 13px;
+  color: rgba(15,18,34,0.6);
+  line-height: 1.3;
+}
+
+#fs-profile .fs-profile__balance-amount {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0f1222;
+  line-height: 1.3;
+  margin-top: 2px;
+}
+
+#fs-profile .fs-profile__avatar-mini {
+  background: #4f60ff;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  min-width: 36px;
+  min-height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ─── Card/Form 영역 ─── */
+#fs-profile .fs-profile__card {
+  /* header 영역과 같은 가로폭 느낌 -> 부모(#fs-profile)의 흐름 그대로 100% */
+  width: 100%;
+
+  margin-top: 24px;
+  background: #ffffff; /* 완전 흰색 */
+  border: 1px solid #6a84ef; /* 수정사항 #3 */
+  border-radius: 8px;
+
+  /* 명암(그림자, 보라빛 등) 제거 */
+  box-shadow: none;
+
+  padding: 24px 24px 32px;
+  max-width: 1000px; /* 살짝 제한: 너무 넓어지는 것 방지. header와 시각적으로 맞게 */
+}
+
+/*
+만약 headerwrap이 실제로도 그 정도 max-width를 가지게 하고 싶다면
+둘 다 같은 값(1000px)을 쓰면 된다.
+필요하면 header에도 max-width 줄 수 있음:
+#fs-profile .fs-profile__headerwrap { max-width: 1000px; }
+#fs-profile { align-items: flex-start; }
+*/
+#fs-profile {
+  align-items: flex-start;
+}
+#fs-profile .fs-profile__headerwrap {
+  width: 100%;
+  max-width: 1000px;
+}
+#fs-profile .fs-profile__card {
+  max-width: 1000px;
+}
+
+/* form layout inside card */
+#fs-profile .fs-profile__form {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  column-gap: 24px;
+  row-gap: 16px;
+  align-items: flex-start;
+}
+
+/* avatar column */
+#fs-profile .fs-profile__avatar-col {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+#fs-profile .fs-profile__avatar-main {
+  position: relative;
+  text-align: center;
+}
+
+#fs-profile .fs-profile__avatar-circle {
+  width: 96px;
+  height: 96px;
+  background: #f2f2f6;
+  border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.08);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  font-weight: 600;
+  color: #0f1222;
+}
+
+#fs-profile .fs-profile__avatar-letter {
+  line-height: 1;
+}
+
+#fs-profile .fs-profile__avatar-edit {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.15);
+  background: #ffffff;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* fields column */
+#fs-profile .fs-profile__fields-col {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* actions row */
+#fs-profile .fs-profile__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+#fs-profile .fs-profile__btn {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.2;
+
+  padding: 10px 16px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  min-width: 80px;
+  text-align: center;
+}
+
+#fs-profile .fs-profile__btn--ghost {
+  background: #ffffff;
+  color: #0f1222;
+  border-color: rgba(0,0,0,0.2);
+}
+#fs-profile .fs-profile__btn--ghost:hover {
+  background: rgba(0,0,0,0.03);
+}
+
+/* 수정사항 #1: Update 버튼 색 */
+#fs-profile .fs-profile__btn--primary {
+  background: #6a84ef;
+  color: #ffffff;
+  border-color: #6a84ef;
+  box-shadow: 0 12px 24px rgba(106,132,239,0.4);
+}
+#fs-profile .fs-profile__btn--primary:hover {
+  filter: brightness(1.05);
+}
+
+/* rowline: label + inputs 한 줄에 */
+#fs-profile .fs-profile__rowline {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  column-gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+#fs-profile .fs-profile__rowline-label {
+  font-size: 14px;
+  font-weight: 600; /* bold 요구사항 (#2) */
+  color: #0f1222;
+  line-height: 38px; /* 인풋 높이랑 맞춰서 수평 정렬 느낌 */
+  min-width: 0;
+}
+
+#fs-profile .fs-profile__rowline-fields {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  min-width: 0;
+}
+
+#fs-profile .fs-profile__rowline-fields--2col {
+  grid-template-columns: 1fr 1fr;
+}
+
+/* input */
+#fs-profile .fs-profile__input {
+  width: 100%;
+  border-radius: 4px;
+  border: 1px solid rgba(0,0,0,0.2);
+  background: #ffffff;
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #0f1222;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03) inset;
+}
+
+#fs-profile .fs-profile__input::placeholder {
+  color: rgba(15,18,34,0.4);
+}
+
+#fs-profile .fs-profile__input:focus {
+  outline: 2px solid rgba(106,132,239,0.4); /* 같이 맞춰줌 */
+  border-color: #6a84ef;
+  box-shadow: 0 0 0 3px rgba(106,132,239,0.15);
+}
+
+/* ─── responsive ─── */
+@media (max-width: 900px) {
+  #fs-profile .fs-profile__form {
+    grid-template-columns: 1fr;
+  }
+
+  #fs-profile .fs-profile__avatar-col {
+    justify-content: flex-start;
+    margin-bottom: 8px;
+  }
+
+  #fs-profile .fs-profile__actions {
+    order: -1;
+    margin-bottom: 16px;
+  }
+
+  #fs-profile .fs-profile__rowline {
+    grid-template-columns: 100px 1fr;
+  }
+
+  #fs-profile .fs-profile__rowline-fields--2col {
+    grid-template-columns: 1fr;
+  }
+
+  #fs-profile .fs-profile__headerwrap {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  #fs-profile .fs-profile__header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
