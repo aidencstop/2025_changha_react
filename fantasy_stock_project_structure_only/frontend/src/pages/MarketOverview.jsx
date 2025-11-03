@@ -32,7 +32,7 @@ function MarketOverview() {
   };
 
   const handleClick = (symbol) => {
-    if (loading) return; // 로딩 중에는 클릭 비활성화
+    if (loading) return;
     navigate(`/stock/${symbol}`);
   };
 
@@ -56,20 +56,13 @@ function MarketOverview() {
     if (e.key === 'Enter') handleSearch();
   };
 
-  // 스켈레톤 셀
   const Skel = ({ w = '80%', h = 14 }) => (
     <span
       className="fs-skel"
-      style={{
-        display: 'inline-block',
-        width: w,
-        height: h,
-        borderRadius: 4
-      }}
+      style={{ display: 'inline-block', width: w, height: h, borderRadius: 4 }}
     />
   );
 
-  // 로딩 중에는 스켈레톤 행 12개로 높이 예약
   const renderBody = () => {
     if (loading) {
       return Array.from({ length: 12 }).map((_, i) => (
@@ -86,7 +79,6 @@ function MarketOverview() {
     }
 
     if (error) {
-      // 에러가 있어도 테이블 틀 유지 + 한 줄 안내
       return (
         <tr>
           <td colSpan={7} className="fs-empty">
@@ -126,7 +118,6 @@ function MarketOverview() {
 
   return (
     <div className="fs-layout">
-      {/* 여기서 fs-sidebar-spacer는 Navbar.jsx가 렌더링할 때 이미 화면에 들어옴 */}
       <main className="fs-page fs-page--fluid">
         <div className="fs-page-header">
           <div>
@@ -166,22 +157,14 @@ function MarketOverview() {
             </div>
           </div>
 
-          {/* 테이블은 항상 렌더 → 초기와 로딩 후 비율 동일화 */}
           <div
             className="table-responsive"
-            style={{
-              // 로딩 중에도 충분한 높이 예약 (행 12개 기준 대략값)
-              minHeight: loading ? 520 : undefined
-            }}
+            style={{ minHeight: loading ? 520 : undefined }}
           >
-            <table
-              className="fs-table"
-              style={{ tableLayout: 'fixed', width: '100%' }}
-            >
-              {/* 고정 컬럼 폭으로 폭 재분배 최소화 */}
+            <table className="fs-table" style={{ tableLayout: 'fixed', width: '100%' }}>
               <colgroup>
                 <col style={{ width: 56 }} />
-                <col />{/* Name: auto */}
+                <col />
                 <col style={{ width: 120 }} />
                 <col style={{ width: 100 }} />
                 <col style={{ width: 100 }} />
@@ -203,12 +186,27 @@ function MarketOverview() {
             </table>
           </div>
 
-          {/* 보조 상태 텍스트는 테이블 외부에 작게 표시 (레이아웃 영향 최소화) */}
           {loading && <p className="mt-2">⏳ Loading...</p>}
         </div>
       </main>
 
-      {/* 스켈레톤용 최소 CSS (컴포넌트 로컬 삽입) */}
+      {/* ▼▼▼ 로딩 모달 (loading === true일 때만 표시) ▼▼▼ */}
+      {loading && (
+        <div
+          className="fs-modal-backdrop"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="fs-loading-title"
+        >
+          <div className="fs-modal">
+            <div className="fs-spinner" aria-hidden="true" />
+            <h3 id="fs-loading-title">Loading data...</h3>
+            <p>This may take up to a minute.</p>
+          </div>
+        </div>
+      )}
+
+      {/* 스켈레톤 & 모달용 최소 CSS */}
       <style>{`
         .fs-skel {
           background: linear-gradient(90deg, rgba(0,0,0,0.08), rgba(0,0,0,0.14), rgba(0,0,0,0.08));
@@ -218,6 +216,46 @@ function MarketOverview() {
         @keyframes fs-skel-shimmer {
           0% { background-position: 200% 0; }
           100% { background-position: 0 0; }
+        }
+
+        .fs-modal-backdrop {
+          position: fixed;
+          inset: 0;
+          background: rgba(0,0,0,0.35);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+        }
+        .fs-modal {
+          background: #fff;
+          border-radius: 12px;
+          padding: 24px 28px;
+          width: 360px;
+          max-width: 90vw;
+          text-align: center;
+          box-shadow: 0 8px 28px rgba(0,0,0,0.18);
+        }
+        .fs-modal h3 {
+          margin: 12px 0 6px;
+          font-size: 18px;
+        }
+        .fs-modal p {
+          margin: 0;
+          font-size: 14px;
+          color: #444;
+        }
+        .fs-spinner {
+          width: 36px;
+          height: 36px;
+          border: 4px solid rgba(0,0,0,0.1);
+          border-top-color: rgba(0,0,0,0.6);
+          border-radius: 50%;
+          margin: 0 auto 8px;
+          animation: fs-spin 0.9s linear infinite;
+        }
+        @keyframes fs-spin {
+          to { transform: rotate(360deg); }
         }
       `}</style>
     </div>

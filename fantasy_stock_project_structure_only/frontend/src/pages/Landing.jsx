@@ -1,6 +1,14 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Landing.css';
+import landingImg from '../assets/landing_img1.png'; // 🔹 이미지 import (경로는 실제 폴더 구조에 맞게 조정)
+import aaplLogo from '../assets/aapl_logo.png';
+import tslaLogo from '../assets/tsla_logo.png';
+import amznLogo from '../assets/amzn_logo.png';
+import googlLogo from '../assets/googl_logo.png';
+import portfolioIcon from '../assets/portfolio_icon.png';
+import topIcon from '../assets/top_icon.png';
+import trendingIcon from '../assets/trending_icon.png';
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -33,7 +41,7 @@ export default function Landing() {
           </div>
         </div>
 
-        <div className="hero__image-placeholder">{/* hero visual slot */}</div>
+        <div className="hero__image-placeholder"><img src={landingImg} alt="Trading illustration" className="hero__image" /></div>
       </section>
 
       {/* hero__art band */}
@@ -50,7 +58,9 @@ export default function Landing() {
                 <div className="pf-tile">
                   <div className="pf-left">
                     <div className="pf-avatar" aria-hidden>
-                      <div className="pf-avatar__img" />
+                      <div className="pf-avatar__img">
+                        <img src={aaplLogo} alt="avatar" />
+                      </div>
                     </div>
                     <div className="pf-meta">
                       <div className="pf-sym">AAPL</div>
@@ -70,7 +80,9 @@ export default function Landing() {
                 <div className="pf-tile">
                   <div className="pf-left">
                     <div className="pf-avatar" aria-hidden>
-                      <div className="pf-avatar__img" />
+                      <div className="pf-avatar__img">
+                        <img src={tslaLogo} alt="avatar" />
+                      </div>
                     </div>
                     <div className="pf-meta">
                       <div className="pf-sym">TSLA</div>
@@ -90,34 +102,72 @@ export default function Landing() {
 
             {/* Stocks table block */}
             <div className="stocks-block">
-              <div className="stocks-table">
-                <div className="stocks-head">
-                  <div className="stocks-head-stocks">Stocks</div>
-                  <div>Quantity</div>
-                  <div>Avg. Cost($)</div>
-                  <div>Current Price($)</div>
-                  <div>Market Value($)</div>
-                </div>
+  <div className="stocks-table">
+    <div className="stocks-head">
+      <div className="stocks-head-stocks">Stocks</div>
+      <div>Quantity</div>
+      <div>Avg. Cost($)</div>
+      <div>Current Price($)</div>
+      <div>Market Value($)</div>
+    </div>
 
-                {[
-                  { s: 'AAPL', q: 10, c: 150.0, p: 172.32, v: 432.0 },
-                  { s: 'TSLA', q: 5,  c: 160.0, p: 182.45, v: 450.0 },
-                  { s: 'AMZN', q: 3,  c: 170.0, p: 193.56, v: 475.0 },
-                  { s: 'GOOGL',q: 1,  c: 180.0, p: 204.67, v: 500.0 },
-                ].map((r, i) => (
-                  <div className="stocks-row" key={i}>
-                    <div className="stocks-cell stock-with-avatar">
-                      <div className="stocks-avatar" />
-                      <span className="stocks-symbol">{r.s}</span>
-                    </div>
-                    <div className="stocks-cell">{r.q}</div>
-                    <div className="stocks-cell">{r.c.toFixed(2)}</div>
-                    <div className="stocks-cell">{r.p.toFixed(2)}</div>
-                    <div className="stocks-cell">{r.v.toFixed(2)}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
+    {/* AAPL */}
+    <div className="stocks-row">
+      <div className="stocks-cell stock-with-avatar">
+        <div className="stocks-avatar">
+          <img src={aaplLogo} alt="AAPL logo" />
+        </div>
+        <span className="stocks-symbol">AAPL</span>
+      </div>
+      <div className="stocks-cell">10</div>
+      <div className="stocks-cell">150.00</div>
+      <div className="stocks-cell">172.32</div>
+      <div className="stocks-cell">432.00</div>
+    </div>
+
+    {/* TSLA */}
+    <div className="stocks-row">
+      <div className="stocks-cell stock-with-avatar">
+        <div className="stocks-avatar">
+          <img src={tslaLogo} alt="TSLA logo" />
+        </div>
+        <span className="stocks-symbol">TSLA</span>
+      </div>
+      <div className="stocks-cell">5</div>
+      <div className="stocks-cell">160.00</div>
+      <div className="stocks-cell">182.45</div>
+      <div className="stocks-cell">450.00</div>
+    </div>
+
+    {/* AMZN */}
+    <div className="stocks-row">
+      <div className="stocks-cell stock-with-avatar">
+        <div className="stocks-avatar">
+          <img src={amznLogo} alt="AMZN logo" />
+        </div>
+        <span className="stocks-symbol">AMZN</span>
+      </div>
+      <div className="stocks-cell">3</div>
+      <div className="stocks-cell">170.00</div>
+      <div className="stocks-cell">193.56</div>
+      <div className="stocks-cell">475.00</div>
+    </div>
+
+    {/* GOOGL */}
+    <div className="stocks-row">
+      <div className="stocks-cell stock-with-avatar">
+        <div className="stocks-avatar">
+          <img src={googlLogo} alt="GOOGL logo" />
+        </div>
+        <span className="stocks-symbol">GOOGL</span>
+      </div>
+      <div className="stocks-cell">1</div>
+      <div className="stocks-cell">180.00</div>
+      <div className="stocks-cell">204.67</div>
+      <div className="stocks-cell">500.00</div>
+    </div>
+  </div>
+</div>
 
           </div>
         </div>
@@ -151,7 +201,10 @@ export default function Landing() {
         <div className="feature card right">
           <div className="feature-inner">
             <div className="overview">
-              <div className="t1">Portfolio Overview</div>
+              <div className="t1">
+                  <img src={portfolioIcon} alt="icon" className="t1-icon" />
+                  Portfolio Overview
+                </div>
 
               <div className="kv">
                 <span className="kv-label">Total Value</span>
@@ -175,7 +228,11 @@ export default function Landing() {
         <div className="feature card right">
           <div className="feature-inner">
             <div className="toplist">
-              <div className="toplist__head">Top Performers</div>
+            <div className="t1">
+                  <img src={topIcon} alt="icon" className="t2-icon" />
+                  <div className="toplist__head">&nbsp;Top Performers</div>
+                </div>
+
 
               <div className="toplist__row">
                 <div className="rank-badge">#1</div>
@@ -194,8 +251,8 @@ export default function Landing() {
                   <div className="tp-name">Aiden Park</div>
                 </div>
                 <div className="tp-right">
-                  <div className="tp-value">$145,780.25</div>
-                  <div className="tp-change tp-pos">+25.78%</div>
+                  <div className="tp-value">$126,450.25</div>
+                  <div className="tp-change tp-pos">+12.84%</div>
                 </div>
               </div>
             </div>
@@ -236,25 +293,41 @@ export default function Landing() {
         <div className="feature card right">
           <div className="feature-inner">
             <div className="market">
-              <div className="market__head">Market</div>
+            <div className="t1">
+                  <img src={trendingIcon} alt="icon" className="t3-icon" />
+                  <div className="market__head">&nbsp;Market</div>
+                </div>
+
 
               <div className="market__row">
-                <div className="mk-left">
-                  <div className="dot" />
-                  <div className="mk-symbol">AAPL</div>
-                </div>
-                <div className="mk-mid">$185.25</div>
-                <div className="mk-right mk-pos">+1.2%</div>
-              </div>
+  <div className="mk-left">
+    <div className="mk-logo">
+      <img src={aaplLogo} alt="AAPL logo" />
+    </div>
+    <div className="mk-symbol">&nbsp;AAPL</div>
+  </div>
 
-              <div className="market__row">
-                <div className="mk-left">
-                  <div className="dot" />
-                  <div className="mk-symbol">AMZN</div>
-                </div>
-                <div className="mk-mid">$434.55</div>
-                <div className="mk-right mk-neg">-0.21%</div>
-              </div>
+  <div className="mk-rightwrap">
+    <div className="mk-mid">$185.25</div>
+    <div className="mk-right mk-pos">+2.18%</div>
+  </div>
+</div>
+
+<div className="market__row">
+  <div className="mk-left">
+    <div className="mk-logo">
+      <img src={amznLogo} alt="AMZN logo" />
+    </div>
+    <div className="mk-symbol">&nbsp;AMZN</div>
+  </div>
+
+  <div className="mk-rightwrap">
+    <div className="mk-mid">$434.55</div>
+    <div className="mk-right mk-neg">-0.21%</div>
+  </div>
+</div>
+
+
             </div>
           </div>
         </div>

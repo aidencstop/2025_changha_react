@@ -218,11 +218,33 @@
   justify-content: center;
 }
 #fs-landing .pf-avatar__img {
-  width: 24px;
-  height: 24px;
-  background: #d1d5db;
-  border-radius: 4px;
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.08);
 }
+
+/* 흰색 배경 레이어 (투명 부분을 덮기 위함) */
+#fs-landing .pf-avatar__img::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: #ffffff;  /* 흰 배경 */
+  z-index: 0;
+}
+
+/* 실제 이미지 */
+#fs-landing .pf-avatar__img img {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+
 #fs-landing .pf-meta {
   display: flex;
   flex-direction: column;
@@ -327,13 +349,35 @@
   font-weight: 500;
   color: #000;
 }
+/* ───────────── Stocks table avatar ───────────── */
 #fs-landing .stocks-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 999px;
-  background: #ede9e6;
-  border: 1px solid rgba(0,0,0,0.08);
+  position: relative;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 6px;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.08);
 }
+
+/* 흰 배경 레이어 (투명 PNG 대비용) */
+#fs-landing .stocks-avatar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: #ffffff; /* 배경 흰색 */
+  z-index: 0;
+}
+
+/* 실제 로고 이미지 */
+#fs-landing .stocks-avatar img {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* 비율 유지하면서 맞추기 */
+}
+
 #fs-landing .stocks-symbol {
   font-size: 15px;
   font-weight: 500;
@@ -357,8 +401,8 @@
 #fs-landing .features {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  row-gap: 60px;
-  column-gap: 28px;
+  row-gap: 100px;
+  column-gap: 60px;
   align-items: flex-start;
   padding-top: 60px;
   padding-bottom: 60px;
@@ -421,8 +465,8 @@
   background: #f5f5f5;
   border-radius: 24px;
   padding: 24px;
-  width: 95%;
-  max-width: 95%;
+  width: 100%;
+  max-width: 100%;
   box-sizing: border-box;
 
   /* ↓↓↓ 추가 */
@@ -694,6 +738,7 @@
     padding-left: 16px;
     padding-right: 16px;
   }
+
   #fs-landing .features {
     grid-template-columns: 1fr;
   }
@@ -702,4 +747,185 @@
   #fs-landing .features > .feature.card.right:nth-child(6) {
     justify-self: stretch;
   }
+}
+#fs-landing .hero__image-placeholder {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #ffffff; /* 🔹 흰색 배경 추가 */
+}
+
+#fs-landing .hero__image {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+/* ───────────── Stocks table rows alignment ───────────── */
+
+/* 전체 행을 grid로 배치 (헤더랑 열 비율 동일하게 유지) */
+#fs-landing .stocks-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.2fr 1.2fr;
+  padding: 6px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* 첫 번째 열(Stocks)은 왼쪽 정렬 유지 */
+#fs-landing .stocks-row .stock-with-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: 8px;
+}
+
+/* 나머지 열은 가운데 정렬 */
+#fs-landing .stocks-row > .stocks-cell:not(.stock-with-avatar) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* 공통 그리드 비율을 한 곳에서 관리 */
+#fs-landing .stocks-table {
+  --stocks-grid: 1.2fr 1fr 1fr 1.2fr 1.2fr;
+}
+
+/* 헤더/행 모두 같은 그리드 사용 */
+#fs-landing .stocks-head,
+#fs-landing .stocks-row {
+  display: grid;
+  grid-template-columns: var(--stocks-grid);
+  align-items: center;
+  column-gap: 0;
+  box-sizing: border-box;
+}
+
+/* 헤더 스타일(참고: 기존 값 유지 가능) */
+#fs-landing .stocks-head {
+  font-weight: 600;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 6px 0;
+}
+
+/* "Stocks" 헤더만 좌측 정렬, 나머지는 가운데 */
+#fs-landing .stocks-head .stocks-head-stocks {
+  text-align: left;
+  padding-left: 8px;
+}
+#fs-landing .stocks-head > div:not(.stocks-head-stocks) {
+  text-align: center;
+}
+
+/* 각 행: 첫 열(Stocks)은 좌측, 나머지는 가운데 */
+#fs-landing .stocks-row {
+  padding: 6px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+#fs-landing .stocks-row .stock-with-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: 8px; /* 헤더와 동일 패딩 */
+  box-sizing: border-box;
+}
+#fs-landing .stocks-row > .stocks-cell:not(.stock-with-avatar) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-sizing: border-box;
+}
+/* ───────────── 표 세로 길이 늘리기 ───────────── */
+#fs-landing .stocks-head {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+#fs-landing .stocks-row {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+/* 행 높이를 균일하게 보이도록 가운데 정렬 유지 */
+#fs-landing .stocks-row > .stocks-cell {
+  display: flex;
+  align-items: center;
+}
+
+/* 각 행 사이 간격을 약간 더 넓혀 자연스러운 여백 */
+#fs-landing .stocks-table {
+  row-gap: 4px;
+}
+.t1 {
+  display: flex;
+  align-items: center;
+  gap: 0px; /* 아이콘과 글자 간격 */
+}
+
+.t1-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  position: relative;
+  top: 1px; /* 숫자를 조정하면서 맞춰보기 */
+}
+
+.t2-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  position: relative;
+  top: -6px; /* 숫자를 조정하면서 맞춰보기 */
+}
+.t3-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  position: relative;
+  top: -6px; /* 숫자를 조정하면서 맞춰보기 */
+}
+#fs-landing .mk-left {
+  display: flex;
+  align-items: center;
+  gap: 6px; /* 로고와 심볼 간 간격 */
+}
+
+#fs-landing .mk-logo {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#fs-landing .mk-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* 로고 비율 유지 */
+  border-radius: 3px;  /* 선택사항: 둥글게 하고 싶을 경우 */
+}
+#fs-landing .market__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+#fs-landing .mk-rightwrap {
+  display: flex;
+  flex-direction: column;  /* 위아래로 쌓기 */
+  align-items: flex-end;   /* 오른쪽 정렬 */
+  line-height: 1.2;
+}
+
+#fs-landing .mk-mid {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+#fs-landing .mk-right {
+  font-size: 0.9rem;
 }
