@@ -55,7 +55,7 @@
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 6px;
+  gap: 30px;
 }
 
 .fs-menu__link {
@@ -76,7 +76,7 @@
 .fs-menu__link--active {
   background: var(--fs-primary);
   color: #fff;
-  box-shadow: 0 6px 14px rgba(86,103,255,0.25);
+  background-color: #4C84F7 !important;
 }
 
 .fs-menu__icon {
@@ -109,21 +109,18 @@
 }
 
 .fs-logout-btn {
-  width: 100%;
+  background: none;
   border: none;
-  background: var(--fs-primary-ghost);
-  color: var(--fs-primary);
-  padding: 10px 12px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+  color: #000;
+
+  padding: 8px 12px;
+  width: 100%;
+  text-align: left;
   cursor: pointer;
 }
+
 .fs-logout-btn:hover {
-  background: rgba(86,103,255,0.18);
+  color: #4C84F7; /* hover 시 강조 색상 */
 }
 
 /* Responsive: collapse sidebar on small screens */
@@ -310,4 +307,108 @@
 /* ✅ app 단에서도 no-sidebar면 강제 0 */
 .app.no-sidebar .fs-page {
   margin-left: 0 !important;
+}
+/* 아이콘 크기 조절용 변수 (글자 크기와 비슷하게 시작) */
+:root {
+  --fs-menu-icon-size: 16px; /* ← 여기 숫자만 바꿔서 전역으로 크기 조절 */
+}
+
+/* 기존 아이콘 칸을 '이미지 슬롯'으로 표준화 */
+.fs-menu__icon {
+  width: var(--fs-menu-icon-size);
+  height: var(--fs-menu-icon-size);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 var(--fs-menu-icon-size);
+  /* 필요시 모양 옵션 */
+  /* border-radius: 4px; background:#F6F7FB; */
+  opacity: 0.75;
+  vertical-align: middle;
+  margin-top: 2px; /* ← 1~3px 사이에서 조절 */
+}
+
+.fs-menu__link--active .fs-menu__icon { opacity: 1; }
+
+/* 실제 이미지 태그 스타일 */
+.fs-menu__img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;  /* 원본 비율 유지 */
+}
+
+/* 텍스트 */
+.fs-menu__text {
+  font-size: 14px;
+}
+.fs-menu__iconlogout {
+  width: var(--fs-menu-icon-size);
+  height: var(--fs-menu-icon-size);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 var(--fs-menu-icon-size);
+  /* 필요시 모양 옵션 */
+  /* border-radius: 4px; background:#F6F7FB; */
+  opacity: 0.75;
+  vertical-align: middle;
+
+}
+
+.fs-sidebar__brand {
+  display: flex;
+  justify-content: center; /* 가로 가운데 */
+  align-items: center;     /* 세로 가운데 (높이 맞출 때도 유용) */
+  padding: 12px 8px 20px 8px;
+  margin-bottom: 8px;
+}
+.fs-sidebar__brand button {
+  font-weight: 900;
+  color: #000;
+  text-shadow:
+    0.3px 0 #000,
+    -0.3px 0 #000,
+    0 0.3px #000,
+    0 -0.3px #000; /* 🔹 사방에 그림자를 덧씌워 살짝 굵게 */
+}
+/* ✅ fs-stat 스타일 변경 */
+.fs-stat {
+  background: #fff;
+  border: 1.5px solid #4C84F7; /* 테두리 추가 */
+  box-shadow: none !important; /* 그림자 제거 */
+  border-radius: 8px;
+  padding: 12px 16px;
+  text-align: left;
+}
+.fs-stat__totalasset {
+  background: #4C84F7;
+  border: 1.5px solid #4C84F7; /* 테두리 추가 */
+  box-shadow: none !important; /* 그림자 제거 */
+  border-radius: 8px;
+  padding: 12px 16px;
+  text-align: left;
+}
+
+.fs-stat__label {
+  font-size: 14px;
+  color: #555;
+}
+
+.fs-stat__value {
+  font-size: 18px;
+  font-weight: 600;
+  color: #0f1222;
+  margin-top: 6px;
+}
+.fs-stat__label__totalasset {
+  font-size: 14px;
+  color: #fff;
+}
+
+.fs-stat__value__totalasset {
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  margin-top: 6px;
 }

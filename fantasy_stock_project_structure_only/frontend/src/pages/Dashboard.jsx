@@ -382,31 +382,32 @@ export default function Dashboard() {
       {/* 상단 2열 — 1:2 비율 */}
       <section className="fs-grid fs-grid--top fs-grid--1to2">
         {/* 좌: 총 잔고 & P/L */}
-        <div className="fs-card fs-balance">
-          <div className="fs-card__title">Total Balance</div>
+        {/* 좌: 총 잔고 & 가용 현금 */}
+<div className="fs-card fs-balance">
+  <div className="fs-card__title">Total Balance</div>
 
-          {hasActiveLeague === false ? (
-            <div className="fs-empty">
-              There is no active league at the moment.{' '}Visit
-<button className="fs-link" onClick={() => navigate('/leagues')}>Leagues</button>
-{' '}page and join a new league!
-            </div>
-          ) : (
-            <>
-              <div className="fs-balance__value">
-                {loadingPortfolio ? '—' : `$${money(summary.total_asset)}`}
-              </div>
+  {hasActiveLeague === false ? (
+    <div className="fs-empty">
+      There is no active league at the moment.{' '}
+      Visit <button className="fs-link" onClick={() => navigate('/leagues')}>Leagues</button>{' '}
+      page and join a new league!
+    </div>
+  ) : (
+    <>
+      <div className="fs-balance__value">
+        {loadingPortfolio ? '—' : `$${money(summary.total_asset)}`}
+      </div>
 
-              <div className={`fs-chip fs-chip--pnl ${pnlAbs >= 0 ? 'is-pos' : 'is-neg'}`}>
-                {loadingPortfolio ? '—' : (
-                  <>
-                    {pnlAbs >= 0 ? '+' : '-'}${money(Math.abs(pnlAbs))} ({pnlAbs >= 0 ? '+' : ''}{pct(pnlPctForChip)})
-                  </>
-                )}
-              </div>
-            </>
-          )}
+      <div className="fs-balance__sub">
+        <div className="fs-card__title">Available Cash</div>
+        <div className="fs-balance__value" style={{ marginTop: '4px' }}>
+          {loadingPortfolio ? '—' : `$${money(summary.cash)}`}
         </div>
+      </div>
+    </>
+  )}
+</div>
+
 
         {/* 우: 수익률 상위 3 종목 */}
         <div className="fs-card fs-portfolio">

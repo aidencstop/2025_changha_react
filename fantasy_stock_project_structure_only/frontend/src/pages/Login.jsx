@@ -62,7 +62,7 @@ function Login() {
             }}
             onClick={() => navigate('/')}
           >
-            Back
+            Home
           </button>
         </div>
       </form>

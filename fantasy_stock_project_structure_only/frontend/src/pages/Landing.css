@@ -90,8 +90,8 @@
 /* HERO */
 #fs-landing .hero {
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 32px;
+  grid-template-columns: 1.3fr 0.7fr;
+  gap: 0px;
   align-items: center;
   padding-top: 60px;
   padding-bottom: 80px;
@@ -928,4 +928,59 @@
 
 #fs-landing .mk-right {
   font-size: 0.9rem;
+}
+/* === widen hero text & allow each sentence to fit on one line === */
+#fs-landing .hero {
+  grid-template-columns: 1.1fr 0.9fr;  /* 텍스트 칼럼 넓게, 이미지 칼럼 좁게 */
+  column-gap: 0px;
+}
+
+/* 문단 폭 확장 (기존 520px → 780px) */
+#fs-landing .hero p {
+  max-width: 560px;
+}
+
+/* 반응형에서는 원래처럼 한 컬럼으로 */
+@media (max-width: 1024px) {
+  #fs-landing .hero {
+    grid-template-columns: 1fr;
+  }
+  #fs-landing .hero p {
+    max-width: 100%;
+  }
+}
+#fs-landing .logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  font-weight: 800;
+  background-color: #4C84F7
+  color: #fff;
+
+  line-height: 1;              /* 베이스라인 영향 최소화 */
+  position: relative;
+  --glyph-nudge: -1.5px;       /* 필요 시 숫자만 미세조정 */
+}
+
+#fs-landing .logo__char {
+  display: inline-block;
+  transform: translateY(var(--glyph-nudge));  /* 글리프 위로 살짝 이동 */
+  will-change: transform;
+}
+.btn.primary {
+  background-color: #4C84F7; /* 🔹 버튼 색 변경 */
+  border-color: #4C84F7;
+  color: white;
+}
+
+.btn.primary:hover {
+  background-color: #3b6dd8; /* 살짝 어두운 hover 색 */
+  border-color: #3b6dd8;
+}
+.brand {
+  display: flex;
+  align-items: center; /* 세로 가운데 정렬 */
 }

@@ -71,7 +71,7 @@
 
 /* Total Balance 카드 (블루 톤 박스) */
 #fs-dashboard .fs-balance {
-  background: linear-gradient(180deg, #4f46e5 0%, #8ea5ff 120%);
+  background-color: #4C84F7;
   color: #ffffff;
   border: none;
   box-shadow:
@@ -112,9 +112,7 @@
 
 /* ── 리더보드(히어로를 이미지처럼 배치) ───────────────────────── */
 #fs-dashboard .fs-leader__hero {
-  padding: 8px 12px 14px;
-  border-bottom: 1px solid rgba(15,18,34,0.08);
-  margin-bottom: 8px;
+  padding: 8px 12px 0px;
 }
 #fs-dashboard .fs-leader__head {
   display: flex;
@@ -136,11 +134,10 @@
   letter-spacing: 0.2px;
 }
 
-#fs-dashboard .table-wrap { margin-top: 6px; }
 #fs-dashboard .fs-table { width:100%; border-collapse: collapse; }
 #fs-dashboard .fs-table thead th {
   font-size:12px; font-weight:700; text-align:left; color:rgba(15,18,34,0.60);
-  padding:10px 8px; border-bottom:1px solid rgba(15,18,34,0.10);
+  padding:10px 8px;
 }
 #fs-dashboard .fs-table tbody td {
   padding:12px 8px; border-bottom:1px solid rgba(15,18,34,0.06);
@@ -378,11 +375,11 @@
 
 /* Leaderboard 헤더 중앙정렬 */
 #fs-dashboard .fs-table thead th {
-  font-size:12px; font-weight:700;
+  font-size:16px; font-weight:700;
   text-align:center;               /* ← left → center */
   color:rgba(15,18,34,0.60);
-  padding:10px 8px;
-  border-bottom:1px solid rgba(15,18,34,0.10);
+  padding:12px;
+
 }
 
 /* (선택) 바디 첫 컬럼(POS) 중앙정렬을 보장하고 싶으면 */
@@ -406,3 +403,33 @@
   color: #4B0082 !important;
   font-weight: 600;
 }
+#fs-dashboard .fs-card.fs-leader .fs-leader__hero {
+  margin-bottom: 0;
+}
+/* 리더보드 표 헤더 상단 여백 타이트하게 */
+#fs-dashboard .fs-card.fs-leader .fs-table thead th {
+  padding-top: 20px;   /* 12px → 4px */
+  padding-bottom: 18px;
+  line-height: 1.1;
+}
+
+/* 혹시 생길 수 있는 테이블 상단 마진/간격 방지 */
+#fs-dashboard .fs-card.fs-leader .table-wrap,
+#fs-dashboard .fs-card.fs-leader .fs-table {
+  margin-top: 0 !important;
+}
+#fs-dashboard .fs-card.fs-leader .fs-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+#fs-dashboard .fs-card.fs-leader .fs-table th:nth-child(1),
+#fs-dashboard .fs-card.fs-leader .fs-table td:nth-child(1) { width: 15%; } /* POS */
+#fs-dashboard .fs-card.fs-leader .fs-table th:nth-child(2),
+#fs-dashboard .fs-card.fs-leader .fs-table td:nth-child(2) { width: 20%; } /* Player */
+#fs-dashboard .fs-card.fs-leader .fs-table th:nth-child(3),
+#fs-dashboard .fs-card.fs-leader .fs-table td:nth-child(3) { width: 25%; } /* Balance */
+#fs-dashboard .fs-card.fs-leader .fs-table th:nth-child(4),
+#fs-dashboard .fs-card.fs-leader .fs-table td:nth-child(4) { width: 20%; } /* PNL */
+#fs-dashboard .fs-card.fs-leader .fs-table th:nth-child(5),
+#fs-dashboard .fs-card.fs-leader .fs-table td:nth-child(5) { width: 20%; } /* Return */

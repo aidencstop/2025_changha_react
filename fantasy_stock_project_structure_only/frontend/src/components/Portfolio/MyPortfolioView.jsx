@@ -62,6 +62,15 @@ const MyPortfolioView = () => {
     <div className="fs-portfolio__my">
       {/* Summary tiles (디자인만 변경) */}
       <div className="fs-stats">
+        <div className="fs-stat__totalasset">
+          <div className="fs-stat__label__totalasset">Total Asset / Return</div>
+          <div className="fs-stat__value__totalasset">
+            ${fmt(summary.total_asset)}{' '}
+            <span className="fs-stat__value__totalasset">
+              ({fmt(summary.return_pct)}%)
+            </span>
+          </div>
+        </div>
         <div className="fs-stat">
           <div className="fs-stat__label">Starting Cash</div>
           <div className="fs-stat__value">${fmt(summary.starting_cash)}</div>
@@ -74,15 +83,7 @@ const MyPortfolioView = () => {
           <div className="fs-stat__label">Stock Value</div>
           <div className="fs-stat__value">${fmt(summary.total_stock_value)}</div>
         </div>
-        <div className="fs-stat">
-          <div className="fs-stat__label">Total Asset / Return</div>
-          <div className="fs-stat__value">
-            ${fmt(summary.total_asset)}{' '}
-            <span className={summary.return_pct >= 0 ? 'text-success' : 'text-danger'}>
-              ({fmt(summary.return_pct)}%)
-            </span>
-          </div>
-        </div>
+
       </div>
 
       {loading && <div className="text-muted">Loading…</div>}

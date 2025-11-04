@@ -18,7 +18,7 @@ export default function Landing() {
       {/* ── Header */}
       <header className="fs-landing__top">
         <div className="brand">
-          <div className="logo">G</div>
+          <div className="logo"><span className="logo__char">G</span></div>
           <span className="name">GROWLIO</span>
         </div>
         <div className="actions">
@@ -37,7 +37,18 @@ export default function Landing() {
             Perfect for students who want to understand finance and the stock market.
           </p>
           <div className="hero__cta">
-            <button className="btn ghost" onClick={() => navigate('/market')}>Learn More</button>
+            <button
+  className="btn ghost"
+  onClick={() => {
+    const target = document.querySelector('.title-block');
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth' });
+    }
+  }}
+>
+  Learn More
+</button>
+
           </div>
         </div>
 
@@ -347,7 +358,7 @@ export default function Landing() {
       <footer className="footer">
         <div className="brand">
           <div className="logo">G</div>
-          <span className="name">GROWLIO</span>
+          <span className="name">&nbsp;&nbsp;GROWLIO</span>
         </div>
         <div className="copy">© 2025 GROWLIO. Built for learning and practice</div>
       </footer>
