@@ -227,3 +227,106 @@
     max-width: 100%;
   }
 }
+
+/* ─────────────────────────────────────────────
+   Header wrapper: 좌/우 정렬 및 폭 통일
+───────────────────────────────────────────── */
+.fs-myleague .fs-ml-headwrap {
+  width: 95%;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 10px 0 14px;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+/* 좌측 텍스트 그룹(기존 fs-page-header 스타일과 톤 맞춤) */
+.fs-myleague .fs-ml-head-left .fs-title {
+  margin: 0 0 6px 0;
+}
+.fs-myleague .fs-ml-head-left .fs-sub {
+  margin: 0;
+  color: rgba(15,18,34,0.7);
+}
+
+/* ─────────────────────────────────────────────
+   ✅ fs-profile__header-right와 동일 UI (스코프만 MyLeague)
+───────────────────────────────────────────── */
+.fs-myleague .fs-profile__header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.fs-myleague .fs-profile__balanceblock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.fs-myleague .fs-profile__balance-label {
+  font-size: 13px;
+  color: rgba(15,18,34,0.6);
+}
+.fs-myleague .fs-profile__balance-amount {
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+/* 미니 아바타 (이니셜 or 이미지) */
+.fs-myleague .fs-profile__avatar-mini {
+  background: #4f60ff;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  min-width: 36px;
+  min-height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden; /* 이미지가 들어갈 경우 둥근 영역 밖을 숨김 */
+}
+
+/* 아바타 이미지가 있을 때를 위한 크기 보정 */
+.fs-myleague .fs-ml-miniavatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 반응형: 헤더 스택 처리 */
+@media (max-width: 900px) {
+  .fs-myleague .fs-ml-headwrap {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+    width: 95%;
+  }
+  .fs-myleague .fs-profile__header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+.fs-myleague .fs-profile__avatar-mini {
+  background: #4f60ff; /* ✅ Profile과 동일 */
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  min-width: 36px;
+  min-height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.fs-myleague .fs-profile__header-right {
+  display: flex;
+  align-items: center;         /* 내부 요소(잔액+이니셜)를 세로 가운데 정렬 */
+  justify-content: flex-end;   /* 오른쪽 정렬 유지 */
+  gap: 16px;
+  height: 100%;                /* ✅ 부모 높이 기준으로 가운데 정렬 */
+}

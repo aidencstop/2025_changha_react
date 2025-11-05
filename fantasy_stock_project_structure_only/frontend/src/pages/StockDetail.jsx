@@ -67,6 +67,23 @@ function StockDetail() {
   const qtyNum = Number.isFinite(parseInt(quantity, 10)) ? parseInt(quantity, 10) : 0;
   const total = useMemo(() => (qtyNum > 0 ? qtyNum * close : 0), [qtyNum, close]);
 
+  // 잔액 불러오는 함수
+  const loadCash = async () => {
+    try {
+      const res = await api.get('/stocks/my-portfolio/');
+      setLeagueCash(res.data.cash ?? 0);
+    } catch {
+      setLeagueCash(null);
+    } finally {
+      setLoadingCash(false);
+    }
+  };
+
+  // 잔액을 처음 로드할 때와 매수/매도 후 갱신
+  useEffect(() => {
+    loadCash();  // 컴포넌트가 마운트될 때 초기 잔액 로드
+  }, []);
+
   const handleAction = async (action) => {
     setMessage('');
     const qty = parseInt(quantity, 10);
@@ -83,6 +100,9 @@ function StockDetail() {
           (action === 'buy' ? 'Purchase completed' : 'Sale completed')
       );
       setQuantity('');
+
+      // 매수/매도 후 잔액 갱신
+      loadCash();  // 잔액 갱신
     } catch (err) {
       const errMsg =
         err?.response?.data?.error ||
@@ -92,39 +112,7 @@ function StockDetail() {
     }
   };
 
-  if (!stock) {
-    return (
-      <div className="fs-layout">
-        <main className="fs-page fs-page--fluid">
-          <div className="fs-page-header d-flex align-items-center">
-            <button
-              className="fs-btn fs-btn-ghost"
-              onClick={() => navigate(-1)}
-              style={{ borderRadius: 999 }}
-            >
-              ← Back to Market
-            </button>
-          </div>
-          <hr
-            style={{
-              border: 'none',
-              borderTop: '1px solid rgba(128,128,128,0.25)',
-              margin: '8px 0 16px',
-              width: '100%',
-            }}
-          />
-          <div className="fs-card">
-            <div className="fs-card-head">
-              <div className="fs-card-title">Stock Detail</div>
-            </div>
-            <div className="fs-card-body">
-              <p className="text-muted">⏳ Loading…</p>
-            </div>
-          </div>
-        </main>
-      </div>
-    );
-  }
+
 
   const fmtMoney = (v) =>
     isFinite(v)
@@ -217,7 +205,69 @@ function StockDetail() {
   };
   const LABEL_STYLE = { minWidth: 60, marginRight: 8 };
 
-  return (
+
+
+
+
+
+
+
+  const [userInitials, setUserInitials] = useState('DU');  // For avatar initials
+  const [leagueCash, setLeagueCash] = useState(null);      // League Cash (Balance)
+  const [loadingCash, setLoadingCash] = useState(true);
+
+  useEffect(() => {
+    const fetchStockDetail = async () => {
+      try {
+        const res = await api.get(`/stocks/detail/${symbol}/`);
+        setStock(res.data);
+      } catch {
+        setMessage('Failed to load stock data');
+      }
+    };
+    fetchStockDetail();
+  }, [symbol]);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const { data } = await api.get(`/stocks/company-profile/${symbol}/`);
+        setProfile(data?.profile || null);
+        setProfileSrc(data?.source || null);
+        setCompanyMeta({
+          sector: data?.sector ?? null,
+          industry: data?.industry ?? null,
+          fullTimeEmployees: data?.fullTimeEmployees ?? null,
+          fiscalYearEnd: data?.fiscalYearEnd ?? null,
+        });
+      } catch {
+        setProfile(null);
+      }
+    };
+    loadProfile();
+  }, [symbol]);
+
+
+
+  const money = (n = 0) =>
+    Number(n).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+
+  useEffect(() => {
+    // 유저 정보 불러와서 이니셜 업데이트
+    const fetchUserInfo = async () => {
+      try {
+        const res = await api.get('/accounts/profile/');
+        const firstName = res.data.first_name || 'D';
+        const lastName = res.data.last_name || 'U';
+        setUserInitials(`${firstName[0]}${lastName[0]}`.toUpperCase());  // 첫 글자만 따서 이니셜 만들기
+      } catch {
+        setUserInitials('DU');  // 실패할 경우 기본 이니셜
+      }
+    };
+    fetchUserInfo();
+  }, []);
+
+    return (
     <div className="fs-layout">
       <main className="fs-page fs-page--fluid">
         <div className="fs-page-header d-flex align-items-center">
@@ -228,6 +278,21 @@ function StockDetail() {
           >
             ← Back to Market
           </button>
+
+          {/* Header Right Section */}
+          <div className="fs-profile__header-right">
+            <div className="fs-profile__balanceblock">
+              <div className="fs-profile__balance-label">Available Balance</div>
+              <div className="fs-profile__balance-amount">
+                {loadingCash
+                  ? 'Loading...'
+                  : leagueCash === null
+                  ? 'Not in a league yet'
+                  : `$${money(leagueCash)}`}
+              </div>
+            </div>
+            <div className="fs-profile__avatar-mini">{userInitials}</div>
+          </div>
         </div>
 
         <hr

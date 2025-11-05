@@ -412,3 +412,112 @@
   color: #fff;
   margin-top: 6px;
 }
+/* 기본: 검은색으로 보이게 */
+.fs-menu__img { filter: brightness(0) saturate(100%); }
+
+/* 활성(눌림) 상태: 흰색으로 보이게 */
+.fs-menu__link--active .fs-menu__img { filter: invert(1) brightness(1000%); }
+
+/* ───── MarketOverview 상단 우측: 잔액 + 미니 아바타 ───── */
+.fs-page .fs-profile__header-right {
+  margin-left: auto;                 /* 헤더 우측 끝으로 밀기 */
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.fs-page .fs-profile__balanceblock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;              /* 숫자를 오른쪽 정렬 */
+  line-height: 1.15;
+}
+
+.fs-page .fs-profile__balance-label {
+  font-size: 12px;
+  color: var(--fs-muted, #6b7280);
+}
+
+.fs-page .fs-profile__balance-amount {
+  margin-top: 4px;
+  font-weight: 800;
+  font-size: 18px;
+  color: var(--fs-title, #0f1222);
+}
+
+.fs-page .fs-profile__avatar-mini {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 14px;
+  background: #e8ecff;               /* 은은한 배경 */
+  color: var(--fs-primary, #4C84F7);  /* 브랜드 컬러 텍스트 */
+  border: 1px solid rgba(76,132,247,0.35);
+}
+
+/* 헤더 정렬이 살짝 어긋나면 보정용(필요 시만 사용)
+.fs-page .fs-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;  /* 디자인에 따라 center로 바꿔도 됨 */
+}
+*/
+
+/* 반응형: 좁은 화면에서 약간 컴팩트하게 */
+@media (max-width: 768px) {
+  .fs-page .fs-profile__header-right { gap: 12px; }
+  .fs-page .fs-profile__balance-amount { font-size: 16px; }
+  .fs-page .fs-profile__avatar-mini { width: 32px; height: 32px; font-size: 13px; }
+}
+/* ───── MarketOverview 상단 우측: 잔액 + 미니 아바타 ───── */
+.fs-page .fs-profile__header-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.fs-page .fs-profile__balanceblock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.15;
+}
+
+.fs-page .fs-profile__balance-label {
+  font-size: 12px;
+  color: var(--fs-muted, #6b7280);
+}
+
+.fs-page .fs-profile__balance-amount {
+  margin-top: 4px;
+  font-weight: 800;
+  font-size: 18px;
+  color: var(--fs-title, #0f1222);
+}
+
+/* ✅ Profile과 동일: 파란 배경 + 흰 글자 */
+.fs-page .fs-profile__avatar-mini {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 14px;
+  background: var(--fs-primary, #4C84F7);  /* 파란 배경 */
+  color: #fff;                              /* 흰 글자 */
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+/* 반응형 보정 */
+@media (max-width: 768px) {
+  .fs-page .fs-profile__header-right { gap: 12px; }
+  .fs-page .fs-profile__balance-amount { font-size: 16px; }
+  .fs-page .fs-profile__avatar-mini { width: 32px; height: 32px; font-size: 13px; }
+}

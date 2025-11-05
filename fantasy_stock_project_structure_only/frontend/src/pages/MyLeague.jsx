@@ -10,6 +10,12 @@ export default function MyLeague() {
   const [action, setAction] = useState(''); // 'start' | 'end' | 'leave' | ''
   const [q, setQ] = useState('');
 
+  // ⬇️ fs-profile__header-right 동일 블록용 상태
+  const [leagueCash, setLeagueCash] = useState(null);
+  const [loadingCash, setLoadingCash] = useState(true);
+  const [userInitials, setUserInitials] = useState('DU'); // Default initials
+  const [avatarUrl, setAvatarUrl] = useState('');
+
   const load = async () => {
     setLoading(true);
     setError('');
@@ -24,6 +30,36 @@ export default function MyLeague() {
   };
 
   useEffect(() => { load(); }, []);
+
+  // ⬇️ 헤더 우측: 잔액/아바타 데이터 로드
+  useEffect(() => {
+    (async () => {
+      try {
+        const resCash = await api.get('/stocks/my-portfolio/');
+        setLeagueCash(resCash.data.cash ?? 0);
+      } catch (err) {
+        if (err?.response?.status === 404) setLeagueCash(null);
+      } finally {
+        setLoadingCash(false);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await api.get('/accounts/profile/');
+        const f = res.data.first_name || 'D';
+        const l = res.data.last_name || 'U';
+        const initials = `${(f?.[0] ?? 'D')}${(l?.[0] ?? 'U')}`.toUpperCase();
+        setUserInitials(initials);
+        // ⛔️ 이미지 사용 안함: 이 줄 있어도 무시됨 (사용X)
+        // setAvatarUrl(res.data.avatar_url || '');
+      } catch {
+        /* 기본 이니셜 사용 */
+      }
+    })();
+  }, []);
 
   const isManager = !!data?.is_manager;
   const league = data?.league;
@@ -92,11 +128,14 @@ export default function MyLeague() {
     return `${yyyy}.${mm}.${dd}.`;
   };
 
+  const money = (n = 0) =>
+    Number(n).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+
   return (
     <main className="fs-page fs-page--fluid fs-myleague">
-      {/* Page Header — History.jsx와 간격 맞춤 */}
-      <div className="fs-page-header fs-ml-tighthead">
-        <div>
+      {/* Page Header — 좌: 제목/설명, 우: (가용잔액 + 미니 아바타) */}
+      <div className="fs-ml-headwrap fs-ml-tighthead">
+        <div className="fs-ml-head-left">
           <h1 className="fs-title">My League</h1>
           <p className="fs-sub">
             {league?.name ? league.name : 'Manage and participate in your league'}
@@ -111,6 +150,22 @@ export default function MyLeague() {
           </p>
           {error && <span className="badge bg-danger mt-2">{error}</span>}
         </div>
+
+        {/* ✅ fs-profile__header-right 동일 블록 */}
+        <div className="fs-profile__header-right">
+        <div className="fs-profile__balanceblock">
+          <div className="fs-profile__balance-label">Available Balance</div>
+          <div className="fs-profile__balance-amount">
+            {loadingCash
+              ? 'Loading...'
+              : leagueCash === null
+              ? 'Not in a league yet'
+              : `$${money(leagueCash)}`}
+          </div>
+        </div>
+        {/* ✅ 항상 이니셜만 표시 */}
+        <div className="fs-profile__avatar-mini">{userInitials}</div>
+      </div>
       </div>
 
       {/* Loading Skeleton */}
@@ -139,150 +194,147 @@ export default function MyLeague() {
       {!loading && data?.in_league && league && (
         <div className="fs-ml-main">
           {/* Left: Members */}
-<section className="fs-card fs-ml-left">
-  <div className="fs-card-body h-100 d-flex flex-column">
-    {/* 🔹 헤더에는 제목만 */}
-    <div className="fs-card-head mb-2">
-      <h5 className="fs-card-title m-0">Members</h5>
-    </div>
+          <section className="fs-card fs-ml-left">
+            <div className="fs-card-body h-100 d-flex flex-column">
+              {/* 🔹 헤더에는 제목만 */}
+              <div className="fs-card-head mb-2">
+                <h5 className="fs-card-title m-0">Members</h5>
+              </div>
 
-    {/* 🔹 검색창을 본문 상단으로 이동 */}
-    <div className="mb-2">
-      <input
-        className="form-control fs-ml-search"
-        placeholder="Search for members (username)"
-        value={q}
-        onChange={(e) => setQ(e.target.value)}
-      />
-    </div>
+              {/* 🔹 검색창을 본문 상단으로 이동 */}
+              <div className="mb-2">
+                <input
+                  className="form-control fs-ml-search"
+                  placeholder="Search for members (username)"
+                  value={q}
+                  onChange={(e) => setQ(e.target.value)}
+                />
+              </div>
 
-    <div
-      className="table-responsive fs-ml-table-wrap"
-      style={{ flex: 1, minHeight: 0 }}
-    >
-      <table
-        className="table table-sm align-middle mb-0 fs-ml-table"
-        style={{ tableLayout: 'fixed', width: '100%' }}
-      >
-        <colgroup>
-          <col style={{ width: '10%' }} />
-          <col style={{ width: '30%' }} />
-          <col style={{ width: '30%' }} />
-          <col style={{ width: '30%' }} />
-        </colgroup>
-        <thead>
-          <tr>
-            <th className="text-center">#</th>
-            <th className="text-center">User</th>
-            <th className="text-center">Balance</th>
-            <th className="text-center">Joined</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredMembers.length === 0 && (
-            <tr>
-              <td colSpan={4} className="text-center text-muted py-4">
-                No search results.
-              </td>
-            </tr>
-          )}
-          {filteredMembers.map((m, i) => (
-            <tr key={m.id ?? `${m.username}-${i}`}>
-              <td className="text-center text-muted">{i + 1}</td>
-              <td className="text-center fw-semibold">{m.username}</td>
-              <td className="text-end">
-                {Number(m.cash_balance || 0).toLocaleString()}
-              </td>
-              <td className="text-center text-muted">{formatDate(m.joined_at)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  </div>
-</section>
-
+              <div
+                className="table-responsive fs-ml-table-wrap"
+                style={{ flex: 1, minHeight: 0 }}
+              >
+                <table
+                  className="table table-sm align-middle mb-0 fs-ml-table"
+                  style={{ tableLayout: 'fixed', width: '100%' }}
+                >
+                  <colgroup>
+                    <col style={{ width: '10%' }} />
+                    <col style={{ width: '30%' }} />
+                    <col style={{ width: '30%' }} />
+                    <col style={{ width: '30%' }} />
+                  </colgroup>
+                  <thead>
+                    <tr>
+                      <th className="text-center">#</th>
+                      <th className="text-center">User</th>
+                      <th className="text-center">Balance</th>
+                      <th className="text-center">Joined</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredMembers.length === 0 && (
+                      <tr>
+                        <td colSpan={4} className="text-center text-muted py-4">
+                          No search results.
+                        </td>
+                      </tr>
+                    )}
+                    {filteredMembers.map((m, i) => (
+                      <tr key={m.id ?? `${m.username}-${i}`}>
+                        <td className="text-center text-muted">{i + 1}</td>
+                        <td className="text-center fw-semibold">{m.username}</td>
+                        <td className="text-end">
+                          {Number(m.cash_balance || 0).toLocaleString()}
+                        </td>
+                        <td className="text-center text-muted">{formatDate(m.joined_at)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
 
           {/* Right: League summary + actions */}
-<div className="fs-ml-right">
-  <section className="fs-card h-100">
-    <div className="fs-card-body d-flex flex-column">
+          <div className="fs-ml-right">
+            <section className="fs-card h-100">
+              <div className="fs-card-body d-flex flex-column">
+                {/* 🔹 작은 제목 추가 */}
+                <div className="fs-card-head mb-2">
+                  <h5 className="fs-card-title m-0">League Settings</h5>
+                </div>
 
-      {/* 🔹 작은 제목 추가 */}
-      <div className="fs-card-head mb-2">
-        <h5 className="fs-card-title m-0">League Settings</h5>
-      </div>
+                <div className="fs-ml-kpis">
+                  <div className="fs-ml-kpi">
+                    <div className="fs-ml-kpi__label">Initial Cash</div>
+                    <div className="fs-ml-kpi__value">
+                      {Number(league.initial_cash ?? 0).toLocaleString()}
+                    </div>
+                  </div>
+                  <div className="fs-ml-kpi">
+                    <div className="fs-ml-kpi__label">Capacity</div>
+                    <div className="fs-ml-kpi__value">
+                      {league.current_members}/{league.max_members}
+                    </div>
+                  </div>
+                  <div className="fs-ml-kpi">
+                    <div className="fs-ml-kpi__label">Status</div>
+                    <div className="fs-ml-kpi__value">
+                      <span className={statusClass}>{league.status}</span>
+                    </div>
+                  </div>
+                </div>
 
-      <div className="fs-ml-kpis">
-        <div className="fs-ml-kpi">
-          <div className="fs-ml-kpi__label">Initial Cash</div>
-          <div className="fs-ml-kpi__value">
-            {Number(league.initial_cash ?? 0).toLocaleString()}
+                {isManager && (
+                  <div className="alert alert-secondary mt-3 mb-0 small">
+                    <div className="fw-semibold mb-1">Manager Tips</div>
+                    <ul className="mb-0 ps-3">
+                      <li>New members can join the league only when it is in <span className="fw-semibold">DRAFT</span> status.</li>
+                      <li>The league can start only in <span className="fw-semibold">DRAFT</span> status.</li>
+                      <li>The league can end only in <span className="fw-semibold">ACTIVE</span> status.</li>
+                      <li>When the league ends, all states are saved (trade history, balance, and portfolio).</li>
+                    </ul>
+                  </div>
+                )}
+
+                <div style={{ flex: 1 }} />
+
+                <section className="fs-card mt-3 mb-0">
+                  <div className="fs-card-body d-grid gap-2">
+                    {isManager && league.status === 'DRAFT' && (
+                      <button
+                        className="btn btn-primary"
+                        disabled={action === 'start' || loading}
+                        onClick={handleStart}
+                      >
+                        {action === 'start' ? 'Starting…' : 'Start League'}
+                      </button>
+                    )}
+                    {isManager && league.status === 'ACTIVE' && (
+                      <button
+                        className="btn btn-danger"
+                        disabled={action === 'end' || loading}
+                        onClick={handleEnd}
+                      >
+                        {action === 'end' ? 'Ending…' : 'End League'}
+                      </button>
+                    )}
+                    {!isManager && league.status !== 'ENDED' && (
+                      <button
+                        className="btn btn-outline-danger"
+                        disabled={action === 'leave' || loading}
+                        onClick={handleLeave}
+                      >
+                        {action === 'leave' ? 'Leaving…' : 'Leave League'}
+                      </button>
+                    )}
+                  </div>
+                </section>
+              </div>
+            </section>
           </div>
-        </div>
-        <div className="fs-ml-kpi">
-          <div className="fs-ml-kpi__label">Capacity</div>
-          <div className="fs-ml-kpi__value">
-            {league.current_members}/{league.max_members}
-          </div>
-        </div>
-        <div className="fs-ml-kpi">
-          <div className="fs-ml-kpi__label">Status</div>
-          <div className="fs-ml-kpi__value">
-            <span className={statusClass}>{league.status}</span>
-          </div>
-        </div>
-      </div>
-
-      {isManager && (
-        <div className="alert alert-secondary mt-3 mb-0 small">
-          <div className="fw-semibold mb-1">Manager Tips</div>
-          <ul className="mb-0 ps-3">
-            <li>New members can join the league only when it is in <span className="fw-semibold">DRAFT</span> status.</li>
-            <li>The league can start only in <span className="fw-semibold">DRAFT</span> status.</li>
-            <li>The league can end only in <span className="fw-semibold">ACTIVE</span> status.</li>
-            <li>When the league ends, all states are saved (trade history, balance, and portfolio).</li>
-          </ul>
-        </div>
-      )}
-
-      <div style={{ flex: 1 }} />
-
-      <section className="fs-card mt-3 mb-0">
-        <div className="fs-card-body d-grid gap-2">
-          {isManager && league.status === 'DRAFT' && (
-            <button
-              className="btn btn-primary"
-              disabled={action === 'start' || loading}
-              onClick={handleStart}
-            >
-              {action === 'start' ? 'Starting…' : 'Start League'}
-            </button>
-          )}
-          {isManager && league.status === 'ACTIVE' && (
-            <button
-              className="btn btn-danger"
-              disabled={action === 'end' || loading}
-              onClick={handleEnd}
-            >
-              {action === 'end' ? 'Ending…' : 'End League'}
-            </button>
-          )}
-          {!isManager && league.status !== 'ENDED' && (
-            <button
-              className="btn btn-outline-danger"
-              disabled={action === 'leave' || loading}
-              onClick={handleLeave}
-            >
-              {action === 'leave' ? 'Leaving…' : 'Leave League'}
-            </button>
-          )}
-        </div>
-      </section>
-    </div>
-  </section>
-</div>
-
         </div>
       )}
     </main>

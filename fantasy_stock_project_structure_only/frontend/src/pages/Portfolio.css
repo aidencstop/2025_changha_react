@@ -167,3 +167,66 @@
 .fs-portfolio .u-nowrap { white-space: nowrap; }
 .fs-portfolio .u-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .fs-portfolio .u-num { text-align: right; white-space: nowrap; }
+
+/* ─────────────────────────────────────────────
+   Portfolio Header Right (Profile의 우측 블록과 동일 톤)
+   스코프: .fs-portfolio
+────────────────────────────────────────────── */
+
+.fs-portfolio .fs-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start; /* Profile과 동일하게 상단 정렬 */
+  padding: 10px 0 30px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* 오른쪽 컨테이너 */
+.fs-portfolio .fs-profile__header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* 잔고 블럭 */
+.fs-portfolio .fs-profile__balanceblock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.fs-portfolio .fs-profile__balance-label {
+  font-size: 13px;
+  color: rgba(15, 18, 34, 0.6);
+}
+.fs-portfolio .fs-profile__balance-amount {
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+/* 미니 아바타 */
+.fs-portfolio .fs-profile__avatar-mini {
+  background: #4f60ff;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  min-width: 36px;
+  min-height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 반응형: 헤더 스택 정렬 */
+@media (max-width: 900px) {
+  .fs-portfolio .fs-page-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .fs-portfolio .fs-profile__header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+}

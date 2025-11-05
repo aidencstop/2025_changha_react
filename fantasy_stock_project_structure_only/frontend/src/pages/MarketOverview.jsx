@@ -10,8 +10,48 @@ function MarketOverview() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  // ▼ fs-profile__header-right 유사 영역용 상태
+  const [userInitials, setUserInitials] = useState('GU');
+  const [leagueCash, setLeagueCash] = useState(null);
+  const [loadingCash, setLoadingCash] = useState(true);
+
   useEffect(() => {
     fetchMarket();
+  }, []);
+
+  // 프로필(이니셜) 로드
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await axios.get('/api/accounts/profile/', {
+          headers: { Authorization: `Token ${localStorage.getItem('token')}` },
+        });
+        const first = res?.data?.first_name || 'G';
+        const last  = res?.data?.last_name  || 'U';
+        const init  = `${first?.[0] ?? 'G'}${last?.[0] ?? 'U'}`.toUpperCase();
+        setUserInitials(init);
+      } catch (err) {
+        // 이니셜은 기본값 유지
+      }
+    })();
+  }, []);
+
+  // 잔액 로드
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await axios.get('/api/stocks/my-portfolio/', {
+          headers: { Authorization: `Token ${localStorage.getItem('token')}` },
+        });
+        setLeagueCash(res?.data?.cash ?? 0);
+      } catch (err) {
+        if (err?.response?.status === 404) {
+          setLeagueCash(null); // 리그 미참여
+        }
+      } finally {
+        setLoadingCash(false);
+      }
+    })();
   }, []);
 
   const fetchMarket = async () => {
@@ -62,6 +102,10 @@ function MarketOverview() {
       style={{ display: 'inline-block', width: w, height: h, borderRadius: 4 }}
     />
   );
+
+  function money(n = 0) {
+    return Number(n).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  }
 
   const renderBody = () => {
     if (loading) {
@@ -123,6 +167,21 @@ function MarketOverview() {
           <div>
             <h2 className="fs-title">Market Overview</h2>
             <p className="fs-sub">See overall market status here</p>
+          </div>
+
+          {/* ▼ 프로필 페이지의 fs-profile__header-right와 동일한 구조 */}
+          <div className="fs-profile__header-right">
+            <div className="fs-profile__balanceblock">
+              <div className="fs-profile__balance-label">Available Balance</div>
+              <div className="fs-profile__balance-amount">
+                {loadingCash
+                  ? 'Loading...'
+                  : leagueCash === null
+                  ? 'Not in a league yet'
+                  : `$${money(leagueCash)}`}
+              </div>
+            </div>
+            <div className="fs-profile__avatar-mini">{userInitials}</div>
           </div>
         </div>
 

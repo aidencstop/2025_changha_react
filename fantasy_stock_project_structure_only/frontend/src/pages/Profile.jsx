@@ -13,14 +13,14 @@ export default function Profile() {
   const [currentPw, setCurrentPw] = useState('');
   const [newPw,     setNewPw]     = useState('');
 
-  // 헤더 우측 표시용
-  const [availableBalance] = useState(85750);
+  // ✅ 아바타 관련
   const [userInitials, setUserInitials] = useState('DU');
-
-  // ✅ 아바타 URL 상태
   const [avatarUrl, setAvatarUrl] = useState('');
-  // 파일 입력 ref
   const fileInputRef = useRef(null);
+
+  // ✅ 리그 관련 상태
+  const [leagueCash, setLeagueCash] = useState(null);
+  const [loadingCash, setLoadingCash] = useState(true);
 
   useEffect(() => {
     (async () => {
@@ -35,15 +35,30 @@ export default function Profile() {
         setLastName(res.data.last_name || '');
         setEmail(res.data.email || '');
 
-        // 이니셜 계산(간단 예시)
         const initial = `${(res.data.first_name || 'D')[0] ?? 'D'}${(res.data.last_name || 'U')[0] ?? 'U'}`;
         setUserInitials(initial.toUpperCase());
-
-        // ✅ 아바타 URL 반영
         setAvatarUrl(res.data.avatar_url || '');
       } catch (e) {
         console.log('[Profile] error status=', e?.response?.status, 'data=', e?.response?.data);
         alert('프로필 정보를 불러오지 못했습니다. 로그인 상태를 확인해주세요.');
+      }
+    })();
+  }, []);
+
+  // ✅ 현재 리그 cash 불러오기
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await api.get('/stocks/my-portfolio/'); // 리그 중이면 cash 포함
+        setLeagueCash(res.data.cash ?? 0);
+      } catch (err) {
+        if (err?.response?.status === 404) {
+          setLeagueCash(null);
+        } else {
+          console.error('[Profile] fetch cash error:', err);
+        }
+      } finally {
+        setLoadingCash(false);
       }
     })();
   }, []);
@@ -75,15 +90,11 @@ export default function Profile() {
         setFirstName(user.first_name || '');
         setLastName(user.last_name || '');
         setEmail(user.email || '');
-        // ✅ 서버 응답에 avatar_url 포함
         if (user.avatar_url !== undefined) setAvatarUrl(user.avatar_url || '');
       }
 
       alert(message || 'Done');
-
-      if (reload) {
-        window.location.reload();
-      }
+      if (reload) window.location.reload();
     } catch (err) {
       console.error(err);
       const msg = err?.response?.data?.detail
@@ -92,10 +103,7 @@ export default function Profile() {
     }
   };
 
-  // ✅ 아바타 업로드(✎ 버튼 → 파일 선택 → 즉시 업로드)
-  const handleAvatarEditClick = () => {
-    fileInputRef.current?.click();
-  };
+  const handleAvatarEditClick = () => fileInputRef.current?.click();
 
   const handleAvatarFileChange = async (e) => {
     const file = e.target.files?.[0];
@@ -114,10 +122,8 @@ export default function Profile() {
       alert('Avatar updated');
     } catch (err) {
       console.error(err);
-      const msg = err?.response?.data?.detail || 'Avatar upload failed';
-      alert(msg);
+      alert(err?.response?.data?.detail || 'Avatar upload failed');
     } finally {
-      // 같은 파일 다시 선택 가능하게 초기화
       e.target.value = '';
     }
   };
@@ -134,7 +140,13 @@ export default function Profile() {
         <div className="fs-profile__header-right">
           <div className="fs-profile__balanceblock">
             <div className="fs-profile__balance-label">Available Balance</div>
-            <div className="fs-profile__balance-amount">${money(availableBalance)}</div>
+            <div className="fs-profile__balance-amount">
+              {loadingCash
+                ? 'Loading...'
+                : leagueCash === null
+                ? 'Not in a league yet'
+                : `$${money(leagueCash)}`}
+            </div>
           </div>
           <div className="fs-profile__avatar-mini">{userInitials}</div>
         </div>
@@ -147,7 +159,6 @@ export default function Profile() {
           <div className="fs-profile__avatar-col">
             <div className="fs-profile__avatar-main">
               <div className="fs-profile__avatar-circle">
-                {/* ✅ 이미지가 있으면 img, 없으면 이니셜/문자 */}
                 {avatarUrl ? (
                   <img src={avatarUrl} alt="avatar" className="fs-profile__avatar-img" />
                 ) : (
@@ -164,7 +175,6 @@ export default function Profile() {
                 ✎
               </button>
 
-              {/* 숨겨진 파일 입력 */}
               <input
                 type="file"
                 accept="image/*"
@@ -187,7 +197,6 @@ export default function Profile() {
 
           {/* fields row */}
           <div className="fs-profile__fields-col">
-            {/* Name row */}
             <div className="fs-profile__rowline">
               <div className="fs-profile__rowline-label">Name</div>
               <div className="fs-profile__rowline-fields fs-profile__rowline-fields--2col">
@@ -206,7 +215,6 @@ export default function Profile() {
               </div>
             </div>
 
-            {/* Email row */}
             <div className="fs-profile__rowline">
               <div className="fs-profile__rowline-label">Email</div>
               <div className="fs-profile__rowline-fields">
@@ -220,7 +228,6 @@ export default function Profile() {
               </div>
             </div>
 
-            {/* Password row */}
             <div className="fs-profile__rowline">
               <div className="fs-profile__rowline-label">Password</div>
               <div className="fs-profile__rowline-fields fs-profile__rowline-fields--2col">

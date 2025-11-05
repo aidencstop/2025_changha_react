@@ -1,317 +1,52 @@
-/* frontend/src/pages/Profile.css */
-/* 전역 충돌 방지: #fs-profile 스코프 */
-
+/* ───────────────── Base ───────────────── */
 #fs-profile {
   background: #f3f4f8;
   min-height: 100vh;
   padding: 16px 20px 28px;
   color: #0f1222;
   margin-left: var(--fs-sidebar-w, 240px);
-
   display: flex;
   flex-direction: column;
+  align-items: flex-start; /* 헤더/카드의 너비 제어는 각 섹션에서 */
 }
 
-/* ─── Header 영역 ─── */
-#fs-profile .fs-profile__headerwrap {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-
-  /* 명암/그라데이션 제거 -> 그냥 흰색 배경 */
-  background: #f3f4f8;
-
-  padding: 10px 0px 30px;
-  /* 아래쪽만 연한 라인 */
-  border-bottom: 1px solid rgba(0,0,0,0.08);
-}
-
-#fs-profile .fs-profile__title {
-  font-size: 22px;
-  font-weight: 600;
-  color: #0f1222;
-  line-height: 1.3;
-  margin-bottom: 10px;
-}
-
-#fs-profile .fs-profile__subtitle {
-  font-size: 14px;
-  color: rgba(15,18,34,0.6);
-  line-height: 1.4;
-}
-
-#fs-profile .fs-profile__header-right {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-#fs-profile .fs-profile__balanceblock {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-}
-
-#fs-profile .fs-profile__balance-label {
-  font-size: 13px;
-  color: rgba(15,18,34,0.6);
-  line-height: 1.3;
-}
-
-#fs-profile .fs-profile__balance-amount {
-  font-size: 16px;
-  font-weight: 600;
-  color: #0f1222;
-  line-height: 1.3;
-  margin-top: 2px;
-}
-
-#fs-profile .fs-profile__avatar-mini {
-  background: #4f60ff;
-  color: #ffffff;
-  font-size: 14px;
-  font-weight: 600;
-  min-width: 36px;
-  min-height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* ─── Card/Form 영역 ─── */
-#fs-profile .fs-profile__card {
-  /* header 영역과 같은 가로폭 느낌 -> 부모(#fs-profile)의 흐름 그대로 100% */
-  width: 95%;
-    margin: 0 auto;
-  margin-top: 40px;
-  background: #ffffff; /* 완전 흰색 */
-  border: 1px solid #4C84F7; /* 수정사항 #3 */
-  border-radius: 8px;
-
-  /* 명암(그림자, 보라빛 등) 제거 */
-  box-shadow: none;
-
-  padding: 24px 24px 32px;
-
-}
-
-/*
-만약 headerwrap이 실제로도 그 정도 max-width를 가지게 하고 싶다면
-둘 다 같은 값(1000px)을 쓰면 된다.
-필요하면 header에도 max-width 줄 수 있음:
-#fs-profile .fs-profile__headerwrap { max-width: 1000px; }
-#fs-profile { align-items: flex-start; }
-*/
-#fs-profile {
-  align-items: flex-start;
-}
+/* ───────────── Header ───────────── */
 #fs-profile .fs-profile__headerwrap {
   width: 95%;
   margin: 0 auto;
-
+  display: flex; justify-content: space-between; align-items: flex-start;
+  background: #f3f4f8;
+  padding: 10px 0 30px;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
 }
+
+#fs-profile .fs-profile__title { font-size: 22px; font-weight: 600; margin-bottom: 10px; }
+#fs-profile .fs-profile__subtitle { font-size: 14px; color: rgba(15,18,34,0.6); }
+#fs-profile .fs-profile__header-right { display: flex; align-items: center; gap: 16px; }
+#fs-profile .fs-profile__balanceblock { display: flex; flex-direction: column; align-items: flex-end; }
+#fs-profile .fs-profile__balance-label { font-size: 13px; color: rgba(15,18,34,0.6); }
+#fs-profile .fs-profile__balance-amount { font-size: 16px; font-weight: 600; margin-top: 2px; }
+#fs-profile .fs-profile__avatar-mini {
+  background: #4f60ff; color: #fff; font-size: 14px; font-weight: 600;
+  min-width: 36px; min-height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ───────────── Card/Form ───────────── */
 #fs-profile .fs-profile__card {
-
+  width: 95%;
+  margin: 40px auto 0;
+  background: #fff;
+  border: 1px solid #4C84F7;
+  border-radius: 8px;
+  box-shadow: none;
+  padding: 24px 24px 32px;
 }
 
-/* form layout inside card */
+/* ✅ 하나로 통합: 상단 (avatar | actions), 하단 (fields) */
 #fs-profile .fs-profile__form {
-width: 90%;
-    margin: 0 auto;
-    margin-top: 20px;
-  display: grid;
-  grid-template-columns: 220px 1fr;
-  column-gap: 24px;
-  row-gap: 16px;
-  align-items: flex-start;
-
-}
-
-/* avatar column */
-#fs-profile .fs-profile__avatar-col {
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-start;
-}
-
-#fs-profile .fs-profile__avatar-main {
-  position: relative;
-  text-align: center;
-}
-
-#fs-profile .fs-profile__avatar-circle {
-  width: 96px;
-  height: 96px;
-  background: #f2f2f6;
-  border-radius: 50%;
-  border: 1px solid rgba(0,0,0,0.08);
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 40px;
-  font-weight: 600;
-  color: #0f1222;
-}
-
-#fs-profile .fs-profile__avatar-letter {
-  line-height: 1;
-}
-
-#fs-profile .fs-profile__avatar-edit {
-  position: absolute;
-  right: 8px;
-  bottom: 8px;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 1px solid rgba(0,0,0,0.15);
-  background: #ffffff;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
-  font-size: 13px;
-  line-height: 1;
-  cursor: pointer;
-}
-
-/* fields column */
-#fs-profile .fs-profile__fields-col {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  padding: 20px 0px 0px 0px;
-}
-
-/* actions row */
-#fs-profile .fs-profile__actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-bottom: 24px;
-}
-
-#fs-profile .fs-profile__btn {
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1.2;
-
-  padding: 10px 16px;
-  border-radius: 6px;
-  border: 1px solid transparent;
-  cursor: pointer;
-  min-width: 80px;
-  text-align: center;
-}
-
-#fs-profile .fs-profile__btn--ghost {
-  background: #ffffff;
-  color: #0f1222;
-  border-color: rgba(0,0,0,0.2);
-}
-#fs-profile .fs-profile__btn--ghost:hover {
-  background: rgba(0,0,0,0.03);
-}
-
-/* 수정사항 #1: Update 버튼 색 */
-#fs-profile .fs-profile__btn--primary {
-  background: #6a84ef;
-  color: #ffffff;
-  border-color: #6a84ef;
-  box-shadow: 0 12px 24px rgba(106,132,239,0.4);
-}
-#fs-profile .fs-profile__btn--primary:hover {
-  filter: brightness(1.05);
-}
-
-/* rowline: label + inputs 한 줄에 */
-#fs-profile .fs-profile__rowline {
-  display: grid;
-  grid-template-columns: 0.25fr 0.75fr;
-  column-gap: 16px;
-  align-items: flex-start;
-  margin-bottom: 20px;
-}
-
-#fs-profile .fs-profile__rowline-label {
-  font-size: 16px;
-  font-weight: 600; /* bold 요구사항 (#2) */
-  color: #0f1222;
-  line-height: 38px; /* 인풋 높이랑 맞춰서 수평 정렬 느낌 */
-  min-width: 0;
-  align-items: center;
-}
-
-#fs-profile .fs-profile__rowline-fields {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-  min-width: 0;
-}
-
-#fs-profile .fs-profile__rowline-fields--2col {
-  grid-template-columns: 1fr 1fr;
-}
-
-/* input */
-#fs-profile .fs-profile__input {
-  width: 100%;
-  border-radius: 4px;
-  border: 1px solid rgba(0,0,0,0.2);
-  background: #ffffff;
-  padding: 12px 14px;
-  font-size: 14px;
-  line-height: 1.4;
-  color: #0f1222;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.03) inset;
-}
-
-#fs-profile .fs-profile__input::placeholder {
-  color: rgba(15,18,34,0.4);
-}
-
-#fs-profile .fs-profile__input:focus {
-  outline: 2px solid rgba(106,132,239,0.4); /* 같이 맞춰줌 */
-  border-color: #6a84ef;
-  box-shadow: 0 0 0 3px rgba(106,132,239,0.15);
-}
-
-/* ─── responsive ─── */
-@media (max-width: 900px) {
-  #fs-profile .fs-profile__form {
-    grid-template-columns: 1fr;
-  }
-
-  #fs-profile .fs-profile__avatar-col {
-    justify-content: flex-start;
-    margin-bottom: 8px;
-  }
-
-  #fs-profile .fs-profile__actions {
-    order: -1;
-    margin-bottom: 16px;
-  }
-
-  #fs-profile .fs-profile__rowline {
-    grid-template-columns: 100px 1fr;
-  }
-
-  #fs-profile .fs-profile__rowline-fields--2col {
-    grid-template-columns: 1fr;
-  }
-
-  #fs-profile .fs-profile__headerwrap {
-    flex-direction: column;
-    gap: 16px;
-    align-items: flex-start;
-  }
-
-  #fs-profile .fs-profile__header-right {
-    width: 100%;
-    justify-content: space-between;
-  }
-}
-/* ─ form grid: 상단 (avatar | actions), 하단 (fields 전체) ─ */
-#fs-profile .fs-profile__form {
+  width: 90%;
+  margin: 20px auto 0;
   display: grid;
   grid-template-columns: 220px 1fr;
   grid-template-areas:
@@ -322,32 +57,76 @@ width: 90%;
   align-items: flex-start;
 }
 
-/* 그리드 영역 매핑 */
-#fs-profile .fs-profile__avatar-col { grid-area: avatar; }
-#fs-profile .fs-profile__actions   { grid-area: actions; }
-#fs-profile .fs-profile__fields-col{ grid-area: fields; }
+/* grid areas */
+#fs-profile .fs-profile__avatar-col { grid-area: avatar; display: flex; align-items: flex-start; justify-content: flex-start; }
+#fs-profile .fs-profile__actions   { grid-area: actions; display: flex; justify-content: flex-end; gap: 12px; margin-bottom: 0; align-self: center; }
+#fs-profile .fs-profile__fields-col{ grid-area: fields; display: flex; flex-direction: column; min-width: 0; padding-top: 20px; }
 
-/* actions: 상단 오른쪽 정렬, 불필요한 margin 제거 */
-#fs-profile .fs-profile__actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-bottom: 0;      /* ⬅ 기존 24px 제거 */
-  align-self: start;
+/* 버튼 */
+#fs-profile .fs-profile__btn {
+  font-size: 14px; font-weight: 500; line-height: 1.2;
+  padding: 10px 16px; border-radius: 6px; border: 1px solid transparent;
+  cursor: pointer; min-width: 80px; text-align: center;
 }
+#fs-profile .fs-profile__btn--ghost { background: #fff; color: #0f1222; border-color: rgba(0,0,0,0.2); }
+#fs-profile .fs-profile__btn--ghost:hover { background: rgba(0,0,0,0.03); }
 
-/* ─ Update 버튼의 빛 번짐 제거 ─ */
+/* ✅ 최종: 보라(#4C84F7), 글로우 제거 */
 #fs-profile .fs-profile__btn--primary {
-  background: #4C84F7;
-  color: #ffffff;
-  border-color: #4C84F7;
-  box-shadow: none;       /* ⬅ glow 제거 */
+  background: #4C84F7; color: #fff; border-color: #4C84F7; box-shadow: none;
 }
-#fs-profile .fs-profile__btn--primary:hover {
-  filter: brightness(1.05);
+#fs-profile .fs-profile__btn--primary:hover { filter: brightness(1.05); }
+
+/* 행(라벨 + 인풋) */
+#fs-profile .fs-profile__rowline {
+  display: grid;
+  grid-template-columns: 0.25fr 0.75fr;
+  column-gap: 16px;
+  align-items: center;            /* ✅ 라벨/인풋 수직정렬 */
+  margin-bottom: 20px;
+}
+#fs-profile .fs-profile__rowline-label {
+  font-size: 16px; font-weight: 600; color: #0f1222; line-height: 1.3; min-width: 0;
+}
+#fs-profile .fs-profile__rowline-fields { display: grid; grid-template-columns: 1fr; gap: 12px; min-width: 0; }
+#fs-profile .fs-profile__rowline-fields--2col { grid-template-columns: 1fr 1fr; }
+
+/* 인풋 */
+#fs-profile .fs-profile__input {
+  width: 100%; border-radius: 4px; border: 1px solid rgba(0,0,0,0.2);
+  background: #fff; padding: 12px 14px; font-size: 14px; line-height: 1.4; color: #0f1222;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03) inset;
+}
+#fs-profile .fs-profile__input::placeholder { color: rgba(15,18,34,0.4); }
+#fs-profile .fs-profile__input:focus {
+  outline: 2px solid rgba(76,132,247,0.35);
+  border-color: #4C84F7;
+  box-shadow: 0 0 0 3px rgba(76,132,247,0.15);
 }
 
-/* ─ responsive ─ */
+/* ───────────── Avatar ───────────── */
+#fs-profile .fs-profile__avatar-main { position: relative; text-align: center; }
+#fs-profile .fs-profile__avatar-circle {
+  width: 96px; height: 96px; border-radius: 50%;
+  background: #eef1f7;
+  border: 1px solid rgba(0,0,0,0.08);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; position: relative;
+}
+#fs-profile .fs-profile__avatar-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+#fs-profile .fs-profile__avatar-letter { font-size: 42px; font-weight: 700; line-height: 1; }
+
+/* ✅ 연필 버튼: 원형 우하단 고정(absolute 버전만 유지) */
+#fs-profile .fs-profile__avatar-edit {
+  position: absolute; right: 8px; bottom: 8px;
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.15); background: #fff;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+  font-size: 13px; line-height: 1; cursor: pointer;
+}
+#fs-profile .fs-profile__avatar-edit:hover { border-color: #4C84F7; }
+
+/* ───────────── Responsive ───────────── */
 @media (max-width: 900px) {
   #fs-profile .fs-profile__form {
     grid-template-columns: 1fr;
@@ -356,64 +135,13 @@ width: 90%;
       "actions"
       "fields";
   }
+  #fs-profile .fs-profile__avatar-col { justify-content: flex-start; margin-bottom: 8px; }
+  #fs-profile .fs-profile__actions { justify-content: flex-start; gap: 10px; align-self: auto; }
+  #fs-profile .fs-profile__rowline { grid-template-columns: 100px 1fr; }
+  #fs-profile .fs-profile__rowline-fields--2col { grid-template-columns: 1fr; }
 
-  #fs-profile .fs-profile__avatar-col {
-    justify-content: flex-start;
-    margin-bottom: 8px;
+  #fs-profile .fs-profile__headerwrap {
+    flex-direction: column; gap: 16px; align-items: flex-start; width: 95%;
   }
-
-  #fs-profile .fs-profile__actions {
-    justify-content: flex-start;  /* 모바일에서는 좌측 정렬이 자연스러움 */
-    gap: 10px;
-  }
-}
-
-#fs-profile .fs-profile__actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-bottom: 0;
-  align-self: center; /* ✅ 세로 가운데 정렬 */
-}
-
-/* 원형 컨테이너는 기존과 동일하되… */
-#fs-profile .fs-profile__avatar-circle {
-  width: 96px;
-  height: 96px;
-  border-radius: 50%;
-  background: #eef1f7;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;           /* ✅ 이미지가 원 밖으로 나가지 않게 */
-  position: relative;
-}
-
-/* 새로 추가: 이미지 맞춤 */
-#fs-profile .fs-profile__avatar-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;          /* ✅ 중앙 크롭 */
-  display: block;
-}
-
-/* 기존 글자(이미지 없을 때만 보임) */
-#fs-profile .fs-profile__avatar-letter {
-  font-size: 42px;
-  font-weight: 700;
-  line-height: 1;
-}
-
-/* 연필 버튼 위치는 기존대로… 필요시 보정 */
-#fs-profile .fs-profile__avatar-edit {
-  margin-top: 8px;
-  font-size: 14px;
-  cursor: pointer;
-  background: #eee;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  padding: 6px 0px;
-}
-#fs-profile .fs-profile__avatar-edit:hover {
-  border-color: #4C84F7;
+  #fs-profile .fs-profile__header-right { width: 100%; justify-content: space-between; }
 }

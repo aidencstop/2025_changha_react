@@ -5,7 +5,7 @@ import api from '../api/axios';
 import './Dashboard.css';
 
 function money(n = 0) {
-  return Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return Number(n).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 function pct(n = 0) {
   // n은 비율(예: 0.0345)을 기대함 → 3.45%
@@ -36,7 +36,40 @@ function getBalance(obj) {
 }
 
 export default function Dashboard() {
+
   const navigate = useNavigate();
+
+  // ── (추가) 헤더 우측 블록용 상태 ───────────────────────────────────────────
+  const [userInitials, setUserInitials] = useState('DU');
+  const [leagueCash, setLeagueCash] = useState(null);     // null: 리그 없음 또는 미확정
+  const [loadingCash, setLoadingCash] = useState(true);
+
+  // 아바타 이니셜(프로필) 가져오기
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data } = await api.get('/accounts/profile/');
+        const initial = `${(data.first_name || 'D')[0] ?? 'D'}${(data.last_name || 'U')[0] ?? 'U'}`;
+        setUserInitials(initial.toUpperCase());
+      } catch (e) {
+        // ignore
+      }
+    })();
+  }, []);
+
+  // 리그 cash 가져오기 (리그 없으면 404 가정)
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await api.get('/stocks/my-portfolio/');
+        setLeagueCash(res.data.cash ?? 0);
+      } catch (e) {
+        if (e?.response?.status === 404) setLeagueCash(null);
+      } finally {
+        setLoadingCash(false);
+      }
+    })();
+  }, []);
 
   // ── 티커바/뉴스 ────────────────────────────────────────────────────────────
   const [tickers, setTickers] = useState([]);
@@ -361,6 +394,21 @@ export default function Dashboard() {
           <h1 className="fs-dash-title">Dashboard</h1>
           <div className="fs-dash-sub">Check your investment performance at a glance</div>
         </div>
+
+        {/* (추가) Profile 헤더와 유사한 우측 블록 */}
+        <div className="fs-dash-head__right">
+          <div className="fs-dash-balanceblock">
+            <div className="fs-dash-balance-label">Available Balance</div>
+            <div className="fs-dash-balance-amount">
+              {loadingCash
+                ? 'Loading...'
+                : leagueCash === null
+                ? 'Not in a league yet'
+                : `$${money(leagueCash)}`}
+            </div>
+          </div>
+          <div className="fs-dash-avatar-mini">{userInitials}</div>
+        </div>
       </header>
 
       {/* 티커바 */}
@@ -381,33 +429,31 @@ export default function Dashboard() {
 
       {/* 상단 2열 — 1:2 비율 */}
       <section className="fs-grid fs-grid--top fs-grid--1to2">
-        {/* 좌: 총 잔고 & P/L */}
         {/* 좌: 총 잔고 & 가용 현금 */}
-<div className="fs-card fs-balance">
-  <div className="fs-card__title">Total Balance</div>
+        <div className="fs-card fs-balance">
+          <div className="fs-card__title">Total Balance</div>
 
-  {hasActiveLeague === false ? (
-    <div className="fs-empty">
-      There is no active league at the moment.{' '}
-      Visit <button className="fs-link" onClick={() => navigate('/leagues')}>Leagues</button>{' '}
-      page and join a new league!
-    </div>
-  ) : (
-    <>
-      <div className="fs-balance__value">
-        {loadingPortfolio ? '—' : `$${money(summary.total_asset)}`}
-      </div>
+          {hasActiveLeague === false ? (
+            <div className="fs-empty">
+              There is no active league at the moment.{' '}
+              Visit <button className="fs-link" onClick={() => navigate('/leagues')}>Leagues</button>{' '}
+              page and join a new league!
+            </div>
+          ) : (
+            <>
+              <div className="fs-balance__value">
+                {loadingPortfolio ? '—' : `$${money(summary.total_asset)}`}
+              </div>
 
-      <div className="fs-balance__sub">
-        <div className="fs-card__title">Available Cash</div>
-        <div className="fs-balance__value" style={{ marginTop: '4px' }}>
-          {loadingPortfolio ? '—' : `$${money(summary.cash)}`}
+              <div className="fs-balance__sub">
+                <div className="fs-card__title">Available Cash</div>
+                <div className="fs-balance__value" style={{ marginTop: '4px' }}>
+                  {loadingPortfolio ? '—' : `$${money(summary.cash)}`}
+                </div>
+              </div>
+            </>
+          )}
         </div>
-      </div>
-    </>
-  )}
-</div>
-
 
         {/* 우: 수익률 상위 3 종목 */}
         <div className="fs-card fs-portfolio">
@@ -419,8 +465,8 @@ export default function Dashboard() {
           {hasActiveLeague === false ? (
             <div className="fs-empty">
               There is no active league at the moment.{' '}Visit
-<button className="fs-link" onClick={() => navigate('/leagues')}>Leagues</button>
-{' '}page and join a new league!
+              <button className="fs-link" onClick={() => navigate('/leagues')}>Leagues</button>
+              {' '}page and join a new league!
             </div>
           ) : (
             <div className="fs-portfolio__row">
@@ -466,8 +512,8 @@ export default function Dashboard() {
               </div>
               <div className="fs-empty" style={{ paddingTop: 8 }}>
                 There is no active league at the moment.{' '}Visit
-<button className="fs-link" onClick={() => navigate('/leagues')}>Leagues</button>
-{' '}page and join a new league!
+                <button className="fs-link" onClick={() => navigate('/leagues')}>Leagues</button>
+                {' '}page and join a new league!
               </div>
             </div>
           ) : (
@@ -573,8 +619,8 @@ export default function Dashboard() {
             {hasActiveLeague === false ? (
               <div className="fs-empty">
                 There is no active league at the moment.{' '}Visit
-<button className="fs-link" onClick={() => navigate('/leagues')}>Leagues</button>
-{' '}page and join a new league!
+                <button className="fs-link" onClick={() => navigate('/leagues')}>Leagues</button>
+                {' '}page and join a new league!
               </div>
             ) : txLoading ? (
               <ul className="fs-tx-list">

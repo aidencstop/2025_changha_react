@@ -1,0 +1,77 @@
+/* ───────────── 스코프 ───────────── */
+#fs-history {
+  background: #f3f4f8;
+  color: #0f1222;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* 헤더 래핑: Profile 헤더와 유사한 레이아웃 */
+#fs-history .fs-history__headerwrap {
+  width: 95%;
+  margin: 0 auto;
+  padding: 10px 0 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  background: #f3f4f8;
+}
+
+#fs-history .fs-history__header-left .fs-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0 0 10px;
+}
+#fs-history .fs-history__header-left .fs-sub {
+  font-size: 14px;
+  color: rgba(15, 18, 34, 0.6);
+  margin: 0;
+}
+
+/* 오른쪽 블록 (Profile의 header-right와 동일 톤) */
+#fs-history .fs-history__header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+#fs-history .fs-history__balanceblock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+#fs-history .fs-history__balance-label {
+  font-size: 13px;
+  color: rgba(15, 18, 34, 0.6);
+}
+#fs-history .fs-history__balance-amount {
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+#fs-history .fs-history__avatar-mini {
+  background: #4f60ff;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  min-width: 36px;
+  min-height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 반응형 */
+@media (max-width: 900px) {
+  #fs-history .fs-history__headerwrap {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+    width: 95%;
+  }
+  #fs-history .fs-history__header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
